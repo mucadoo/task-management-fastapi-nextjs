@@ -26,10 +26,13 @@
     "no_account": "Don't have an account? Register",
     "sign_in_header": "Sign in to your account",
     "register_header": "Create your account",
-    "or": "Or"
+    "or": "Or",
+    "logout": "Logout",
+    "error_password_match": "Passwords do not match"
   },
   "tasks": {
     "title": "Task Board",
+    "subtitle": "You have {{count}} tasks total.",
     "new_task": "New Task",
     "search": "Search tasks...",
     "all_priorities": "All Priorities",
@@ -60,6 +63,7 @@
   },
   "profile": {
     "title": "Your Profile",
+    "error_load": "Failed to load profile.",
     "personal_info": "Personal Information",
     "security": "Security",
     "new_password": "New Password",

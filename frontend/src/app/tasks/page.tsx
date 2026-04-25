@@ -13,7 +13,7 @@ export default async function TasksPage() {
   try {
     const initialData = await api.getTasks({ page: 1, page_size: 10, token });
     return (
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen">
         <TaskBoard initialData={initialData} />
       </main>
     );
@@ -23,7 +23,7 @@ export default async function TasksPage() {
     }
     const message = error instanceof Error ? error.message : "Failed to load tasks. Please try again later.";
     return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <main className="min-h-screen flex items-center justify-center p-4">
         <div className="max-w-md w-full">
           <ErrorMessage message={message} />
         </div>

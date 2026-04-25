@@ -26,10 +26,13 @@
     "no_account": "Não tem uma conta? Cadastre-se",
     "sign_in_header": "Entre na sua conta",
     "register_header": "Crie sua conta",
-    "or": "Ou"
+    "or": "Ou",
+    "logout": "Sair",
+    "error_password_match": "As senhas não coincidem"
   },
   "tasks": {
     "title": "Quadro de Tarefas",
+    "subtitle": "Você tem {{count}} tarefas no total.",
     "new_task": "Nova Tarefa",
     "search": "Pesquisar tarefas...",
     "all_priorities": "Todas as Prioridades",
@@ -60,6 +63,7 @@
   },
   "profile": {
     "title": "Seu Perfil",
+    "error_load": "Falha ao carregar perfil.",
     "personal_info": "Informações Pessoais",
     "security": "Segurança",
     "new_password": "Nova Senha",

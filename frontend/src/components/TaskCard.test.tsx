@@ -3,8 +3,15 @@ import { describe, it, expect, vi } from 'vitest';
 import TaskCard from './TaskCard';
 import { TaskStatus, TaskPriority } from '../types/task';
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key.split('.').pop(),
+    i18n: { language: 'en' }
+  })
+}));
+
 const mockTask = {
-  id: 1,
+  id: '550e8400-e29b-41d4-a716-446655440000',
   title: 'Test Task',
   description: 'Test Description',
   status: 'pending' as const,
@@ -46,7 +53,7 @@ describe('TaskCard', () => {
       />
     );
 
-    fireEvent.click(screen.getByText('Edit'));
+    fireEvent.click(screen.getByRole('button', { name: /edit/i }));
     expect(onEdit).toHaveBeenCalledWith(mockTask);
   });
 
@@ -61,7 +68,7 @@ describe('TaskCard', () => {
       />
     );
 
-    fireEvent.click(screen.getByText('Delete'));
+    fireEvent.click(screen.getByRole('button', { name: /delete/i }));
     expect(onDelete).toHaveBeenCalledWith(mockTask.id);
   });
 
@@ -91,7 +98,7 @@ describe('TaskCard', () => {
       />
     );
 
-    expect(screen.getByText('Edit')).toBeDisabled();
+    expect(screen.getByRole('button', { name: /edit/i })).toBeDisabled();
     expect(screen.getByTitle('Click to toggle status')).toBeDisabled();
   });
 });

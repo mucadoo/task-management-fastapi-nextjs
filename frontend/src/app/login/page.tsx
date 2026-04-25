@@ -8,6 +8,7 @@ import ErrorMessage from "../../components/ui/ErrorMessage";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "../../components/LanguageSelector";
 import ThemeToggle from "../../components/ThemeToggle";
+import { Mail, Lock, LogIn, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -34,73 +35,76 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative">
-      <div className="absolute top-4 right-4 flex items-center space-x-2">
-        <LanguageSelector />
-        <ThemeToggle />
+    <div className="min-h-screen flex">
+      <div className="hidden lg:flex lg:w-2/5 bg-brand-600 p-12 flex-col justify-center relative overflow-hidden" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px)" }}>
+        <h1 className="text-5xl font-bold text-white mb-6">TaskFlow</h1>
+        <p className="text-brand-100 text-lg">Manage your tasks with elegance and precision.</p>
       </div>
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-gray-100">
-            {t('auth.sign_in_header')}
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            {t('auth.or')}{" "}
-            <Link
-              href="/register"
-              className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500"
-            >
-              {t('auth.no_account')}
-            </Link>
-          </p>
+
+      <div className="flex-1 flex flex-col justify-center p-8 lg:p-16 relative">
+        <div className="absolute top-6 right-6 flex items-center space-x-3">
+          <LanguageSelector />
+          <ThemeToggle />
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && <ErrorMessage message={error} />}
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                {t('auth.email')}
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 text-gray-900 dark:text-gray-100 dark:bg-gray-800 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder={t('auth.email')}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                {t('auth.password')}
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 text-gray-900 dark:text-gray-100 dark:bg-gray-800 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder={t('auth.password')}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+
+        <div className="max-w-md w-full mx-auto">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-warm-900 dark:text-white">
+              {t('auth.sign_in_header')}
+            </h2>
+            <p className="mt-2 text-warm-600 dark:text-warm-400">
+              {t('auth.or')}{" "}
+              <Link href="/register" className="text-brand-600 dark:text-brand-400 font-semibold hover:underline">
+                {t('auth.no_account')}
+              </Link>
+            </p>
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {isLoading ? t('common.loading') : t('auth.login')}
-            </button>
+          <div className="card-surface p-8">
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              {error && <ErrorMessage message={error} />}
+              
+              <div className="space-y-4">
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-warm-400" />
+                  <input
+                    type="email"
+                    required
+                    className="input-base pl-12"
+                    placeholder={t('auth.email')}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-warm-400" />
+                  <input
+                    type="password"
+                    required
+                    className="input-base pl-12"
+                    placeholder={t('auth.password')}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="btn-primary w-full"
+              >
+                {isLoading ? t('common.loading') : (
+                  <>
+                    {t('auth.login')}
+                    <ArrowRight className="h-5 w-5" />
+                  </>
+                )}
+              </button>
+            </form>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

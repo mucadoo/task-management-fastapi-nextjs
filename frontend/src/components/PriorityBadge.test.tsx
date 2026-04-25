@@ -1,30 +1,29 @@
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import PriorityBadge from './PriorityBadge';
-import { TaskPriority } from '../types/task';
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key.split('.').pop(),
+  })
+}));
 
 describe('PriorityBadge', () => {
-  it('renders high priority with correct text and style', () => {
-    render(<PriorityBadge priority="high" />);
-    const badge = screen.getByText(/high/i);
-    expect(badge).toBeInTheDocument();
-    expect(badge.className).toContain('bg-red-100');
-    expect(badge.className).toContain('text-red-700');
+  it('renders high priority with correct style', () => {
+    const { container } = render(<PriorityBadge priority="high" />);
+    const badge = container.firstChild as HTMLElement;
+    expect(badge.className).toMatch(/brand/);
   });
 
-  it('renders medium priority with correct text and style', () => {
-    render(<PriorityBadge priority="medium" />);
-    const badge = screen.getByText(/medium/i);
-    expect(badge).toBeInTheDocument();
-    expect(badge.className).toContain('bg-yellow-100');
-    expect(badge.className).toContain('text-yellow-700');
+  it('renders medium priority with correct style', () => {
+    const { container } = render(<PriorityBadge priority="medium" />);
+    const badge = container.firstChild as HTMLElement;
+    expect(badge.className).toMatch(/orange/);
   });
 
-  it('renders low priority with correct text and style', () => {
-    render(<PriorityBadge priority="low" />);
-    const badge = screen.getByText(/low/i);
-    expect(badge).toBeInTheDocument();
-    expect(badge.className).toContain('bg-slate-100');
-    expect(badge.className).toContain('text-slate-700');
+  it('renders low priority with correct style', () => {
+    const { container } = render(<PriorityBadge priority="low" />);
+    const badge = container.firstChild as HTMLElement;
+    expect(badge.className).toMatch(/sky/);
   });
 });

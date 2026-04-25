@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 import ClientProviders from "../components/ClientProviders";
 
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Task Manager",
-  description: "Manage your tasks efficiently",
+  title: "TaskFlow | Modern Task Management",
+  description: "Manage your tasks efficiently with a beautiful interface.",
 };
 
 export default function RootLayout({
@@ -24,14 +25,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} min-h-full flex flex-col font-sans antialiased transition-colors duration-300`}>
+        <NextTopLoader color="#3b82f6" height={3} showSpinner={false} />
         <ClientProviders>
-          {children}
+          <div className="flex-grow flex flex-col">
+            {children}
+          </div>
         </ClientProviders>
       </body>
     </html>

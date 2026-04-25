@@ -21,6 +21,9 @@ services:
       CORS_ORIGINS: "*"
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
       JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES:-60}
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     depends_on:
       db:
         condition: service_healthy
@@ -34,6 +37,10 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost/api}
       INTERNAL_API_URL: http://backend:8000/api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev
     depends_on:
       backend:
         condition: service_healthy

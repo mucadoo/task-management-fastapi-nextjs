@@ -5,15 +5,16 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "../../lib/api";
 import ErrorMessage from "../../components/ui/ErrorMessage";
-import { User } from "../../types/auth";
+import { User as UserType } from "../../types/auth";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "../../components/LanguageSelector";
 import ThemeToggle from "../../components/ThemeToggle";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import { ChevronLeft, User, Shield, Save, CheckCircle2 } from "lucide-react";
 
 export default function ProfilePage() {
   const { t } = useTranslation();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserType | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -54,6 +55,7 @@ export default function ProfilePage() {
       const updatedUser = await api.updateMe({ name, email });
       setUser(updatedUser);
       setSuccess(t('profile.update_success'));
+      setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
@@ -77,6 +79,7 @@ export default function ProfilePage() {
       setSuccess(t('profile.password_success'));
       setPassword("");
       setConfirmPassword("");
+      setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
@@ -86,114 +89,154 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <LoadingSpinner />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950">
+        <div className="flex flex-col items-center gap-4">
+          <LoadingSpinner />
+          <p className="text-gray-500 font-medium animate-pulse">{t('common.loading')}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <header className="flex items-center justify-between mb-12">
           <div className="flex flex-col">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('profile.title')}</h1>
             <Link
               href="/tasks"
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-500 font-medium text-sm mt-2"
+              className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-500 font-bold text-sm mb-4 group"
             >
-              &larr; {t('common.back')}
+              <ChevronLeft className="h-4 w-4 mr-1 group-hover:-translate-x-1 transition-transform" />
+              {t('common.back')}
             </Link>
+            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">
+              {t('profile.title')}
+            </h1>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-3">
             <LanguageSelector />
             <ThemeToggle />
           </div>
-        </div>
+        </header>
 
-        {error && <div className="mb-4"><ErrorMessage message={error} /></div>}
+        {error && (
+          <div className="mb-6 animate-in slide-in-from-top-2 duration-300">
+            <ErrorMessage message={error} />
+          </div>
+        )}
+        
         {success && (
-          <div className="mb-4 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 p-4 rounded shadow-sm">
-            <p className="text-green-700 dark:text-green-300 font-medium">{success}</p>
+          <div className="mb-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4 rounded-2xl flex items-center gap-3 animate-in slide-in-from-top-2 duration-300">
+            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+            <p className="text-emerald-700 dark:text-emerald-400 font-bold text-sm">{success}</p>
           </div>
         )}
 
-        <div className="space-y-8">
-          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
-              {t('profile.personal_info')}
-            </h2>
-            <form onSubmit={handleUpdateInfo} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {t('auth.name')}
-                </label>
-                <input
-                  type="text"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {t('auth.email')}
-                </label>
-                <input
-                  type="email"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isUpdating}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-              >
-                {isUpdating ? t('common.saving') : t('profile.update_info')}
-              </button>
-            </form>
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+          <div className="md:col-span-2 space-y-4">
+             <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 border border-gray-100 dark:border-gray-800 text-center shadow-xl shadow-gray-200/50 dark:shadow-none">
+                <div className="w-24 h-24 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white dark:border-gray-800 shadow-lg shadow-blue-500/10">
+                  <User className="h-10 w-10 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate">{user?.name || 'Anonymous'}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 truncate mt-1">{user?.email}</p>
+             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
-              {t('profile.security')}
-            </h2>
-            <form onSubmit={handleUpdatePassword} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {t('profile.new_password')}
-                </label>
-                <input
-                  type="password"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  minLength={8}
-                />
+          <div className="md:col-span-3 space-y-8">
+            <section className="bg-white dark:bg-gray-900 rounded-3xl p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600 dark:text-blue-400">
+                   <User className="h-5 w-5" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  {t('profile.personal_info')}
+                </h2>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {t('profile.confirm_new_password')}
-                </label>
-                <input
-                  type="password"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  minLength={8}
-                />
+
+              <form onSubmit={handleUpdateInfo} className="space-y-5">
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider ml-1 mb-2">
+                    {t('auth.name')}
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl focus:ring-4 focus:ring-blue-500/10 transition-all text-gray-900 dark:text-white font-medium"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider ml-1 mb-2">
+                    {t('auth.email')}
+                  </label>
+                  <input
+                    type="email"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl focus:ring-4 focus:ring-blue-500/10 transition-all text-gray-900 dark:text-white font-medium"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isUpdating}
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] disabled:opacity-50"
+                >
+                  <Save className="h-4 w-4" />
+                  {isUpdating ? t('common.saving') : t('profile.update_info')}
+                </button>
+              </form>
+            </section>
+
+            <section className="bg-white dark:bg-gray-900 rounded-3xl p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-amber-600 dark:text-amber-400">
+                   <Shield className="h-5 w-5" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  {t('profile.security')}
+                </h2>
               </div>
-              <button
-                type="submit"
-                disabled={isUpdating || !password}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-              >
-                {isUpdating ? t('common.saving') : t('profile.change_password')}
-              </button>
-            </form>
+
+              <form onSubmit={handleUpdatePassword} className="space-y-5">
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider ml-1 mb-2">
+                    {t('profile.new_password')}
+                  </label>
+                  <input
+                    type="password"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl focus:ring-4 focus:ring-blue-500/10 transition-all text-gray-900 dark:text-white font-medium"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    minLength={8}
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider ml-1 mb-2">
+                    {t('profile.confirm_new_password')}
+                  </label>
+                  <input
+                    type="password"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl focus:ring-4 focus:ring-blue-500/10 transition-all text-gray-900 dark:text-white font-medium"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    minLength={8}
+                    placeholder="••••••••"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isUpdating || !password}
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50"
+                >
+                  <Shield className="h-4 w-4" />
+                  {isUpdating ? t('common.saving') : t('profile.change_password')}
+                </button>
+              </form>
+            </section>
           </div>
         </div>
       </div>
