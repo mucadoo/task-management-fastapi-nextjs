@@ -21,9 +21,10 @@ services:
       CORS_ORIGINS: "*"
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
       JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES:-60}
+      WATCHPACK_POLLING: "true"
     volumes:
       - ./backend:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir app
     depends_on:
       db:
         condition: service_healthy
