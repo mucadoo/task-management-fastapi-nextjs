@@ -1,8 +1,7 @@
 import enum
 import datetime
 import uuid
-from sqlalchemy import Column, String, DateTime, Enum, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, DateTime, Enum, ForeignKey, UUID
 from ..database import Base
 
 class TaskStatus(str, enum.Enum):

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import Optional
+import uuid
 from ..database import get_db
 from ..repositories.task_repository import TaskRepository
 from ..schemas.task import TaskCreate, TaskResponse, TaskListResponse
@@ -40,7 +41,7 @@ def read_tasks(
     }
 
 @router.get("/{task_id}", response_model=TaskResponse)
-def read_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def read_task(task_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     repo = TaskRepository(db)
     task = repo.get_by_id(current_user.id, task_id)
     if not task:
@@ -48,7 +49,7 @@ def read_task(task_id: int, db: Session = Depends(get_db), current_user: User = 
     return task
 
 @router.put("/{task_id}", response_model=TaskResponse)
-def update_task(task_id: int, task: TaskCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def update_task(task_id: uuid.UUID, task: TaskCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     repo = TaskRepository(db)
     updated = repo.update(current_user.id, task_id, task)
     if not updated:
@@ -56,14 +57,14 @@ def update_task(task_id: int, task: TaskCreate, db: Session = Depends(get_db), c
     return updated
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def delete_task(task_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     repo = TaskRepository(db)
     if not repo.delete(current_user.id, task_id):
         raise HTTPException(status_code=404, detail="Task not found")
     return None
 
 @router.post("/{task_id}/toggle", response_model=TaskResponse)
-def toggle_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def toggle_task(task_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     repo = TaskRepository(db)
     updated = repo.toggle(current_user.id, task_id)
     if not updated:
