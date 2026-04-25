@@ -14,7 +14,8 @@ import LanguageSelector from "./LanguageSelector";
 import ThemeToggle from "./ThemeToggle";
 import ProfileModal from "./ProfileModal";
 import { useTranslation } from "react-i18next";
-import { Plus, Search, Filter, LayoutGrid, CheckSquare, Clock, AlertCircle, CheckSquare as CheckSquareIcon, ChevronDown } from "lucide-react";
+import { Plus, Search, LayoutGrid, Clock, AlertCircle, CheckSquare as CheckSquareIcon, ChevronDown, LogOut } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/Tooltip";
 
 interface TaskBoardProps {
   initialData: PaginatedResponse<Task>;
@@ -169,6 +170,20 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
           </button>
           <LanguageSelector />
           <ThemeToggle />
+          <div className="w-px h-4 bg-warm-200 dark:bg-white/10 mx-1" />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button 
+                onClick={handleLogout}
+                className="p-2 text-warm-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all active:scale-95 cursor-pointer"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              {t('common.logout', 'Logout')}
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
 

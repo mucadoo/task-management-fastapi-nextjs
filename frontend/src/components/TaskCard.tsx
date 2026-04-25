@@ -4,7 +4,8 @@ import StatusBadge from "./StatusBadge";
 import PriorityBadge from "./PriorityBadge";
 import LoadingSpinner from "./ui/LoadingSpinner";
 import { useTranslation } from "react-i18next";
-import { Calendar, Pencil, Trash2, CheckCircle2, Circle } from "lucide-react";
+import { Pencil, Trash2, CheckCircle2, Circle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/Tooltip";
 
 interface TaskCardProps {
   task: Task;
@@ -39,17 +40,23 @@ export default function TaskCard({
       
       <div className="flex justify-between items-start mb-4">
         <div className="flex flex-col gap-2">
-          <button 
-            onClick={() => onToggle(task.id)}
-            disabled={isToggling || isDeleting}
-            className="flex items-center gap-2 focus:outline-none group/status"
-            title={t('tasks.click_to_toggle')}
-          >
-            <div className={`p-0.5 rounded-sm transition-colors ${isCompleted ? 'text-emerald-600' : 'text-warm-400 group-hover/status:text-brand-700'}`}>
-              {isCompleted ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
-            </div>
-            <StatusBadge status={task.status} />
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button 
+                onClick={() => onToggle(task.id)}
+                disabled={isToggling || isDeleting}
+                className="flex items-center gap-2 focus:outline-none group/status cursor-pointer"
+              >
+                <div className={`p-0.5 rounded-sm transition-colors ${isCompleted ? 'text-emerald-600' : 'text-warm-400 group-hover/status:text-brand-700'}`}>
+                  {isCompleted ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
+                </div>
+                <StatusBadge status={task.status} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {t('tasks.click_to_toggle')}
+            </TooltipContent>
+          </Tooltip>
           <PriorityBadge priority={task.priority} />
         </div>
         <div className="text-[10px] font-medium text-warm-500">
@@ -71,22 +78,35 @@ export default function TaskCard({
       </div>
 
       <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-warm-100 dark:border-white/5">
-        <button
-          onClick={() => onEdit(task)}
-          disabled={isDeleting}
-          title={t('common.edit')}
-          className="p-2 text-warm-500 dark:text-gray-400 hover:text-brand-700 dark:hover:text-white hover:bg-warm-100 dark:hover:bg-white/5 rounded-lg transition-all active:scale-95"
-        >
-          <Pencil className="h-4 w-4" />
-        </button>
-        <button
-          onClick={() => onDelete(task.id)}
-          disabled={isDeleting}
-          title={t('common.delete')}
-          className="p-2 text-warm-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all active:scale-95"
-        >
-          {isDeleting ? <LoadingSpinner size="sm" /> : <Trash2 className="h-4 w-4" />}
-        </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => onEdit(task)}
+              disabled={isDeleting}
+              className="p-2 text-warm-500 dark:text-gray-400 hover:text-brand-700 dark:hover:text-white hover:bg-warm-100 dark:hover:bg-white/5 rounded-lg transition-all active:scale-95 cursor-pointer"
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="top">
+            {t('common.edit')}
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => onDelete(task.id)}
+              disabled={isDeleting}
+              className="p-2 text-warm-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all active:scale-95 cursor-pointer"
+            >
+              {isDeleting ? <LoadingSpinner size="sm" /> : <Trash2 className="h-4 w-4" />}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="top">
+            {t('common.delete')}
+          </TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );

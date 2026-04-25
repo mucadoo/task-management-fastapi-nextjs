@@ -3,10 +3,13 @@
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { Sun, Moon } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/Tooltip';
+import { useTranslation } from 'react-i18next';
 
 export default function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     setMounted(true);
@@ -21,16 +24,23 @@ export default function ThemeToggle() {
   };
 
   return (
-    <button
-      onClick={toggleTheme}
-      className="h-9 px-2.5 rounded-lg border border-warm-200 dark:border-warm-700 hover:bg-warm-100 dark:hover:bg-warm-900 focus:outline-none focus:ring-2 focus:ring-brand-700/20 transition-all duration-150 shadow-sm"
-      aria-label="Toggle theme"
-    >
-      {resolvedTheme === 'dark' ? (
-        <Sun className="h-4 w-4 text-brand-500" />
-      ) : (
-        <Moon className="h-4 w-4 text-warm-700" />
-      )}
-    </button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          onClick={toggleTheme}
+          className="h-9 px-2.5 rounded-lg border border-warm-200 dark:border-warm-700 hover:bg-warm-100 dark:hover:bg-warm-900 focus:outline-none focus:ring-2 focus:ring-brand-700/20 transition-all duration-150 shadow-sm cursor-pointer"
+          aria-label="Toggle theme"
+        >
+          {resolvedTheme === 'dark' ? (
+            <Sun className="h-4 w-4 text-brand-500" />
+          ) : (
+            <Moon className="h-4 w-4 text-warm-700" />
+          )}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">
+        {resolvedTheme === 'dark' ? t('common.light_mode', 'Light Mode') : t('common.dark_mode', 'Dark Mode')}
+      </TooltipContent>
+    </Tooltip>
   );
 }
