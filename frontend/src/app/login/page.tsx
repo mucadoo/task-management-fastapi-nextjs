@@ -21,7 +21,7 @@ export default function LoginPage() {
     try {
       await api.login({ email, password });
       router.push("/tasks");
-      router.refresh(); // Ensure server components re-run with new cookie
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to login");
     } finally {

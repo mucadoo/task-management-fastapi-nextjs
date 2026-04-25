@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import tasks, auth
+from .routers import tasks, auth, logic
 from .config import get_settings
 settings = get_settings()
 app = FastAPI()
@@ -23,3 +23,4 @@ async def health_check():
     return {"status": "ok", "version": "1.0.0"}
 app.include_router(tasks.router, prefix="/api/tasks", tags=["tasks"])
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(logic.router, prefix="/api", tags=["logic"])

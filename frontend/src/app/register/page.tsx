@@ -26,7 +26,6 @@ export default function RegisterPage() {
 
     try {
       await api.register({ email, password });
-      // After register, log them in
       await api.login({ email, password });
       router.push("/tasks");
       router.refresh();
