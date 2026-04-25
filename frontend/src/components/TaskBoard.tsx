@@ -14,7 +14,7 @@ import LanguageSelector from "./LanguageSelector";
 import ThemeToggle from "./ThemeToggle";
 import ProfileModal from "./ProfileModal";
 import { useTranslation } from "react-i18next";
-import { Plus, Search, Filter, LayoutGrid, CheckSquare, Clock, AlertCircle, CheckSquare as CheckSquareIcon } from "lucide-react";
+import { Plus, Search, Filter, LayoutGrid, CheckSquare, Clock, AlertCircle, CheckSquare as CheckSquareIcon, ChevronDown } from "lucide-react";
 
 interface TaskBoardProps {
   initialData: PaginatedResponse<Task>;
@@ -154,17 +154,17 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-warm-50 dark:bg-[#0d0c0b]">
-      <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#0d0c0b]/95 backdrop-blur-sm border-b border-warm-200 dark:border-warm-800 h-14 flex items-center px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-warm-50 dark:bg-[#0a0a0a]">
+      <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-warm-200 dark:border-white/5 h-14 flex items-center px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2 mr-6">
           <div className="p-1.5 bg-brand-700 rounded"><CheckSquareIcon className="h-4 w-4 text-white" /></div>
-          <span className="font-semibold text-sm text-warm-900 dark:text-warm-100">TaskFlow</span>
+          <span className="font-semibold text-sm text-warm-900 dark:text-gray-100">TaskFlow</span>
           <span className="mx-2 text-warm-300">·</span>
-          <span className="text-xs text-warm-600 dark:text-warm-400">{data.total} {t('tasks.title').toLowerCase()}</span>
+          <span className="text-xs text-warm-600 dark:text-gray-500">{data.total} {t('tasks.title').toLowerCase()}</span>
         </div>
         <div className="flex-grow" />
         <div className="flex items-center gap-2">
-          <button onClick={() => setIsProfileOpen(true)} className="h-9 px-3 text-xs font-semibold text-warm-700 dark:text-warm-300 border border-warm-200 dark:border-warm-700 rounded-lg hover:bg-warm-100 dark:hover:bg-warm-900 transition-colors">
+          <button onClick={() => setIsProfileOpen(true)} className="h-9 px-3 text-xs font-semibold text-warm-700 dark:text-gray-300 border border-warm-200 dark:border-white/10 rounded-lg hover:bg-warm-100 dark:hover:bg-white/5 transition-colors cursor-pointer">
             {t('common.profile', 'Profile')}
           </button>
           <LanguageSelector />
@@ -175,20 +175,20 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <div className="mb-6">
           <div className="rule-brand mb-4" />
-          <h1 className="text-xl font-semibold text-warm-900 dark:text-white">
+          <h1 className="text-xl font-semibold text-warm-900 dark:text-gray-100">
             {t('tasks.title')}
           </h1>
         </div>
 
         <div className="mb-6">
-          <div className="flex gap-1 p-1 bg-warm-100 dark:bg-warm-900/40 rounded-lg w-fit">
+          <div className="flex gap-1 p-1 bg-warm-100 dark:bg-white/5 rounded-lg w-fit">
             {tabs.map((tab) => {
               const active = statusFilter === tab.value;
               return (
                 <button
                   key={tab.translationKey}
                   onClick={() => handleStatusChange(tab.value)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${active ? "bg-white dark:bg-warm-800 text-brand-700 dark:text-brand-400 shadow-sm" : "text-warm-600 dark:text-warm-400 hover:text-warm-900 dark:hover:text-warm-200"}`}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${active ? "bg-white dark:bg-white/10 text-brand-700 dark:text-white shadow-sm" : "text-warm-600 dark:text-gray-500 hover:text-warm-900 dark:hover:text-gray-300"}`}
                 >
                   {t(tab.translationKey)}
                 </button>
@@ -200,29 +200,32 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-8">
           <div className="flex flex-1 items-center gap-3 w-full max-w-2xl">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 dark:text-gray-500" />
               <input 
                 type="text" 
                 placeholder={t('tasks.search')} 
                 value={searchTerm} 
                 onChange={(e) => setSearchTerm(e.target.value)} 
-                className="h-10 w-full pl-9 pr-4 bg-warm-50 dark:bg-warm-900/20 border border-warm-200 dark:border-warm-800 rounded-lg text-sm text-warm-900 dark:text-warm-100 placeholder:text-warm-400 focus:outline-none focus:bg-white dark:focus:bg-warm-950 focus:ring-2 focus:ring-brand-700/5 focus:border-brand-700 transition-all"
+                className="h-10 w-full pl-9 pr-4 bg-white dark:bg-[#141414] border border-warm-200 dark:border-white/10 rounded-lg text-sm text-warm-900 dark:text-gray-100 placeholder:text-warm-400 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-700/5 focus:border-brand-700 transition-all"
               />
             </div>
-            <select 
-              value={priorityFilter || "all"} 
-              onChange={(e) => handlePriorityChange(e.target.value as any)} 
-              className="h-10 px-3 bg-warm-50 dark:bg-warm-900/20 border border-warm-200 dark:border-warm-800 rounded-lg text-sm text-warm-600 dark:text-warm-400 focus:outline-none focus:bg-white dark:focus:bg-warm-950 focus:ring-2 focus:ring-brand-700/5 focus:border-brand-700 transition-all cursor-pointer"
-            >
-              <option value="all">{t('tasks.all_priorities')}</option>
-              <option value="low">{t('tasks.low_priority')}</option>
-              <option value="medium">{t('tasks.medium_priority')}</option>
-              <option value="high">{t('tasks.high_priority')}</option>
-            </select>
+            <div className="relative">
+              <select 
+                value={priorityFilter || "all"} 
+                onChange={(e) => handlePriorityChange(e.target.value as any)} 
+                className="h-10 pl-3 pr-10 bg-white dark:bg-[#141414] border border-warm-200 dark:border-white/10 rounded-lg text-sm text-warm-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-700/5 focus:border-brand-700 transition-all cursor-pointer appearance-none"
+              >
+                <option value="all">{t('tasks.all_priorities')}</option>
+                <option value="low">{t('tasks.low_priority')}</option>
+                <option value="medium">{t('tasks.medium_priority')}</option>
+                <option value="high">{t('tasks.high_priority')}</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
+            </div>
           </div>
           <button 
             onClick={() => { setEditingTask(null); setIsFormOpen(true); }} 
-            className="h-10 px-4 bg-brand-700 hover:bg-brand-800 text-white text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-sm shadow-brand-700/10 whitespace-nowrap"
+            className="h-10 px-4 bg-brand-700 hover:bg-brand-800 text-white text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-sm shadow-brand-700/10 whitespace-nowrap cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             <span>{t('tasks.new_task')}</span>
@@ -253,7 +256,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
             <InfiniteScrollTrigger onIntersect={handleLoadMore} isLoading={isLoading} hasMore={data.page < Math.ceil(data.total / data.page_size)} />
           </>
         ) : (
-          <div className="text-center py-20 border border-dashed border-warm-300 dark:border-warm-700 rounded-xl text-warm-600 dark:text-warm-400">
+          <div className="text-center py-20 border border-dashed border-warm-300 dark:border-white/5 rounded-xl text-warm-600 dark:text-gray-500">
             {t('tasks.no_tasks')}
           </div>
         )}
