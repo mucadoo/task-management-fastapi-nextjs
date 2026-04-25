@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
 import datetime
+import uuid
 from ..models.task import TaskStatus, TaskPriority
 class TaskBase(BaseModel):
     title: str = Field(..., min_length=1)
@@ -10,7 +11,7 @@ class TaskBase(BaseModel):
 class TaskCreate(TaskBase):
     pass
 class TaskResponse(TaskBase):
-    id: int
+    id: uuid.UUID
     created_at: datetime.datetime
     model_config = ConfigDict(from_attributes=True)
 class TaskListResponse(BaseModel):
