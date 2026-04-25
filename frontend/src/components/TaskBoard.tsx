@@ -1,32 +1,46 @@
 "use client";
-import { useState, useCallback } from "react";
-import { PaginatedResponse, Task, TaskCreate, TaskStatus } from "../types/task";
+import { useState, useCallback, useEffect } from "react";
+import Link from "next/link";
+import { PaginatedResponse, Task, TaskCreate, TaskStatus, TaskPriority } from "../types/task";
 import { api } from "../lib/api";
 import { useRouter } from "next/navigation";
+import { useDebounce } from "../hooks/useDebounce";
 import TaskCard from "./TaskCard";
 import TaskForm from "./TaskForm";
-import Pagination from "./Pagination";
+import { InfiniteScrollTrigger } from "./InfiniteScrollTrigger";
 import LoadingSpinner from "./ui/LoadingSpinner";
 import ErrorMessage from "./ui/ErrorMessage";
 import ConfirmDialog from "./ui/ConfirmDialog";
+import LanguageSelector from "./LanguageSelector";
+import ThemeToggle from "./ThemeToggle";
+import { useTranslation } from "react-i18next";
+
 interface TaskBoardProps {
   initialData: PaginatedResponse<Task>;
 }
+
 export default function TaskBoard({ initialData }: TaskBoardProps) {
+  const { t } = useTranslation();
   const [data, setData] = useState(initialData);
   const [statusFilter, setStatusFilter] = useState<TaskStatus | undefined>(undefined);
+  const [priorityFilter, setPriorityFilter] = useState<TaskPriority | undefined>(undefined);
+  const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const router = useRouter();
+
   const handleLogout = () => {
     api.logout();
     router.push("/login");
     router.refresh();
   };
-  const refetch = useCallback(async (page = data.page, status = statusFilter) => {
+
+  const refetch = useCallback(async (page = 1, status = statusFilter, priority = priorityFilter, q = debouncedSearchTerm, append = false) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -34,60 +48,137 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
         page,
         page_size: data.page_size,
         status,
+        priority,
+        q: q || undefined,
       });
-      setData(newData);
+      if (append) {
+        setData(prev => ({
+          ...newData,
+          items: [...prev.items, ...newData.items]
+        }));
+      } else {
+        setData(newData);
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch tasks");
+      setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setIsLoading(false);
     }
-  }, [data.page, data.page_size, statusFilter]);
+  }, [data.page_size, statusFilter, priorityFilter, debouncedSearchTerm, t]);
+
+  useEffect(() => {
+    refetch(1);
+  }, [debouncedSearchTerm, statusFilter, priorityFilter]);
+
+  const handlePriorityChange = (priority: TaskPriority | "all") => {
+    const val = priority === "all" ? undefined : priority;
+    setPriorityFilter(val);
+  };
+
   const handleStatusChange = (status: TaskStatus | undefined) => {
     setStatusFilter(status);
-    refetch(1, status);
   };
-  const handlePageChange = (newPage: number) => {
-    refetch(newPage);
+
+  const handleLoadMore = () => {
+    const totalPages = Math.ceil(data.total / data.page_size);
+    if (data.page < totalPages && !isLoading) {
+      refetch(data.page + 1, statusFilter, priorityFilter, debouncedSearchTerm, true);
+    }
   };
+
   const handleCreateTask = async (taskData: TaskCreate) => {
     await api.createTask(taskData);
   };
+
   const handleUpdateTask = async (taskData: TaskCreate) => {
     if (editingTask) {
       await api.updateTask(editingTask.id, taskData);
     }
   };
+
   const handleDeleteConfirm = async () => {
     if (deletingId) {
-      setIsLoading(true);
+      const idToDelete = deletingId;
+      const originalData = { ...data };
+
+      setData(prev => ({
+        ...prev,
+        items: prev.items.filter(t => t.id !== idToDelete),
+        total: prev.total - 1
+      }));
+      setDeletingId(null);
+
       try {
-        await api.deleteTask(deletingId);
-        setDeletingId(null);
-        refetch();
+        await api.deleteTask(idToDelete);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to delete task");
-        setIsLoading(false);
+        setError(err instanceof Error ? err.message : t('common.error'));
+        setData(originalData);
       }
     }
   };
-  const tabs: { label: string; value: TaskStatus | undefined }[] = [
-    { label: "All", value: undefined },
-    { label: "Pending", value: "pending" },
-    { label: "In Progress", value: "in_progress" },
-    { label: "Completed", value: "completed" },
+
+  const handleToggleTask = async (id: string) => {
+    const originalItems = [...data.items];
+    const taskToToggle = originalItems.find(t => t.id === id);
+    if (!taskToToggle) return;
+    setTogglingId(id);
+    const newStatus: TaskStatus = taskToToggle.status === "completed" ? "pending" : "completed";
+    setData(prev => ({
+      ...prev,
+      items: prev.items.map(t => t.id === id ? { ...t, status: newStatus } : t)
+    }));
+    try {
+      const updated = await api.toggleTaskStatus(id);
+      setData(prev => ({
+        ...prev,
+        items: prev.items.map(t => t.id === id ? updated : t)
+      }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'));
+      setData(prev => ({
+        ...prev,
+        items: originalItems
+      }));
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
+  const tabs: { label: string; value: TaskStatus | undefined; translationKey: string }[] = [
+    { label: "All", value: undefined, translationKey: "tasks.all" },
+    { label: "Pending", value: "pending", translationKey: "tasks.pending" },
+    { label: "In Progress", value: "in_progress", translationKey: "tasks.in_progress" },
+    { label: "Completed", value: "completed", translationKey: "tasks.completed" },
   ];
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-            My Tasks
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Organize and track your work efficiently.
-          </p>
+        <div className="flex-grow max-w-md">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder={t('tasks.search')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 dark:text-gray-100"
+            />
+            <svg className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 items-center">
+          <select
+            value={priorityFilter || "all"}
+            onChange={(e) => handlePriorityChange(e.target.value as any)}
+            className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 dark:text-gray-100"
+          >
+            <option value="all">{t('tasks.all_priorities')}</option>
+            <option value="low">{t('tasks.low_priority')}</option>
+            <option value="medium">{t('tasks.medium_priority')}</option>
+            <option value="high">{t('tasks.high_priority')}</option>
+          </select>
           <button
             onClick={() => {
               setEditingTask(null);
@@ -98,30 +189,40 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
             <svg className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            New Task
+            {t('tasks.new_task')}
           </button>
+          <Link
+            href="/profile"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          >
+            {t('common.profile')}
+          </Link>
           <button
             onClick={handleLogout}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
-            Logout
+            {t('common.logout')}
           </button>
+          <div className="flex items-center space-x-2 ml-2">
+            <LanguageSelector />
+            <ThemeToggle />
+          </div>
         </div>
       </div>
-      <div className="border-b border-gray-200 mb-6">
+      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
         <nav className="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
           {tabs.map((tab) => (
             <button
-              key={tab.label}
+              key={tab.translationKey}
               onClick={() => handleStatusChange(tab.value)}
               className={`
                 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors
                 ${statusFilter === tab.value
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}
+                  ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                  : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"}
               `}
             >
-              {tab.label}
+              {t(tab.translationKey)}
             </button>
           ))}
         </nav>
@@ -147,25 +248,26 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
                   setIsFormOpen(true);
                 }}
                 onDelete={(id) => setDeletingId(id)}
+                onToggle={handleToggleTask}
                 isDeleting={deletingId === task.id}
+                isToggling={togglingId === task.id}
               />
             ))}
           </div>
-          <Pagination
-            page={data.page}
-            totalPages={Math.ceil(data.total / data.page_size)}
-            onPageChange={handlePageChange}
+          <InfiniteScrollTrigger
+            onIntersect={handleLoadMore}
             isLoading={isLoading}
+            hasMore={data.page < Math.ceil(data.total / data.page_size)}
           />
         </>
       ) : (
-        <div className="text-center py-20 bg-white rounded-lg border-2 border-dashed border-gray-300">
+        <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700">
           <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No tasks found</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            {statusFilter ? "No tasks match this filter." : "Get started by creating a new task."}
+          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">{t('tasks.no_tasks')}</h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            {statusFilter ? t('tasks.no_tasks_match') : t('tasks.get_started')}
           </p>
           {!statusFilter && (
             <div className="mt-6">
@@ -173,7 +275,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
                 onClick={() => setIsFormOpen(true)}
                 className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
               >
-                Create Task
+                {t('tasks.new_task')}
               </button>
             </div>
           )}
@@ -191,7 +293,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
       />
       <ConfirmDialog
         isOpen={deletingId !== null}
-        message="Are you sure you want to delete this task? This action cannot be undone."
+        message={t('tasks.confirm_delete')}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeletingId(null)}
         isLoading={isLoading}

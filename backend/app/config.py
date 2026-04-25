@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     cors_origins: str = "*"
     jwt_secret: str
     jwt_expire_minutes: int = 60
+    jwt_refresh_expire_days: int = 7
     model_config = SettingsConfigDict(env_file=".env")
 @lru_cache
 def get_settings() -> Settings:

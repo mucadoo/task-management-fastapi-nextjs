@@ -9,7 +9,9 @@ import sys
 import os
 import os
 config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"])
-from app.models.task import Base
+from app.database import Base
+from app.models.task import Task
+from app.models.user import User
 target_metadata = Base.metadata
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")

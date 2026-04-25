@@ -1,9 +1,12 @@
+'use client';
+
 interface ErrorMessageProps {
   message: string;
 }
+
 export default function ErrorMessage({ message }: ErrorMessageProps) {
   return (
-    <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded shadow-sm">
+    <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-4 rounded shadow-sm">
       <div className="flex">
         <div className="flex-shrink-0">
           <svg
@@ -19,7 +22,7 @@ export default function ErrorMessage({ message }: ErrorMessageProps) {
           </svg>
         </div>
         <div className="ml-3">
-          <p className="text-sm text-red-700 font-medium">{message}</p>
+          <p className="text-sm text-red-700 dark:text-red-300 font-medium">{message}</p>
         </div>
       </div>
     </div>

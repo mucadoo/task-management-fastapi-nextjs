@@ -1,6 +1,6 @@
-import { PaginatedResponse, Task, TaskCreate, TaskStatus, TaskUpdate } from "../types/task";
+import { PaginatedResponse, Task, TaskCreate, TaskStatus, TaskUpdate, TaskPriority } from "../types/task";
 import { TokenResponse, User } from "../types/auth";
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http:
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);
@@ -30,6 +30,26 @@ async function request<T>(path: string, options?: RequestInit & { token?: string
     ...options,
     headers,
   });
+  if (response.status === 401 && typeof window !== "undefined" && !path.includes("/auth/refresh") && !path.includes("/auth/login") && !path.includes("/auth/register")) {
+    const refreshToken = localStorage.getItem("refresh_token");
+    if (refreshToken) {
+      try {
+        const tokenRes = await api.refresh(refreshToken);
+        const retryResponse = await fetch(url, {
+          ...options,
+          headers: {
+            ...headers,
+            Authorization: `Bearer ${tokenRes.access_token}`,
+          },
+        });
+        if (retryResponse.ok) {
+          return retryResponse.json();
+        }
+      } catch {
+        api.logout();
+      }
+    }
+  }
   if (!response.ok) {
     let message = "An error occurred";
     try {
@@ -45,15 +65,17 @@ async function request<T>(path: string, options?: RequestInit & { token?: string
   return response.json();
 }
 export const api = {
-  async getTasks(params?: { status?: TaskStatus; page?: number; page_size?: number; token?: string }): Promise<PaginatedResponse<Task>> {
+  async getTasks(params?: { status?: TaskStatus; priority?: TaskPriority; q?: string; page?: number; page_size?: number; token?: string }): Promise<PaginatedResponse<Task>> {
     const searchParams = new URLSearchParams();
     if (params?.status) searchParams.append("status", params.status);
+    if (params?.priority) searchParams.append("priority", params.priority);
+    if (params?.q) searchParams.append("q", params.q);
     if (params?.page) searchParams.append("page", params.page.toString());
     if (params?.page_size) searchParams.append("page_size", params.page_size.toString());
     const query = searchParams.toString();
     return request<PaginatedResponse<Task>>(`/tasks/${query ? `?${query}` : ""}`, { token: params?.token });
   },
-  async getTask(id: number): Promise<Task> {
+  async getTask(id: string): Promise<Task> {
     return request<Task>(`/tasks/${id}`);
   },
   async createTask(data: TaskCreate): Promise<Task> {
@@ -62,13 +84,18 @@ export const api = {
       body: JSON.stringify(data),
     });
   },
-  async updateTask(id: number, data: TaskUpdate): Promise<Task> {
+  async updateTask(id: string, data: TaskUpdate): Promise<Task> {
     return request<Task>(`/tasks/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     });
   },
-  async deleteTask(id: number): Promise<void> {
+  async toggleTaskStatus(id: string): Promise<Task> {
+    return request<Task>(`/tasks/${id}/toggle`, {
+      method: "POST",
+    });
+  },
+  async deleteTask(id: string): Promise<void> {
     return request<void>(`/tasks/${id}`, {
       method: "DELETE",
     });
@@ -81,14 +108,45 @@ export const api = {
     });
     if (typeof window !== "undefined") {
       localStorage.setItem("token", res.access_token);
+      localStorage.setItem("refresh_token", res.refresh_token);
       document.cookie = `token=${res.access_token}; path=/; max-age=3600; SameSite=Lax`;
     }
     return res;
   },
 
-  async register(data: any): Promise<User> {
-    return request<User>("/auth/register", {
+  async register(data: any): Promise<TokenResponse> {
+    const res = await request<TokenResponse>("/auth/register", {
       method: "POST",
+      body: JSON.stringify(data),
+    });
+    if (typeof window !== "undefined") {
+      localStorage.setItem("token", res.access_token);
+      localStorage.setItem("refresh_token", res.refresh_token);
+      document.cookie = `token=${res.access_token}; path=/; max-age=3600; SameSite=Lax`;
+    }
+    return res;
+  },
+
+  async refresh(refreshToken: string): Promise<TokenResponse> {
+    const res = await request<TokenResponse>("/auth/refresh", {
+      method: "POST",
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+    if (typeof window !== "undefined") {
+      localStorage.setItem("token", res.access_token);
+      localStorage.setItem("refresh_token", res.refresh_token);
+      document.cookie = `token=${res.access_token}; path=/; max-age=3600; SameSite=Lax`;
+    }
+    return res;
+  },
+
+  async getMe(token?: string): Promise<User> {
+    return request<User>("/auth/me", { token });
+  },
+
+  async updateMe(data: { email?: string; name?: string; password?: string }): Promise<User> {
+    return request<User>("/auth/me", {
+      method: "PATCH",
       body: JSON.stringify(data),
     });
   },
@@ -96,6 +154,7 @@ export const api = {
   logout() {
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
+      localStorage.removeItem("refresh_token");
       document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
     }
   },

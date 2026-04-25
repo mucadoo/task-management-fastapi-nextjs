@@ -1,11 +1,12 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
 import datetime
-from ..models.task import TaskStatus
+from ..models.task import TaskStatus, TaskPriority
 class TaskBase(BaseModel):
     title: str = Field(..., min_length=1)
     description: Optional[str] = None
     status: TaskStatus = TaskStatus.PENDING
+    priority: TaskPriority = TaskPriority.MEDIUM
 class TaskCreate(TaskBase):
     pass
 class TaskResponse(TaskBase):

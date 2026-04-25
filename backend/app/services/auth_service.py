@@ -11,6 +11,11 @@ def create_access_token(data: dict, secret: str, expires_minutes: int) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, secret, algorithm="HS256")
+def create_refresh_token(data: dict, secret: str, expires_days: int) -> str:
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(days=expires_days)
+    to_encode.update({"exp": expire, "scope": "refresh"})
+    return jwt.encode(to_encode, secret, algorithm="HS256")
 def decode_token(token: str, secret: str) -> dict | None:
     try:
         return jwt.decode(token, secret, algorithms=["HS256"])

@@ -44,6 +44,21 @@ def auth_headers(client):
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 @pytest.fixture
+def second_user_auth_headers(client):
+    email = "second@example.com"
+    password = "password123"
+    client.post(
+        "/api/auth/register",
+        json={"email": email, "password": password}
+    )
+    response = client.post(
+        "/api/auth/login",
+        json={"email": email, "password": password}
+    )
+    token = response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
+
+@pytest.fixture
 def sample_task(client, auth_headers):
     response = client.post(
         "/api/tasks/",

@@ -16,3 +16,5 @@ shell-fe:
 	docker compose exec frontend sh
 build:
 	docker compose build
+seed:
+	docker compose run --rm backend python app/scripts/seed_db.py

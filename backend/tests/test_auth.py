@@ -6,9 +6,9 @@ def test_register_success(client):
     )
     assert response.status_code == 201
     data = response.json()
-    assert "id" in data
-    assert data["email"] == "newuser@example.com"
-    assert "password" not in data
+    assert "access_token" in data
+    assert "refresh_token" in data
+    assert data["token_type"] == "bearer"
 def test_register_duplicate_email(client):
     email = "duplicate@example.com"
     client.post(
@@ -46,7 +46,26 @@ def test_login_success(client):
     assert response.status_code == 200
     data = response.json()
     assert "access_token" in data
+    assert "refresh_token" in data
     assert data["token_type"] == "bearer"
+
+def test_refresh_token_success(client):
+    email = "refresh@example.com"
+    password = "password123"
+    reg_response = client.post(
+        "/api/auth/register",
+        json={"email": email, "password": password}
+    )
+    refresh_token = reg_response.json()["refresh_token"]
+    response = client.post(
+        "/api/auth/refresh",
+        json={"refresh_token": refresh_token}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "access_token" in data
+    assert "refresh_token" in data
+    assert data["refresh_token"] != refresh_token
 def test_login_wrong_password(client):
     email = "wrongpass@example.com"
     password = "password123"
