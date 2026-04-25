@@ -50,27 +50,27 @@ export default function ProfileModal({ isOpen, onClose, onLogout }: ProfileModal
           <div className="flex justify-center p-8"><LoadingSpinner /></div>
         ) : (
           <>
-            <div className="bg-warm-50 dark:bg-warm-950/40 p-4 border-b border-warm-200 dark:border-warm-800 flex items-center justify-between">
+            <div className="bg-warm-50 dark:bg-warm-950/40 p-4 border-b border-warm-200 dark:border-warm-800 flex items-center justify-between rounded-lg">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 flex items-center justify-center bg-brand-700 text-white font-bold rounded-lg text-sm">{user?.name?.charAt(0) || 'U'}</div>
+                <div className="w-10 h-10 flex items-center justify-center bg-brand-500 text-white font-bold rounded-lg text-sm">{user?.name?.charAt(0) || 'U'}</div>
                 <div>
                   <p className="font-bold text-sm text-warm-900 dark:text-white">{user?.name}</p>
                   <p className="text-xs text-warm-500">{user?.email}</p>
                 </div>
               </div>
-              <button onClick={onLogout} className="text-xs font-semibold text-brand-700 dark:text-brand-400 hover:underline">{t('auth.logout')}</button>
+              <button onClick={onLogout} className="text-xs font-semibold text-brand-500 dark:text-brand-400 hover:underline">{t('auth.logout')}</button>
             </div>
 
-            <div className="flex gap-1 p-1 bg-warm-100 dark:bg-warm-900/50 rounded-lg">
+            <div className="flex gap-1 p-1 bg-warm-100 dark:bg-white/5 rounded-lg">
               <button 
                 onClick={() => setActiveTab('personal')}
-                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'personal' ? 'bg-brand-700 text-white shadow-sm' : 'text-warm-600 dark:text-warm-400'}`}
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${activeTab === 'personal' ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm' : 'text-warm-600 dark:text-gray-500 hover:text-warm-900 dark:hover:text-gray-300'}`}
               >
                 Personal Info
               </button>
               <button 
                 onClick={() => setActiveTab('security')}
-                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'security' ? 'bg-brand-700 text-white shadow-sm' : 'text-warm-600 dark:text-warm-400'}`}
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${activeTab === 'security' ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm' : 'text-warm-600 dark:text-gray-500 hover:text-warm-900 dark:hover:text-gray-300'}`}
               >
                 Security
               </button>
@@ -79,20 +79,36 @@ export default function ProfileModal({ isOpen, onClose, onLogout }: ProfileModal
             {error && <ErrorMessage message={error} />}
             {success && <div className="flex items-center gap-2 text-emerald-600 text-xs font-bold"><CheckCircle2 className="h-4 w-4" /> {success}</div>}
 
-            <form className="space-y-3">
-              {activeTab === 'personal' ? (
-                <>
-                  <input type="text" className="input-base" defaultValue={user?.name} placeholder="Name" />
-                  <input type="email" className="input-base" defaultValue={user?.email} placeholder="Email" />
-                  <button type="button" className="btn-primary w-full text-sm">Save changes</button>
-                </>
-              ) : (
-                <>
-                  <input type="password" className="input-base" placeholder="New password" />
-                  <input type="password" className="input-base" placeholder="Confirm new password" />
-                  <button type="button" className="btn-primary w-full text-sm">Change password</button>
-                </>
-              )}
+            <form className="space-y-4">
+              <div className="space-y-3">
+                {activeTab === 'personal' ? (
+                  <>
+                    <input type="text" className="input-base" defaultValue={user?.name} placeholder="Name" />
+                    <input type="email" className="input-base" defaultValue={user?.email} placeholder="Email" />
+                  </>
+                ) : (
+                  <>
+                    <input type="password" className="input-base" placeholder="New password" />
+                    <input type="password" className="input-base" placeholder="Confirm new password" />
+                  </>
+                )}
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 btn-ghost"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  type="button"
+                  className="flex-[1.5] btn-primary"
+                >
+                  {activeTab === 'personal' ? 'Save changes' : 'Change password'}
+                </button>
+              </div>
             </form>
           </>
         )}

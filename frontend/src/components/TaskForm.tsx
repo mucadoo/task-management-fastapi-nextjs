@@ -69,21 +69,21 @@ export default function TaskForm({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-warm-950/40 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white dark:bg-[#1a1714] rounded-xl shadow-xl max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-200 border border-warm-200 dark:border-warm-800">
-        <div className="flex items-center justify-between p-5 border-b border-warm-100 dark:border-warm-800">
-          <h2 className="text-lg font-semibold text-warm-900 dark:text-white">
-            {editingTask ? t('tasks.edit_task') : t('tasks.new_task')}
-          </h2>
-          <button 
-            onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-warm-100 dark:hover:bg-warm-800 text-warm-500 transition-colors"
-          >
-            <X className="h-5 w-5" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
+      <div className="card-surface w-full max-w-md p-6 space-y-5" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <h2 className="text-lg font-bold text-warm-900 dark:text-white">
+              {editingTask ? t('tasks.edit_task') : t('tasks.new_task')}
+            </h2>
+            <div className="rule-brand" />
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-warm-100 dark:hover:bg-warm-900 rounded-lg transition-colors">
+            <X className="h-5 w-5 text-warm-500" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 rounded-lg text-xs font-medium border border-red-100 dark:border-red-900/20">
               <AlertCircle className="h-4 w-4 shrink-0" />
@@ -91,44 +91,44 @@ export default function TaskForm({
             </div>
           )}
 
-          <div>
-            <label className="block text-xs font-semibold text-warm-700 dark:text-warm-300 mb-1.5 uppercase tracking-wider">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-warm-600 dark:text-warm-400 ml-0.5">
               {t('common.title')} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="input-base h-11"
+              className="input-base"
               placeholder={t('tasks.placeholder_title')}
               disabled={isSubmitting}
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-warm-700 dark:text-warm-300 mb-1.5 uppercase tracking-wider">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-warm-600 dark:text-warm-400 ml-0.5">
               {t('tasks.description')}
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="input-base py-3 resize-none min-h-[100px]"
+              className="input-base py-2.5 resize-none"
               placeholder={t('tasks.placeholder_description')}
               disabled={isSubmitting}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-warm-700 dark:text-warm-300 mb-1.5 uppercase tracking-wider">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-warm-600 dark:text-warm-400 ml-0.5">
                 {t('tasks.status')}
               </label>
               <div className="relative">
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as TaskStatus)}
-                  className="input-base h-11 appearance-none pr-10 cursor-pointer"
+                  className="input-base appearance-none pr-10 cursor-pointer"
                   disabled={isSubmitting}
                 >
                   <option value="pending">{t('tasks.pending')}</option>
@@ -139,15 +139,15 @@ export default function TaskForm({
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-warm-700 dark:text-warm-300 mb-1.5 uppercase tracking-wider">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-warm-600 dark:text-warm-400 ml-0.5">
                 {t('tasks.priority')}
               </label>
               <div className="relative">
                 <select
                   value={priority}
                   onChange={(e) => setPriority(e.target.value as TaskPriority)}
-                  className="input-base h-11 appearance-none pr-10 cursor-pointer"
+                  className="input-base appearance-none pr-10 cursor-pointer"
                   disabled={isSubmitting}
                 >
                   <option value="low">{t('tasks.low')}</option>
@@ -159,19 +159,19 @@ export default function TaskForm({
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-3">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 h-11 text-sm font-semibold text-warm-700 dark:text-warm-300 bg-warm-100 dark:bg-warm-800 rounded-lg hover:bg-warm-200 dark:hover:bg-warm-700 transition-all active:scale-[0.98] disabled:opacity-50"
+              className="flex-1 btn-ghost"
             >
               {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-[1.5] h-11 inline-flex items-center justify-center gap-2 text-sm font-semibold text-white bg-brand-700 hover:bg-brand-800 rounded-lg shadow-sm shadow-brand-700/10 transition-all active:scale-[0.98] disabled:opacity-50"
+              className="flex-[1.5] btn-primary"
             >
               {isSubmitting ? (
                 <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

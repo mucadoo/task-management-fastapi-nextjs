@@ -158,7 +158,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
     <div className="min-h-screen bg-warm-50 dark:bg-[#0a0a0a]">
       <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-warm-200 dark:border-white/5 h-14 flex items-center px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2 mr-6">
-          <div className="p-1.5 bg-brand-700 rounded"><CheckSquareIcon className="h-4 w-4 text-white" /></div>
+          <div className="p-1.5 bg-brand-500 rounded"><CheckSquareIcon className="h-4 w-4 text-white" /></div>
           <span className="font-semibold text-sm text-warm-900 dark:text-gray-100">TaskFlow</span>
           <span className="mx-2 text-warm-300">·</span>
           <span className="text-xs text-warm-600 dark:text-gray-500">{data.total} {t('tasks.title').toLowerCase()}</span>
@@ -190,7 +190,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <div className="mb-6">
           <div className="rule-brand mb-4" />
-          <h1 className="text-xl font-semibold text-warm-900 dark:text-gray-100">
+          <h1 className="text-2xl font-bold text-warm-900 dark:text-gray-100 tracking-tight">
             {t('tasks.title')}
           </h1>
         </div>
@@ -203,7 +203,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
                 <button
                   key={tab.translationKey}
                   onClick={() => handleStatusChange(tab.value)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${active ? "bg-white dark:bg-white/10 text-brand-700 dark:text-white shadow-sm" : "text-warm-600 dark:text-gray-500 hover:text-warm-900 dark:hover:text-gray-300"}`}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${active ? "bg-white dark:bg-white/10 text-brand-500 shadow-sm" : "text-warm-600 dark:text-gray-500 hover:text-warm-900 dark:hover:text-gray-300"}`}
                 >
                   {t(tab.translationKey)}
                 </button>
@@ -221,14 +221,14 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
                 placeholder={t('tasks.search')} 
                 value={searchTerm} 
                 onChange={(e) => setSearchTerm(e.target.value)} 
-                className="h-10 w-full pl-9 pr-4 bg-white dark:bg-[#141414] border border-warm-200 dark:border-white/10 rounded-lg text-sm text-warm-900 dark:text-gray-100 placeholder:text-warm-400 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-700/5 focus:border-brand-700 transition-all"
+                className="h-10 w-full pl-9 pr-4 bg-white dark:bg-[#141414] border border-warm-200 dark:border-white/10 rounded-lg text-sm text-warm-900 dark:text-gray-100 placeholder:text-warm-400 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500/5 focus:border-brand-500 transition-all"
               />
             </div>
             <div className="relative">
               <select 
                 value={priorityFilter || "all"} 
                 onChange={(e) => handlePriorityChange(e.target.value as any)} 
-                className="h-10 pl-3 pr-10 bg-white dark:bg-[#141414] border border-warm-200 dark:border-white/10 rounded-lg text-sm text-warm-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-700/5 focus:border-brand-700 transition-all cursor-pointer appearance-none"
+                className="h-10 pl-3 pr-10 bg-white dark:bg-[#141414] border border-warm-200 dark:border-white/10 rounded-lg text-sm text-warm-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/5 focus:border-brand-500 transition-all cursor-pointer appearance-none"
               >
                 <option value="all">{t('tasks.all_priorities')}</option>
                 <option value="low">{t('tasks.low_priority')}</option>
@@ -240,7 +240,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
           </div>
           <button 
             onClick={() => { setEditingTask(null); setIsFormOpen(true); }} 
-            className="h-10 px-4 bg-brand-700 hover:bg-brand-800 text-white text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-sm shadow-brand-700/10 whitespace-nowrap cursor-pointer"
+            className="h-10 px-4 bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-sm shadow-brand-500/10 whitespace-nowrap cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             <span>{t('tasks.new_task')}</span>

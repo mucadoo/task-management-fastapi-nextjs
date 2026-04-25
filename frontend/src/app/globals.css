@@ -32,7 +32,7 @@
 
 @layer base {
   body {
-    @apply bg-warm-50 text-warm-900 dark:bg-[#0a0a0a] dark:text-gray-100 selection:bg-brand-700/20;
+    @apply bg-warm-50 text-warm-900 dark:bg-[#0a0a0a] dark:text-gray-100 selection:bg-brand-500/20;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
@@ -43,26 +43,28 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
-      bg-brand-700 hover:bg-brand-800 active:bg-brand-900
-      text-white font-semibold rounded-lg shadow-sm shadow-brand-700/20
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2
+      bg-brand-500 hover:bg-brand-600 active:bg-brand-700
+      dark:bg-brand-500 dark:hover:bg-brand-400
+      text-white font-semibold rounded-lg shadow-sm shadow-brand-500/20
       transition-all duration-150 active:scale-[0.98]
-      disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
+      disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm;
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2
       text-warm-700 dark:text-gray-300
       hover:bg-warm-100 dark:hover:bg-white/5
       font-semibold rounded-lg transition-all duration-150 active:scale-[0.98]
-      disabled:opacity-50 cursor-pointer;
+      disabled:opacity-50 cursor-pointer text-sm;
   }
   .input-base {
-    @apply w-full px-4 py-3
+    @apply w-full px-3 py-2
       bg-white dark:bg-[#141414]
       border border-warm-200 dark:border-white/10
       rounded-lg text-warm-900 dark:text-gray-100
       placeholder:text-warm-400 dark:placeholder:text-gray-600
-      focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700
+      focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500
+      dark:focus:ring-brand-500/20 dark:focus:border-brand-500
       transition-all duration-150 font-medium text-sm;
   }
   .card-surface {
@@ -71,10 +73,10 @@
       rounded-lg shadow-sm;
   }
   .rule-brand {
-    @apply h-px bg-brand-700 dark:bg-brand-500 opacity-60;
+    @apply h-px bg-brand-500 dark:bg-brand-500 opacity-60;
   }
   .accent-bar {
-    @apply absolute left-0 top-3 bottom-3 w-0.5 rounded-full bg-brand-700 dark:bg-brand-500;
+    @apply absolute left-0 top-3 bottom-3 w-0.5 rounded-full bg-brand-500 dark:bg-brand-500;
   }
 }
 
