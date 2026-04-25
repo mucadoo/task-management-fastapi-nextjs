@@ -5,6 +5,7 @@ down:
 	docker compose down
 test:
 	docker compose run --rm backend pytest --cov=app tests/ -v
+	docker compose run --rm frontend npm test
 migrate:
 	docker compose run --rm backend alembic upgrade head
 logs:

@@ -81,12 +81,28 @@ API REST de gerenciamento de tarefas com autenticação JWT, frontend em Next.js
 | `EC2_SSH_KEY` | Conteúdo da sua chave `.pem` |
 | `IMAGE_TAG` | Tag da imagem (usado via github.sha) |
 
+## Respostas Conceituais (Parte 1)
+
+### 1. Diferença entre REST e GraphQL
+**REST** é baseado em recursos acessíveis via endpoints fixos e métodos HTTP (GET, POST, etc.). A estrutura da resposta é definida pelo servidor.
+**GraphQL** é uma linguagem de consulta que permite ao cliente requisitar exatamente os dados que precisa em uma única chamada, evitando *over-fetching* e *under-fetching*.
+
+### 2. O que é uma transação em banco de dados
+Uma transação é uma unidade lógica de trabalho que deve ser executada totalmente ou não ser executada de forma alguma (Atomicidade). Ela garante a integridade dos dados seguindo as propriedades ACID (Atomicidade, Consistência, Isolamento e Durabilidade).
+
+### 3. Diferença entre autenticação e autorização
+**Autenticação** é o processo de verificar QUEM o usuário é (ex: conferir senha e e-mail).
+**Autorização** é o processo de verificar o que o usuário PODE fazer dentro do sistema (ex: permissão para deletar uma tarefa).
+
+### 4. Quando usar cache e quando evitá-lo
+**Usar:** Para dados que são lidos com frequência, mudam raramente e cujo cálculo ou busca é computacionalmente caro.
+**Evitar:** Para dados extremamente sensíveis que exigem consistência em tempo real ou que mudam com altíssima frequência.
+
 ## Endpoints da API
 
 | Método | Rota                    | Descrição                          | Auth? |
 |--------|-------------------------|------------------------------------|-------|
 | GET    | /api/health             | Health check                       | Não   |
-| GET    | /api/concepts           | Respostas conceituais do teste     | Não   |
 | POST   | /api/auth/register      | Cadastro de usuário                | Não   |
 | POST   | /api/auth/login         | Login (retorna JWT)                | Não   |
 | POST   | /api/tasks/             | Criar tarefa                       | Sim   |
