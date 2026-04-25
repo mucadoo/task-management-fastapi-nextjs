@@ -2,6 +2,7 @@
 import { useState, useCallback } from "react";
 import { PaginatedResponse, Task, TaskCreate, TaskStatus } from "../types/task";
 import { api } from "../lib/api";
+import { useRouter } from "next/navigation";
 import TaskCard from "./TaskCard";
 import TaskForm from "./TaskForm";
 import Pagination from "./Pagination";
@@ -19,6 +20,12 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const router = useRouter();
+  const handleLogout = () => {
+    api.logout();
+    router.push("/login");
+    router.refresh();
+  };
   const refetch = useCallback(async (page = data.page, status = statusFilter) => {
     setIsLoading(true);
     setError(null);
@@ -80,18 +87,26 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
             Organize and track your work efficiently.
           </p>
         </div>
-        <button
-          onClick={() => {
-            setEditingTask(null);
-            setIsFormOpen(true);
-          }}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-        >
-          <svg className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          New Task
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              setEditingTask(null);
+              setIsFormOpen(true);
+            }}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          >
+            <svg className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            New Task
+          </button>
+          <button
+            onClick={handleLogout}
+            className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          >
+            Logout
+          </button>
+        </div>
       </div>
       <div className="border-b border-gray-200 mb-6">
         <nav className="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
