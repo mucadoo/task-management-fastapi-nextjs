@@ -8,7 +8,7 @@ import ErrorMessage from "../../components/ui/ErrorMessage";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "../../components/LanguageSelector";
 import ThemeToggle from "../../components/ThemeToggle";
-import { Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, BookOpen } from "lucide-react";
 
 export default function RegisterPage() {
   const { t } = useTranslation();
@@ -43,94 +43,60 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex">
-      <div className="hidden lg:flex lg:w-2/5 bg-brand-600 p-12 flex-col justify-center relative overflow-hidden" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px)" }}>
-        <h1 className="text-5xl font-bold text-white mb-6">TaskFlow</h1>
-        <p className="text-brand-100 text-lg">Manage your tasks with elegance and precision.</p>
+      <div className="hidden lg:flex lg:w-5/12 bg-brand-700 dark:bg-brand-900 p-12 flex-col justify-between" style={{ backgroundImage: "repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 0, transparent 50%)", backgroundSize: "20px 20px" }}>
+        <div>
+          <div className="w-10 h-10 bg-white rounded flex items-center justify-center mb-6"><BookOpen className="text-brand-700 h-6 w-6" /></div>
+          <h1 className="text-4xl font-bold text-white mb-2">TaskFlow</h1>
+          <p className="text-brand-200">Organize. Execute. Deliver.</p>
+        </div>
+        <div className="text-brand-300 text-sm opacity-60">© {new Date().getFullYear()} TaskFlow Scholarly</div>
       </div>
 
-      <div className="flex-1 flex flex-col justify-center p-8 lg:p-16 relative">
+      <div className="flex-1 flex flex-col justify-center p-8 lg:p-16 relative bg-warm-50 dark:bg-[#0d0c0b]">
         <div className="absolute top-6 right-6 flex items-center space-x-3">
           <LanguageSelector />
           <ThemeToggle />
         </div>
 
-        <div className="max-w-md w-full mx-auto">
+        <div className="max-w-sm w-full mx-auto">
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-warm-900 dark:text-white">
+            <div className="rule-brand w-8 mb-4" />
+            <h2 className="text-2xl font-bold text-warm-900 dark:text-white">
               {t('auth.register_header')}
             </h2>
-            <p className="mt-2 text-warm-600 dark:text-warm-400">
+            <p className="mt-2 text-sm text-warm-600">
               {t('auth.or')}{" "}
-              <Link href="/login" className="text-brand-600 dark:text-brand-400 font-semibold hover:underline">
+              <Link href="/login" className="text-brand-700 dark:text-brand-400 font-semibold hover:underline">
                 {t('auth.already_registered')}
               </Link>
             </p>
           </div>
 
-          <div className="card-surface p-8">
+          <div className="card-surface p-6">
             <form className="space-y-4" onSubmit={handleSubmit}>
               {error && <ErrorMessage message={error} />}
               
               <div className="space-y-4">
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-warm-400" />
-                  <input
-                    type="text"
-                    className="input-base pl-12"
-                    placeholder={t('auth.name')}
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
+                  <input type="text" className="input-base pl-10" placeholder={t('auth.name')} value={name} onChange={(e) => setName(e.target.value)} />
                 </div>
-
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-warm-400" />
-                  <input
-                    type="email"
-                    required
-                    className="input-base pl-12"
-                    placeholder={t('auth.email')}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
+                  <input type="email" required className="input-base pl-10" placeholder={t('auth.email')} value={email} onChange={(e) => setEmail(e.target.value)} />
                 </div>
-
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-warm-400" />
-                  <input
-                    type="password"
-                    required
-                    className="input-base pl-12"
-                    placeholder={t('auth.password')}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
+                  <input type="password" required className="input-base pl-10" placeholder={t('auth.password')} value={password} onChange={(e) => setPassword(e.target.value)} />
                 </div>
-
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-warm-400" />
-                  <input
-                    type="password"
-                    required
-                    className="input-base pl-12"
-                    placeholder={t('auth.confirm_password')}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
+                  <input type="password" required className="input-base pl-10" placeholder={t('auth.confirm_password')} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="btn-primary w-full mt-2"
-              >
-                {isLoading ? t('common.loading') : (
-                  <>
-                    {t('auth.register')}
-                    <ArrowRight className="h-5 w-5" />
-                  </>
-                )}
+              <button type="submit" disabled={isLoading} className="btn-primary w-full mt-2">
+                {isLoading ? t('common.loading') : <>{t('auth.register')}<ArrowRight className="h-4 w-4" /></>}
               </button>
             </form>
           </div>

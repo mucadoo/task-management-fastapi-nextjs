@@ -14,7 +14,7 @@ export default function LanguageSelector() {
   return (
     <button
       onClick={toggleLanguage}
-      className="flex items-center justify-center p-2.5 w-10 h-10 rounded-xl bg-warm-100 dark:bg-warm-800 hover:bg-warm-200 dark:hover:bg-warm-700 text-sm font-bold text-warm-700 dark:text-warm-300 focus:outline-none focus:ring-2 focus:ring-brand-600/30 transition-all duration-150 shadow-sm"
+      className="h-9 px-2.5 rounded-lg border border-warm-200 dark:border-warm-700 hover:bg-warm-100 dark:hover:bg-warm-900 text-xs font-bold tracking-widest uppercase text-warm-700 dark:text-warm-300 focus:outline-none focus:ring-2 focus:ring-brand-700/20 transition-all duration-150 shadow-sm"
       aria-label="Toggle language"
     >
       {i18n.language.startsWith('en') ? 'PT' : 'EN'}

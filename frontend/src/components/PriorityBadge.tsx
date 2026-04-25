@@ -29,7 +29,7 @@ export default function PriorityBadge({ priority }: PriorityBadgeProps) {
   const config = configs[priority];
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${config.classes}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${config.classes}`}>
       {config.label}
     </span>
   );

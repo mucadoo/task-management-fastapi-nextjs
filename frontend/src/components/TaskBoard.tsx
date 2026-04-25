@@ -154,16 +154,17 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-warm-50 dark:bg-[#0f0d0c]">
-      <div className="sticky top-0 z-30 bg-white/90 dark:bg-[#0f0d0c]/90 backdrop-blur-md border-b border-warm-200 dark:border-warm-800/60 h-14 flex items-center px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-warm-50 dark:bg-[#0d0c0b]">
+      <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#0d0c0b]/95 backdrop-blur-sm border-b border-warm-200 dark:border-warm-800 h-14 flex items-center px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2 mr-6">
-          <div className="p-1.5 bg-brand-600 rounded-lg"><CheckSquareIcon className="h-5 w-5 text-white" /></div>
-          <span className="font-bold text-warm-900 dark:text-white">TaskFlow</span>
-          <span className="ml-2 bg-warm-100 dark:bg-warm-900 text-warm-600 dark:text-warm-400 text-[10px] px-2 py-0.5 rounded-full font-bold">{data.total}</span>
+          <div className="p-1.5 bg-brand-700 rounded"><CheckSquareIcon className="h-4 w-4 text-white" /></div>
+          <span className="font-bold text-sm text-warm-900 dark:text-warm-100">TaskFlow</span>
+          <span className="mx-2 text-warm-300">·</span>
+          <span className="text-xs text-warm-500">{data.total} tasks</span>
         </div>
         <div className="flex-grow" />
         <div className="flex items-center gap-2">
-          <button onClick={() => setIsProfileOpen(true)} className="px-4 py-2 text-sm font-semibold text-warm-700 dark:text-warm-300 hover:bg-warm-100 dark:hover:bg-warm-900 rounded-xl">Profile</button>
+          <button onClick={() => setIsProfileOpen(true)} className="h-9 px-3 text-xs font-semibold text-warm-700 dark:text-warm-300 border border-warm-200 dark:border-warm-700 rounded-lg hover:bg-warm-100 dark:hover:bg-warm-900">Profile</button>
           <LanguageSelector />
           <ThemeToggle />
         </div>
@@ -171,69 +172,52 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <div className="mb-8">
-          <div className="rule-brand w-10 mb-3" />
-          <h1 className="text-3xl font-extrabold text-warm-900 dark:text-white tracking-tight">
+          <div className="rule-brand mb-6" />
+          <h1 className="text-xl font-bold text-warm-900 dark:text-white">
             {t('tasks.title')}
           </h1>
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div className="flex flex-wrap items-center gap-2 p-1 bg-warm-100 dark:bg-warm-900/40 rounded-xl w-fit">
+          <div className="flex gap-1 p-1 bg-warm-100 dark:bg-warm-900/50 rounded-lg w-fit">
             {tabs.map((tab) => {
-              const Icon = tab.icon;
               const active = statusFilter === tab.value;
               return (
                 <button
                   key={tab.translationKey}
                   onClick={() => handleStatusChange(tab.value)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${active ? "bg-white dark:bg-[#1a1714] text-brand-600 shadow-sm border border-warm-200 dark:border-warm-800" : "text-warm-600 dark:text-warm-400"}`}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${active ? "bg-white dark:bg-warm-950 text-brand-700 dark:text-brand-400 shadow-sm" : "text-warm-600 dark:text-warm-400"}`}
                 >
-                  <Icon className="h-4 w-4" />
                   {t(tab.translationKey)}
                 </button>
               );
             })}
           </div>
-          <button
-            onClick={() => { setEditingTask(null); setIsFormOpen(true); }}
-            className="btn-primary"
-          >
-            <Plus className="h-5 w-5" />
+          <button onClick={() => { setEditingTask(null); setIsFormOpen(true); }} className="btn-primary">
+            <Plus className="h-4 w-4" />
             {t('tasks.new_task')}
           </button>
         </div>
 
-        <div className="card-surface p-4 mb-8">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <input
-              type="text"
-              placeholder={t('tasks.search')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="input-base"
-            />
-            <select
-              value={priorityFilter || "all"}
-              onChange={(e) => handlePriorityChange(e.target.value as any)}
-              className="input-base lg:w-48"
-            >
-              <option value="all">{t('tasks.all_priorities')}</option>
-              <option value="low">{t('tasks.low_priority')}</option>
-              <option value="medium">{t('tasks.medium_priority')}</option>
-              <option value="high">{t('tasks.high_priority')}</option>
-            </select>
-          </div>
+        <div className="card-surface p-3 mb-8 flex flex-col lg:flex-row gap-3">
+          <input type="text" placeholder={t('tasks.search')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="input-base" />
+          <select value={priorityFilter || "all"} onChange={(e) => handlePriorityChange(e.target.value as any)} className="input-base lg:w-48">
+            <option value="all">{t('tasks.all_priorities')}</option>
+            <option value="low">{t('tasks.low_priority')}</option>
+            <option value="medium">{t('tasks.medium_priority')}</option>
+            <option value="high">{t('tasks.high_priority')}</option>
+          </select>
         </div>
 
         {error && <div className="mb-6"><ErrorMessage message={error} /></div>}
 
         {isLoading && data.items.length === 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => <TaskSkeleton key={i} />)}
           </div>
         ) : data.items.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-500">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-in fade-in duration-500">
               {data.items.map((task) => (
                 <TaskCard
                   key={task.id}
@@ -249,9 +233,8 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
             <InfiniteScrollTrigger onIntersect={handleLoadMore} isLoading={isLoading} hasMore={data.page < Math.ceil(data.total / data.page_size)} />
           </>
         ) : (
-          <div className="text-center py-24 border-2 border-dashed border-warm-200 dark:border-warm-800 rounded-2xl">
-            <LayoutGrid className="h-10 w-10 text-warm-400 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-warm-900 dark:text-white">{t('tasks.no_tasks')}</h3>
+          <div className="text-center py-20 border border-dashed border-warm-300 dark:border-warm-700 rounded-xl text-warm-500">
+            {t('tasks.no_tasks')}
           </div>
         )}
 

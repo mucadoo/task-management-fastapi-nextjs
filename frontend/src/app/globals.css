@@ -5,34 +5,34 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   
-  --color-brand-50:  #fef2f3;
-  --color-brand-100: #fde0e3;
-  --color-brand-200: #fbc7cc;
-  --color-brand-300: #f79aa3;
-  --color-brand-400: #f16070;
-  --color-brand-500: #e53e50;
-  --color-brand-600: #c8102e;
-  --color-brand-700: #a60d25;
-  --color-brand-800: #8b0d21;
-  --color-brand-900: #780f20;
-  --color-brand-950: #41020e;
+  --color-brand-50:  #eef2f9;
+  --color-brand-100: #d5dff0;
+  --color-brand-200: #adc0e2;
+  --color-brand-300: #7d9ace;
+  --color-brand-400: #5478b8;
+  --color-brand-500: #3a5fa3;
+  --color-brand-600: #2d4d8e;
+  --color-brand-700: #1b3461;
+  --color-brand-800: #162a4f;
+  --color-brand-900: #10203c;
+  --color-brand-950: #080f1c;
 
   --color-warm-50:  #fafaf8;
-  --color-warm-100: #f4f1ee;
-  --color-warm-200: #e8e2dc;
-  --color-warm-300: #d4cbc3;
-  --color-warm-400: #b8ac9f;
-  --color-warm-500: #9a8d80;
-  --color-warm-600: #7d7068;
-  --color-warm-700: #655a53;
-  --color-warm-800: #544b44;
-  --color-warm-900: #463f3a;
-  --color-warm-950: #1a1714;
+  --color-warm-100: #f5f3ef;
+  --color-warm-200: #e8e4de;
+  --color-warm-300: #d4cdc4;
+  --color-warm-400: #b5aca1;
+  --color-warm-500: #948980;
+  --color-warm-600: #786e65;
+  --color-warm-700: #625850;
+  --color-warm-800: #514942;
+  --color-warm-900: #433c36;
+  --color-warm-950: #1c1814;
 }
 
 @layer base {
   body {
-    @apply bg-warm-50 text-warm-900 dark:bg-[#0f0d0c] dark:text-warm-100 selection:bg-brand-500/30;
+    @apply bg-warm-50 text-warm-900 dark:bg-[#0d0c0b] dark:text-warm-100 selection:bg-brand-700/20;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
@@ -40,8 +40,8 @@
 @layer components {
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
-      bg-brand-600 hover:bg-brand-700 active:bg-brand-800
-      text-white font-semibold rounded-xl shadow-sm shadow-brand-600/30
+      bg-brand-700 hover:bg-brand-800 active:bg-brand-900
+      text-white font-semibold rounded-lg shadow-sm shadow-brand-700/20
       transition-all duration-150 active:scale-[0.98]
       disabled:opacity-50 disabled:cursor-not-allowed;
   }
@@ -49,25 +49,28 @@
     @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
       text-warm-700 dark:text-warm-300
       hover:bg-warm-100 dark:hover:bg-warm-900
-      font-semibold rounded-xl transition-all duration-150 active:scale-[0.98]
+      font-semibold rounded-lg transition-all duration-150 active:scale-[0.98]
       disabled:opacity-50;
   }
   .input-base {
     @apply w-full px-4 py-3
-      bg-warm-50 dark:bg-warm-950/60
+      bg-white dark:bg-warm-950/60
       border border-warm-200 dark:border-warm-800
-      rounded-xl text-warm-900 dark:text-warm-100
+      rounded-lg text-warm-900 dark:text-warm-100
       placeholder:text-warm-400 dark:placeholder:text-warm-600
-      focus:outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-600
+      focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700
       transition-all duration-150 font-medium text-sm;
   }
   .card-surface {
     @apply bg-white dark:bg-[#1a1714]
       border border-warm-200 dark:border-warm-800/60
-      rounded-2xl shadow-sm;
+      rounded-xl shadow-sm;
   }
   .rule-brand {
-    @apply h-0.5 bg-gradient-to-r from-brand-600 to-brand-400 rounded-full;
+    @apply h-px bg-brand-700 dark:bg-brand-500 opacity-60;
+  }
+  .accent-bar {
+    @apply absolute left-0 top-3 bottom-3 w-0.5 rounded-full bg-brand-700 dark:bg-brand-500;
   }
 }
 
@@ -81,5 +84,5 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 dark:bg-gray-800 rounded-full hover:bg-gray-400 dark:hover:bg-gray-700 transition-colors;
+  @apply bg-warm-200 dark:bg-warm-800 rounded-full hover:bg-warm-300 dark:hover:bg-warm-700 transition-colors;
 }

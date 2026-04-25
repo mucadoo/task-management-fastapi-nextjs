@@ -32,10 +32,11 @@ export default function TaskCard({
   });
 
   const isCompleted = task.status === "completed";
-  const priorityBorder = task.priority === 'high' ? 'border-l-brand-600' : task.priority === 'medium' ? 'border-l-orange-400' : 'border-l-sky-400';
 
   return (
-    <div className={`group card-surface p-6 flex flex-col h-full hover:shadow-lg transition-all duration-300 border-l-4 ${priorityBorder} ${isCompleted ? 'opacity-80' : ''}`}>
+    <div className={`group card-surface p-5 flex flex-col h-full hover:shadow-md transition-all duration-300 relative pl-6 ${isCompleted ? 'opacity-80' : ''}`}>
+      <span className={`accent-bar ${task.priority === 'high' ? 'bg-brand-700' : task.priority === 'medium' ? 'bg-amber-500' : 'bg-sky-500'}`} />
+      
       <div className="flex justify-between items-start mb-4">
         <div className="flex flex-col gap-2">
           <button 
@@ -44,24 +45,23 @@ export default function TaskCard({
             className="flex items-center gap-2 focus:outline-none group/status"
             title={t('tasks.click_to_toggle')}
           >
-            <div className={`p-1 rounded-full transition-colors ${isCompleted ? 'text-emerald-500' : 'text-warm-400 group-hover/status:text-brand-600'}`}>
-              {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : <Circle className="h-5 w-5" />}
+            <div className={`p-0.5 rounded-sm transition-colors ${isCompleted ? 'text-emerald-600' : 'text-warm-400 group-hover/status:text-brand-700'}`}>
+              {isCompleted ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
             </div>
             <StatusBadge status={task.status} />
           </button>
           <PriorityBadge priority={task.priority} />
         </div>
-        <div className="flex items-center gap-1.5 text-xs font-medium text-warm-400 dark:text-warm-600">
-          <Calendar className="h-3.5 w-3.5" />
+        <div className="text-[10px] font-medium text-warm-500">
           {formattedDate}
         </div>
       </div>
 
       <div className="flex-grow">
-        <h3 className={`text-xl font-bold mb-2 transition-all duration-300 ${
+        <h3 className={`text-base font-bold mb-2 transition-all duration-300 ${
           isCompleted 
             ? 'text-warm-400 dark:text-warm-600 line-through' 
-            : 'text-warm-900 dark:text-white group-hover:text-brand-600'
+            : 'text-warm-900 dark:text-white group-hover:text-brand-700'
         }`}>
           {task.title}
         </h3>
@@ -70,26 +70,20 @@ export default function TaskCard({
         </p>
       </div>
 
-      <div className="flex gap-3 pt-6 mt-6 border-t border-warm-100 dark:border-warm-800/60">
+      <div className="flex gap-2 pt-4 mt-4 border-t border-warm-100 dark:border-warm-800">
         <button
           onClick={() => onEdit(task)}
           disabled={isDeleting}
-          className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-semibold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 rounded-xl hover:bg-brand-100 dark:hover:bg-brand-900/30 transition-all active:scale-95 disabled:opacity-50"
+          className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-warm-700 dark:text-warm-300 border border-warm-200 dark:border-warm-700 rounded-lg hover:bg-warm-100 dark:hover:bg-warm-800 transition-all active:scale-95"
         >
-          <Edit3 className="h-4 w-4" />
           {t('common.edit')}
         </button>
         <button
           onClick={() => onDelete(task.id)}
           disabled={isDeleting}
-          className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-semibold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 rounded-xl hover:bg-brand-100 dark:hover:bg-brand-900/30 transition-all active:scale-95 disabled:opacity-50"
+          className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-all active:scale-95"
         >
-          {isDeleting ? <div className="scale-50"><LoadingSpinner /></div> : (
-            <>
-              <Trash2 className="h-4 w-4" />
-              {t('common.delete')}
-            </>
-          )}
+          {isDeleting ? <LoadingSpinner /> : t('common.delete')}
         </button>
       </div>
     </div>
