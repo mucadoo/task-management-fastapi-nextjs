@@ -58,7 +58,7 @@ export default function TaskCard({
       </div>
 
       <div className="flex-grow">
-        <h3 className={`text-base font-bold mb-2 transition-all duration-300 ${
+        <h3 className={`text-base font-semibold mb-2 transition-all duration-300 ${
           isCompleted 
             ? 'text-warm-400 dark:text-warm-600 line-through' 
             : 'text-warm-900 dark:text-white group-hover:text-brand-700'
