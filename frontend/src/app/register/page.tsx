@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '../../lib/api';
@@ -8,7 +8,9 @@ import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../../components/LanguageSelector';
 import ThemeToggle from '../../components/ThemeToggle';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import { Mail, Lock, User, ArrowRight, BookOpen } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, BookOpen, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useDebounce } from 'use-debounce';
+
 export default function RegisterPage() {
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
@@ -17,11 +19,40 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
+  const [debouncedEmail] = useDebounce(email, 500);
+
   const router = useRouter();
+
+  useEffect(() => {
+    const checkEmail = async () => {
+      if (!debouncedEmail) {
+        setEmailStatus('idle');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(debouncedEmail)) {
+        setEmailStatus('invalid');
+        return;
+      }
+      setEmailStatus('checking');
+      try {
+        const { available } = await api.checkEmail(debouncedEmail);
+        setEmailStatus(available ? 'available' : 'taken');
+      } catch {
+        setEmailStatus('idle');
+      }
+    };
+    checkEmail();
+  }, [debouncedEmail]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       setError(t('auth.error_password_match'));
+      return;
+    }
+    if (emailStatus === 'taken') {
       return;
     }
     setIsLoading(true);
@@ -36,6 +67,7 @@ export default function RegisterPage() {
       setIsLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen flex">
       <div
@@ -97,12 +129,28 @@ export default function RegisterPage() {
                   <input
                     type="email"
                     required
-                    className="input-base pl-10"
+                    className={`input-base pl-10 pr-10 ${emailStatus === 'taken' ? 'border-red-500 focus:border-red-500' : emailStatus === 'available' ? 'border-emerald-500 focus:border-emerald-500' : ''}`}
                     placeholder={t('auth.email')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {emailStatus === 'checking' && (
+                      <Loader2 className="h-4 w-4 text-warm-400 animate-spin" />
+                    )}
+                    {emailStatus === 'available' && (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                    )}
+                    {emailStatus === 'taken' && (
+                      <AlertCircle className="h-4 w-4 text-red-500" />
+                    )}
+                  </div>
                 </div>
+                {emailStatus === 'taken' && (
+                  <p className="text-[10px] text-red-500 ml-1 -mt-3">
+                    {t('profile.email_taken')}
+                  </p>
+                )}
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
                   <input
@@ -126,7 +174,11 @@ export default function RegisterPage() {
                   />
                 </div>
               </div>
-              <button type="submit" disabled={isLoading} className="btn-primary w-full mt-2">
+              <button 
+                type="submit" 
+                disabled={isLoading || emailStatus === 'taken'} 
+                className="btn-primary w-full mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 {isLoading ? (
                   <LoadingSpinner size="sm" className="text-white" />
                 ) : (

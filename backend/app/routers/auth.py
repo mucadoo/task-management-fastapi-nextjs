@@ -123,3 +123,10 @@ def check_username(username: str, db: Session = Depends(get_db)):
     username = username.lower()
     user = user_repository.get_by_username(db, username)
     return {"available": user is None}
+
+
+@router.get("/check-email")
+def check_email(email: str, db: Session = Depends(get_db)):
+    email = email.lower()
+    user = user_repository.get_by_email(db, email)
+    return {"available": user is None}

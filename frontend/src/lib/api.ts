@@ -187,6 +187,11 @@ export const api = {
       `/auth/check-username?username=${encodeURIComponent(username)}`,
     );
   },
+  async checkEmail(email: string): Promise<{ available: boolean }> {
+    return request<{ available: boolean }>(
+      `/auth/check-email?email=${encodeURIComponent(email)}`,
+    );
+  },
   logout() {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token');

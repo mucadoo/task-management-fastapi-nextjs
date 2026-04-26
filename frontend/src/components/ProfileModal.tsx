@@ -32,6 +32,9 @@ export default function ProfileModal({
   const [usernameStatus, setUsernameStatus] = useState<
     'idle' | 'checking' | 'available' | 'taken' | 'invalid'
   >('idle');
+  const [emailStatus, setEmailStatus] = useState<
+    'idle' | 'checking' | 'available' | 'taken' | 'invalid'
+  >('idle');
   const personalSchema = z.object({
     name: z.string().min(1, t('profile.name_required')),
     email: z.string().email(t('profile.email_invalid')),
@@ -77,7 +80,9 @@ export default function ProfileModal({
     },
   });
   const watchedUsername = watch('username');
+  const watchedEmail = watch('email');
   const [debouncedUsername] = useDebounce(watchedUsername, 500);
+  const [debouncedEmail] = useDebounce(watchedEmail, 500);
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -112,7 +117,7 @@ export default function ProfileModal({
     }
   }, [isOpen, initialTab, reset, t]);
   useEffect(() => {
-    const checkAvailability = async () => {
+    const checkUsernameAvailability = async () => {
       if (!debouncedUsername || debouncedUsername === user?.username) {
         setUsernameStatus('idle');
         return;
@@ -130,13 +135,37 @@ export default function ProfileModal({
       }
     };
     if (activeTab === 'personal') {
-      checkAvailability();
+      checkUsernameAvailability();
     }
   }, [debouncedUsername, user?.username, activeTab]);
+  useEffect(() => {
+    const checkEmailAvailability = async () => {
+      if (!debouncedEmail || debouncedEmail === user?.email) {
+        setEmailStatus('idle');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(debouncedEmail)) {
+        setEmailStatus('invalid');
+        return;
+      }
+      setEmailStatus('checking');
+      try {
+        const { available } = await api.checkEmail(debouncedEmail);
+        setEmailStatus(available ? 'available' : 'taken');
+      } catch {
+        setEmailStatus('idle');
+      }
+    };
+    if (activeTab === 'personal') {
+      checkEmailAvailability();
+    }
+  }, [debouncedEmail, user?.email, activeTab]);
   const onTabChange = (tab: 'personal' | 'security') => {
     setActiveTab(tab);
     setError(null);
     setSuccess(null);
+    setUsernameStatus('idle');
+    setEmailStatus('idle');
     reset({
       name: user?.name || '',
       email: user?.email || '',
@@ -147,7 +176,7 @@ export default function ProfileModal({
     });
   };
   const onSaveProfile = async (data: any) => {
-    if (activeTab === 'personal' && usernameStatus === 'taken') return;
+    if (activeTab === 'personal' && (usernameStatus === 'taken' || emailStatus === 'taken')) return;
     setIsSubmitting(true);
     setError(null);
     setSuccess(null);
@@ -245,12 +274,40 @@ export default function ProfileModal({
                       <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
                         {t('common.email')}
                       </label>
-                      <input
-                        {...register('email')}
-                        type="email"
-                        className="input-base"
-                        placeholder={t('common.email')}
-                      />
+                      <div className="relative">
+                        <input
+                          {...register('email')}
+                          type="email"
+                          className={`input-base pr-10 ${emailStatus === 'taken' ? 'border-red-500 focus:border-red-500' : emailStatus === 'available' ? 'border-emerald-500 focus:border-emerald-500' : ''}`}
+                          placeholder={t('common.email')}
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          {emailStatus === 'checking' && (
+                            <Loader2 className="h-4 w-4 text-warm-400 animate-spin" />
+                          )}
+                          {emailStatus === 'available' && (
+                            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                          )}
+                          {emailStatus === 'taken' && (
+                            <AlertCircle className="h-4 w-4 text-red-500" />
+                          )}
+                        </div>
+                      </div>
+                      {emailStatus === 'checking' && (
+                        <p className="text-[10px] text-warm-500 ml-1">
+                          {t('profile.email_checking')}
+                        </p>
+                      )}
+                      {emailStatus === 'available' && (
+                        <p className="text-[10px] text-emerald-500 ml-1">
+                          {t('profile.email_available')}
+                        </p>
+                      )}
+                      {emailStatus === 'taken' && (
+                        <p className="text-[10px] text-red-500 ml-1">
+                          {t('profile.email_taken')}
+                        </p>
+                      )}
                       {errors.email && (
                         <p className="text-[10px] text-red-500 ml-1">
                           {errors.email.message as string}
@@ -367,7 +424,8 @@ export default function ProfileModal({
                 <button
                   type="submit"
                   disabled={
-                    isSubmitting || (activeTab === 'personal' && usernameStatus === 'taken')
+                    isSubmitting ||
+                    (activeTab === 'personal' && (usernameStatus === 'taken' || emailStatus === 'taken'))
                   }
                   className="flex-[1.5] btn-primary cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
