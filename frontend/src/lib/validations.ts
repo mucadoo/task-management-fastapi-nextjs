@@ -23,3 +23,30 @@ export const getRegisterSchema = (t: any) => z.object({
   message: t('auth.error_password_match'),
   path: ['confirmPassword'],
 });
+
+export const getPersonalSchema = (t: any) => z.object({
+  name: z.string().min(1, t('profile.name_required')),
+  email: z.string().email(t('profile.email_invalid')),
+  username: z
+    .string()
+    .min(3, t('profile.username_invalid'))
+    .regex(/^[a-zA-Z_]+$/, t('profile.username_invalid'))
+    .transform((val) => val.toLowerCase())
+    .optional()
+    .or(z.literal('')),
+});
+
+export const getSecuritySchema = (t: any) => z.object({
+  current_password: z.string().min(1, t('profile.current_password_required')),
+  password: z
+    .string()
+    .min(8, t('profile.password_min'))
+    .regex(/[A-Z]/, t('profile.password_uppercase'))
+    .regex(/[a-z]/, t('profile.password_lowercase'))
+    .regex(/[0-9]/, t('profile.password_number'))
+    .regex(/[^A-Za-z0-9]/, t('profile.password_special')),
+  confirmPassword: z.string().min(1, t('profile.password_match')),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: t('profile.password_match'),
+  path: ['confirmPassword'],
+});
