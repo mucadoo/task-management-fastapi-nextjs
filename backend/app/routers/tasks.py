@@ -14,7 +14,10 @@ def create_task(
     current_user: CurrentUser,
     repo: TaskRepo,
 ):
-    return repo.create_with_owner(current_user.id, task)
+    new_task = repo.create_with_owner(current_user.id, task)
+    repo.db.commit()
+    repo.db.refresh(new_task)
+    return new_task
 
 
 @router.get("/", response_model=TaskListResponse)
@@ -66,6 +69,8 @@ def update_task(
     updated = repo.update_task(current_user.id, task_id, task)
     if not updated:
         raise HTTPException(status_code=404, detail="Task not found")
+    repo.db.commit()
+    repo.db.refresh(updated)
     return updated
 
 
@@ -77,6 +82,7 @@ def delete_task(
 ):
     if not repo.delete_task(current_user.id, task_id):
         raise HTTPException(status_code=404, detail="Task not found")
+    repo.db.commit()
     return None
 
 
@@ -89,4 +95,6 @@ def toggle_task(
     updated = service.toggle_task(current_user.id, task_id)
     if not updated:
         raise HTTPException(status_code=404, detail="Task not found")
+    service.task_repo.db.commit()
+    service.task_repo.db.refresh(updated)
     return updated

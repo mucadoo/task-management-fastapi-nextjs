@@ -26,15 +26,12 @@ class AuthRepository(BaseRepository[RefreshToken]):
         db_token = self.get_by_id(token_id)
         if db_token:
             db_token.revoked = True
-            self.db.commit()
 
     def revoke_all_user_tokens(self, user_id: uuid.UUID):
         self.db.query(RefreshToken).filter(
             RefreshToken.user_id == user_id, RefreshToken.revoked == False
         ).update({RefreshToken.revoked: True})
-        self.db.commit()
 
     def cleanup_expired_tokens(self):
         now = datetime.now(timezone.utc)
         self.db.query(RefreshToken).filter(RefreshToken.expires_at < now).delete()
-        self.db.commit()

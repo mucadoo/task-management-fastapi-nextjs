@@ -64,5 +64,4 @@ class TaskRepository(BaseRepository[Task]):
         if not db_task:
             return False
         self.db.delete(db_task)
-        self.db.commit()
         return True

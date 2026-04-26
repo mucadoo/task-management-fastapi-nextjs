@@ -19,16 +19,12 @@ class BaseRepository(Generic[ModelType]):
     def create(self, obj_in: dict) -> ModelType:
         db_obj = self.model(**obj_in)
         self.db.add(db_obj)
-        self.db.commit()
-        self.db.refresh(db_obj)
         return db_obj
 
     def update(self, db_obj: ModelType, obj_in: dict) -> ModelType:
         for field in obj_in:
             if hasattr(db_obj, field):
                 setattr(db_obj, field, obj_in[field])
-        self.db.commit()
-        self.db.refresh(db_obj)
         return db_obj
 
     def delete(self, id: uuid.UUID) -> bool:
@@ -36,5 +32,4 @@ class BaseRepository(Generic[ModelType]):
         if not obj:
             return False
         self.db.delete(obj)
-        self.db.commit()
         return True

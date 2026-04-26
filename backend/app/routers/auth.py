@@ -30,6 +30,7 @@ def register(
     user = user_repo.create_user(
         user_data.email, hashed, user_data.name, user_data.username
     )
+    user_repo.db.commit()
     return auth_service.create_user_tokens(user, auth_repo)
 
 
@@ -66,6 +67,7 @@ def refresh(
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
     auth_repo.revoke_token(db_token.id)
+    auth_repo.db.commit()
     return auth_service.create_user_tokens(user, auth_repo)
 
 
@@ -105,7 +107,9 @@ def update_me(
         if user_repo.get_by_username(user_update.username):
             raise HTTPException(status_code=409, detail="Username already taken")
             
-    return user_repo.update_user(current_user, update_data)
+    updated_user = user_repo.update_user(current_user, update_data)
+    user_repo.db.commit()
+    return updated_user
 
 
 @router.get("/check-username")

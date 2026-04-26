@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
 from .routers import tasks, auth, logic
 from .config import get_settings
 from .schemas.common import ErrorResponse
@@ -28,6 +29,23 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(
         status_code=exc.status_code,
         content=ErrorResponse(error=str(exc.detail)).model_dump(),
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    errors = []
+    for error in exc.errors():
+        field = error["loc"][-1] if error["loc"] else "unknown"
+        errors.append({"field": str(field), "message": error["msg"]})
+
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content=ErrorResponse(
+            error="Validation failed",
+            detail=errors,
+            code="VALIDATION_ERROR"
+        ).model_dump(),
     )
 
 
