@@ -59,7 +59,7 @@ export default function RegisterPage() {
     setError(null);
     try {
       await api.register({ email, name, password });
-      router.push('/tasks');
+      router.push('/app');
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'));

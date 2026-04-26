@@ -4,7 +4,7 @@ import ErrorMessage from '../../components/ui/ErrorMessage';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 export const dynamic = 'force-dynamic';
-export default async function TasksPage() {
+export default async function AppDashboardPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
   if (!token) {

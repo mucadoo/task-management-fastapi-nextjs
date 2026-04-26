@@ -22,7 +22,7 @@ export default function LoginPage() {
     setError(null);
     try {
       await api.login({ identifier, password });
-      router.push('/tasks');
+      router.push('/app');
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'));
