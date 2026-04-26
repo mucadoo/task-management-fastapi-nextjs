@@ -122,8 +122,8 @@ export default function TaskForm({
         </div>
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
           {error && <ErrorMessage message={error} />}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-warm-600 dark:text-warm-400 ml-0.5">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
               {t('common.title')} <span className="text-red-500">*</span>
             </label>
             <input
@@ -137,8 +137,8 @@ export default function TaskForm({
               <p className="text-[10px] text-red-500 ml-1">{errors.title.message as string}</p>
             )}
           </div>
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-warm-600 dark:text-warm-400 ml-0.5">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
               {t('tasks.description')}
             </label>
             <textarea
@@ -150,8 +150,8 @@ export default function TaskForm({
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-warm-600 dark:text-warm-400 ml-0.5">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
                 {t('tasks.status')}
               </label>
               <div className="relative">
@@ -167,8 +167,8 @@ export default function TaskForm({
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
               </div>
             </div>
-            <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-warm-600 dark:text-warm-400 ml-0.5">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
                 {t('tasks.priority')}
               </label>
               <div className="relative">
@@ -185,8 +185,8 @@ export default function TaskForm({
               </div>
             </div>
           </div>
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-warm-600 dark:text-warm-400 ml-0.5">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
               {t('tasks.due_date')}
             </label>
             <Controller
@@ -214,7 +214,7 @@ export default function TaskForm({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-[1.5] btn-primary cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+              className="flex-[1.5] btn-primary cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <LoadingSpinner size="sm" color="white" />
