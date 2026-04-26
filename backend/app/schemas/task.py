@@ -3,6 +3,7 @@ from typing import Optional, List
 import datetime
 import uuid
 from ..models.task import TaskStatus, TaskPriority
+from .common import PaginatedResponse
 
 
 class TaskBase(BaseModel):
@@ -24,8 +25,5 @@ class TaskResponse(TaskBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-class TaskListResponse(BaseModel):
-    items: List[TaskResponse]
-    total: int
-    page: int
-    page_size: int
+class TaskListResponse(PaginatedResponse[TaskResponse]):
+    pass

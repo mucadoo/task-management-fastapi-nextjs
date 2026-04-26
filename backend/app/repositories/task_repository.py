@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy.orm import Session
-from ..models.task import Task
+from ..models.task import Task, TaskStatus
 from ..schemas.task import TaskCreate
 from typing import List, Optional, Tuple
 
@@ -78,12 +78,13 @@ class TaskRepository:
         db_task = self.get_by_id(user_id, task_id)
         if not db_task:
             return None
-        from ..models.task import TaskStatus
 
-        if db_task.status == TaskStatus.COMPLETED:
-            db_task.status = TaskStatus.PENDING
-        else:
-            db_task.status = TaskStatus.COMPLETED
+        db_task.status = (
+            TaskStatus.PENDING
+            if db_task.status == TaskStatus.COMPLETED
+            else TaskStatus.COMPLETED
+        )
+
         self.db.commit()
         self.db.refresh(db_task)
         return db_task

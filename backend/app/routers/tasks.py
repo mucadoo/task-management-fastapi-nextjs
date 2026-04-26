@@ -1,12 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
 from typing import Optional
 import uuid
-from ..database import get_db
+from ..dependencies import get_current_user, get_task_repository
 from ..repositories.task_repository import TaskRepository
 from ..schemas.task import TaskCreate, TaskResponse, TaskListResponse
 from ..models.task import TaskStatus, TaskPriority
-from ..dependencies import get_current_user
 from ..models.user import User
 
 router = APIRouter()
@@ -15,10 +13,9 @@ router = APIRouter()
 @router.post("/", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
 def create_task(
     task: TaskCreate,
-    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    repo: TaskRepository = Depends(get_task_repository),
 ):
-    repo = TaskRepository(db)
     return repo.create(current_user.id, task)
 
 
@@ -33,10 +30,9 @@ def read_tasks(
         "created_at", pattern="^(created_at|due_date|priority|title)$"
     ),
     sort_dir: str = Query("desc", pattern="^(asc|desc)$"),
-    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    repo: TaskRepository = Depends(get_task_repository),
 ):
-    repo = TaskRepository(db)
     items, total = repo.get_all(
         user_id=current_user.id,
         page=page,
@@ -53,10 +49,9 @@ def read_tasks(
 @router.get("/{task_id}", response_model=TaskResponse)
 def read_task(
     task_id: uuid.UUID,
-    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    repo: TaskRepository = Depends(get_task_repository),
 ):
-    repo = TaskRepository(db)
     task = repo.get_by_id(current_user.id, task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -67,10 +62,9 @@ def read_task(
 def update_task(
     task_id: uuid.UUID,
     task: TaskCreate,
-    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    repo: TaskRepository = Depends(get_task_repository),
 ):
-    repo = TaskRepository(db)
     updated = repo.update(current_user.id, task_id, task)
     if not updated:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -80,10 +74,9 @@ def update_task(
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_task(
     task_id: uuid.UUID,
-    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    repo: TaskRepository = Depends(get_task_repository),
 ):
-    repo = TaskRepository(db)
     if not repo.delete(current_user.id, task_id):
         raise HTTPException(status_code=404, detail="Task not found")
     return None
@@ -92,10 +85,9 @@ def delete_task(
 @router.post("/{task_id}/toggle", response_model=TaskResponse)
 def toggle_task(
     task_id: uuid.UUID,
-    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    repo: TaskRepository = Depends(get_task_repository),
 ):
-    repo = TaskRepository(db)
     updated = repo.toggle(current_user.id, task_id)
     if not updated:
         raise HTTPException(status_code=404, detail="Task not found")
