@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User } from '../types/auth';
-import { api } from '../lib/api';
+import { authService } from '../services/auth-service';
 import { tokenManager } from '../lib/token';
 import { useToastStore } from './useToastStore';
 
@@ -34,8 +34,8 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         const { addToast } = useToastStore.getState();
         try {
-          await api.login(data);
-          const user = await api.getMe();
+          await authService.login(data);
+          const user = await authService.getMe();
           set({ user, isAuthenticated: true, isLoading: false });
           addToast('Successfully logged in!', 'success');
         } catch (err: any) {
@@ -50,8 +50,8 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         const { addToast } = useToastStore.getState();
         try {
-          await api.register(data);
-          const user = await api.getMe();
+          await authService.register(data);
+          const user = await authService.getMe();
           set({ user, isAuthenticated: true, isLoading: false });
           addToast('Account created successfully!', 'success');
         } catch (err: any) {
@@ -63,7 +63,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        api.logout();
+        authService.logout();
         set({ user: null, isAuthenticated: false, error: null });
         useToastStore.getState().addToast('Logged out successfully', 'info');
       },
@@ -81,11 +81,11 @@ export const useAuthStore = create<AuthState>()(
 
         set({ isLoading: true });
         try {
-          const user = await api.getMe();
+          const user = await authService.getMe();
           set({ user, isAuthenticated: true, isLoading: false });
         } catch (err) {
           // If fetchMe fails, the token is likely invalid/expired
-          api.logout();
+          authService.logout();
           set({ user: null, isAuthenticated: false, isLoading: false });
         }
       },
@@ -94,7 +94,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         const { addToast } = useToastStore.getState();
         try {
-          const updatedUser = await api.updateMe(data);
+          const updatedUser = await authService.updateMe(data);
           set({ user: updatedUser, isLoading: false });
           addToast('Profile updated successfully!', 'success');
         } catch (err: any) {

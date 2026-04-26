@@ -1,13 +1,21 @@
 import uuid
 from sqlalchemy.orm import Session
-from ..models.task import Task, TaskStatus
+from .base_repository import BaseRepository
+from ..models.task import Task
 from ..schemas.task import TaskCreate, TaskUpdate
 from typing import List, Optional, Tuple
 
 
-class TaskRepository:
+class TaskRepository(BaseRepository[Task]):
     def __init__(self, db: Session):
-        self.db = db
+        super().__init__(Task, db)
+
+    def get_by_id(self, user_id: uuid.UUID, task_id: uuid.UUID) -> Optional[Task]:
+        return (
+            self.db.query(Task)
+            .filter(Task.id == task_id, Task.owner_id == user_id)
+            .first()
+        )
 
     def get_all(
         self,
@@ -40,36 +48,18 @@ class TaskRepository:
         items = query.offset(skip).limit(page_size).all()
         return items, total
 
-    def get_by_id(self, user_id: uuid.UUID, task_id: uuid.UUID) -> Optional[Task]:
-        return (
-            self.db.query(Task)
-            .filter(Task.id == task_id, Task.owner_id == user_id)
-            .first()
-        )
+    def create_with_owner(self, user_id: uuid.UUID, task_data: TaskCreate) -> Task:
+        return super().create({**task_data.model_dump(), "owner_id": user_id})
 
-    def create(self, user_id: uuid.UUID, task_data: TaskCreate) -> Task:
-        db_task = Task(**task_data.model_dump(), owner_id=user_id)
-        self.db.add(db_task)
-        self.db.commit()
-        self.db.refresh(db_task)
-        return db_task
-
-    def update(
+    def update_task(
         self, user_id: uuid.UUID, task_id: uuid.UUID, task_data: TaskUpdate
     ) -> Optional[Task]:
         db_task = self.get_by_id(user_id, task_id)
         if not db_task:
             return None
-        
-        update_data = task_data.model_dump(exclude_unset=True)
-        for key, value in update_data.items():
-            setattr(db_task, key, value)
-            
-        self.db.commit()
-        self.db.refresh(db_task)
-        return db_task
+        return super().update(db_task, task_data.model_dump(exclude_unset=True))
 
-    def delete(self, user_id: uuid.UUID, task_id: uuid.UUID) -> bool:
+    def delete_task(self, user_id: uuid.UUID, task_id: uuid.UUID) -> bool:
         db_task = self.get_by_id(user_id, task_id)
         if not db_task:
             return False

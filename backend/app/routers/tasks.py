@@ -17,7 +17,7 @@ def create_task(
     current_user: User = Depends(get_current_user),
     repo: TaskRepository = Depends(get_task_repository),
 ):
-    return repo.create(current_user.id, task)
+    return repo.create_with_owner(current_user.id, task)
 
 
 @router.get("/", response_model=TaskListResponse)
@@ -66,7 +66,7 @@ def update_task(
     current_user: User = Depends(get_current_user),
     repo: TaskRepository = Depends(get_task_repository),
 ):
-    updated = repo.update(current_user.id, task_id, task)
+    updated = repo.update_task(current_user.id, task_id, task)
     if not updated:
         raise HTTPException(status_code=404, detail="Task not found")
     return updated
@@ -78,7 +78,7 @@ def delete_task(
     current_user: User = Depends(get_current_user),
     repo: TaskRepository = Depends(get_task_repository),
 ):
-    if not repo.delete(current_user.id, task_id):
+    if not repo.delete_task(current_user.id, task_id):
         raise HTTPException(status_code=404, detail="Task not found")
     return None
 

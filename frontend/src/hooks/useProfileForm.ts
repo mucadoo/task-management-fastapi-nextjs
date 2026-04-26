@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/useAuthStore';
-import { api } from '../lib/api';
+import { authService } from '../services/auth-service';
 import { getPersonalSchema, getSecuritySchema } from '../lib/validations';
 
 interface UseProfileFormProps {
@@ -71,7 +71,7 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
       }
       setUsernameStatus('checking');
       try {
-        const { available } = await api.checkUsername(debouncedUsername);
+        const { available } = await authService.checkUsername(debouncedUsername);
         setUsernameStatus(available ? 'available' : 'taken');
       } catch {
         setUsernameStatus('idle');
@@ -93,7 +93,7 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
       }
       setEmailStatus('checking');
       try {
-        const { available } = await api.checkEmail(debouncedEmail);
+        const { available } = await authService.checkEmail(debouncedEmail);
         setEmailStatus(available ? 'available' : 'taken');
       } catch {
         setEmailStatus('idle');

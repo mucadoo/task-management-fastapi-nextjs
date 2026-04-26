@@ -3,7 +3,7 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import { api } from '../lib/api';
+import { taskService } from '../services/task-service';
 import {
   TaskCreate,
   TaskUpdate,
@@ -24,7 +24,7 @@ export function useTasks(filters: {
   return useInfiniteQuery({
     queryKey: ['tasks', filters],
     queryFn: ({ pageParam = 1 }) =>
-      api.getTasks({
+      taskService.getTasks({
         ...filters,
         page: pageParam,
         page_size: 12,
@@ -42,7 +42,7 @@ export function useCreateTask() {
   const { addToast } = useToastStore();
 
   return useMutation({
-    mutationFn: (data: TaskCreate) => api.createTask(data),
+    mutationFn: (data: TaskCreate) => taskService.createTask(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       addToast('Task created successfully!', 'success');
@@ -59,7 +59,7 @@ export function useUpdateTask() {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: TaskUpdate }) =>
-      api.updateTask(id, data),
+      taskService.updateTask(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       if (variables.data.title) {
@@ -77,7 +77,7 @@ export function useToggleTaskStatus() {
   const { addToast } = useToastStore();
 
   return useMutation({
-    mutationFn: (id: string) => api.toggleTaskStatus(id),
+    mutationFn: (id: string) => taskService.toggleTaskStatus(id),
     onMutate: async (id: string) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries({ queryKey: ['tasks'] });
@@ -127,7 +127,7 @@ export function useDeleteTask() {
   const { addToast } = useToastStore();
 
   return useMutation({
-    mutationFn: (id: string) => api.deleteTask(id),
+    mutationFn: (id: string) => taskService.deleteTask(id),
     onMutate: async (id: string) => {
       await queryClient.cancelQueries({ queryKey: ['tasks'] });
       const previousTasks = queryClient.getQueryData(['tasks']);
