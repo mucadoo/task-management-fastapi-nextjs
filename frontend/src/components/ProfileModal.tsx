@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { api } from '../lib/api';
@@ -10,12 +10,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useDebounce } from 'use-debounce';
 import { User } from '../types/auth';
+
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLogout: () => void;
   initialTab?: 'personal' | 'security';
 }
+
 export default function ProfileModal({
   isOpen,
   onClose,
@@ -35,7 +37,8 @@ export default function ProfileModal({
   const [emailStatus, setEmailStatus] = useState<
     'idle' | 'checking' | 'available' | 'taken' | 'invalid'
   >('idle');
-  const personalSchema = z.object({
+
+  const personalSchema = useMemo(() => z.object({
     name: z.string().min(1, t('profile.name_required')),
     email: z.string().email(t('profile.email_invalid')),
     username: z
@@ -45,8 +48,9 @@ export default function ProfileModal({
       .transform((val) => val.toLowerCase())
       .optional()
       .or(z.literal('')),
-  });
-  const securitySchema = z
+  }), [t]);
+
+  const securitySchema = useMemo(() => z
     .object({
       current_password: z.string().min(1, t('profile.current_password_required')),
       password: z
@@ -61,13 +65,15 @@ export default function ProfileModal({
     .refine((data) => data.password === data.confirmPassword, {
       message: t('profile.password_match'),
       path: ['confirmPassword'],
-    });
+    }), [t]);
+
   const {
     register,
     handleSubmit,
     reset,
     watch,
-    formState: { errors },
+    clearErrors,
+    formState: { errors, touchedFields },
   } = useForm({
     resolver: zodResolver(activeTab === 'personal' ? personalSchema : securitySchema),
     defaultValues: {
@@ -79,20 +85,26 @@ export default function ProfileModal({
       confirmPassword: '',
     },
   });
+
   const watchedUsername = watch('username');
   const watchedEmail = watch('email');
   const [debouncedUsername] = useDebounce(watchedUsername, 500);
   const [debouncedEmail] = useDebounce(watchedEmail, 500);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      setError(null);
+      setSuccess(null);
+      clearErrors();
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen]);
+  }, [isOpen, clearErrors]);
+
   useEffect(() => {
     if (isOpen) {
       setActiveTab(initialTab);
@@ -116,6 +128,7 @@ export default function ProfileModal({
         .finally(() => setIsLoading(false));
     }
   }, [isOpen, initialTab, reset, t]);
+
   useEffect(() => {
     const checkUsernameAvailability = async () => {
       if (!debouncedUsername || debouncedUsername === user?.username) {
@@ -138,6 +151,7 @@ export default function ProfileModal({
       checkUsernameAvailability();
     }
   }, [debouncedUsername, user?.username, activeTab]);
+
   useEffect(() => {
     const checkEmailAvailability = async () => {
       if (!debouncedEmail || debouncedEmail === user?.email) {
@@ -160,12 +174,14 @@ export default function ProfileModal({
       checkEmailAvailability();
     }
   }, [debouncedEmail, user?.email, activeTab]);
+
   const onTabChange = (tab: 'personal' | 'security') => {
     setActiveTab(tab);
     setError(null);
     setSuccess(null);
     setUsernameStatus('idle');
     setEmailStatus('idle');
+    clearErrors();
     reset({
       name: user?.name || '',
       email: user?.email || '',
@@ -175,6 +191,7 @@ export default function ProfileModal({
       confirmPassword: '',
     });
   };
+
   const onSaveProfile = async (data: any) => {
     if (activeTab === 'personal' && (usernameStatus === 'taken' || emailStatus === 'taken')) return;
     setIsSubmitting(true);
@@ -206,7 +223,9 @@ export default function ProfileModal({
       setIsSubmitting(false);
     }
   };
+
   if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="card-surface w-full max-w-md p-6 space-y-6">
@@ -261,10 +280,10 @@ export default function ProfileModal({
                       <input
                         {...register('name')}
                         type="text"
-                        className="input-base"
+                        className={`input-base ${errors.name && touchedFields.name ? 'border-red-500 focus:border-red-500' : ''}`}
                         placeholder={t('common.name')}
                       />
-                      {errors.name && (
+                      {errors.name && touchedFields.name && (
                         <p className="text-xs text-red-500 ml-1 mt-1">
                           {errors.name.message as string}
                         </p>
@@ -278,7 +297,7 @@ export default function ProfileModal({
                         <input
                           {...register('email')}
                           type="email"
-                          className={`input-base pr-10 ${emailStatus === 'taken' ? 'border-red-500 focus:border-red-500' : emailStatus === 'available' ? 'border-emerald-500 focus:border-emerald-500' : ''}`}
+                          className={`input-base pr-10 ${emailStatus === 'taken' ? 'border-red-500 focus:border-red-500' : emailStatus === 'available' ? 'border-emerald-500 focus:border-emerald-500' : (errors.email && touchedFields.email ? 'border-red-500 focus:border-red-500' : '')}`}
                           placeholder={t('common.email')}
                         />
                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -308,7 +327,7 @@ export default function ProfileModal({
                           {t('profile.email_taken')}
                         </p>
                       )}
-                      {errors.email && (
+                      {errors.email && touchedFields.email && (
                         <p className="text-xs text-red-500 ml-1 mt-1">
                           {errors.email.message as string}
                         </p>
@@ -322,7 +341,7 @@ export default function ProfileModal({
                         <input
                           {...register('username')}
                           type="text"
-                          className={`input-base pr-10 ${usernameStatus === 'taken' ? 'border-red-500 focus:border-red-500' : usernameStatus === 'available' ? 'border-emerald-500 focus:border-emerald-500' : ''}`}
+                          className={`input-base pr-10 ${usernameStatus === 'taken' ? 'border-red-500 focus:border-red-500' : usernameStatus === 'available' ? 'border-emerald-500 focus:border-emerald-500' : (errors.username && touchedFields.username ? 'border-red-500 focus:border-red-500' : '')}`}
                           placeholder={t('common.username')}
                         />
                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -357,7 +376,7 @@ export default function ProfileModal({
                           {t('profile.username_invalid')}
                         </p>
                       )}
-                      {errors.username && (
+                      {errors.username && touchedFields.username && (
                         <p className="text-xs text-red-500 ml-1 mt-1">
                           {errors.username.message as string}
                         </p>
@@ -373,10 +392,10 @@ export default function ProfileModal({
                       <input
                         {...register('current_password')}
                         type="password"
-                        className="input-base"
+                        className={`input-base ${errors.current_password && touchedFields.current_password ? 'border-red-500 focus:border-red-500' : ''}`}
                         placeholder={t('profile.current_password')}
                       />
-                      {errors.current_password && (
+                      {errors.current_password && touchedFields.current_password && (
                         <p className="text-xs text-red-500 ml-1 mt-1">
                           {errors.current_password.message as string}
                         </p>
@@ -389,10 +408,10 @@ export default function ProfileModal({
                       <input
                         {...register('password')}
                         type="password"
-                        className="input-base"
+                        className={`input-base ${errors.password && touchedFields.password ? 'border-red-500 focus:border-red-500' : ''}`}
                         placeholder={t('profile.new_password')}
                       />
-                      {errors.password && (
+                      {errors.password && touchedFields.password && (
                         <p className="text-xs text-red-500 ml-1 mt-1">
                           {errors.password.message as string}
                         </p>
@@ -405,10 +424,10 @@ export default function ProfileModal({
                       <input
                         {...register('confirmPassword')}
                         type="password"
-                        className="input-base"
+                        className={`input-base ${errors.confirmPassword && touchedFields.confirmPassword ? 'border-red-500 focus:border-red-500' : ''}`}
                         placeholder={t('profile.confirm_new_password')}
                       />
-                      {errors.confirmPassword && (
+                      {errors.confirmPassword && touchedFields.confirmPassword && (
                         <p className="text-xs text-red-500 ml-1 mt-1">
                           {errors.confirmPassword.message as string}
                         </p>

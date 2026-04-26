@@ -9,14 +9,7 @@ import * as z from 'zod';
 import ErrorMessage from './ui/ErrorMessage';
 import LoadingSpinner from './ui/LoadingSpinner';
 import { DateTimePicker } from './ui/DateTimePicker';
-const taskSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
-  status: z.enum(['pending', 'in_progress', 'completed']),
-  priority: z.enum(['low', 'medium', 'high']),
-  due_date: z.date().optional().nullable(),
-  due_date_has_time: z.boolean().default(false),
-});
+
 interface TaskFormProps {
   isOpen: boolean;
   onClose: () => void;
@@ -24,6 +17,7 @@ interface TaskFormProps {
   editingTask: Task | null;
   onSubmit: (data: TaskCreate) => Promise<void>;
 }
+
 export default function TaskForm({
   isOpen,
   onClose,
@@ -34,13 +28,24 @@ export default function TaskForm({
   const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const taskSchema = z.object({
+    title: z.string().min(1, t('common.error_required', { field: t('common.title') })),
+    description: z.string().optional(),
+    status: z.enum(['pending', 'in_progress', 'completed']),
+    priority: z.enum(['low', 'medium', 'high']),
+    due_date: z.date().optional().nullable(),
+    due_date_has_time: z.boolean().default(false),
+  });
+
   const {
     register,
     handleSubmit,
     reset,
     watch,
     setValue,
-    formState: { errors },
+    clearErrors,
+    formState: { errors, touchedFields },
     control,
   } = useForm<TaskCreate & { due_date: Date | null }>({
     resolver: zodResolver(taskSchema),
@@ -53,9 +58,12 @@ export default function TaskForm({
       due_date_has_time: false,
     },
   });
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      setError(null);
+      clearErrors();
       if (editingTask) {
         reset({
           title: editingTask.title,
@@ -78,9 +86,10 @@ export default function TaskForm({
     } else {
       document.body.style.overflow = 'unset';
     }
-    setError(null);
-  }, [editingTask, isOpen, reset]);
+  }, [editingTask, isOpen, reset, clearErrors]);
+
   if (!isOpen) return null;
+
   const onFormSubmit = async (data: any) => {
     setIsSubmitting(true);
     setError(null);
@@ -103,6 +112,7 @@ export default function TaskForm({
       setIsSubmitting(false);
     }
   };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="card-surface w-full max-w-md p-6 space-y-5">
@@ -129,11 +139,11 @@ export default function TaskForm({
             <input
               {...register('title')}
               type="text"
-              className={`input-base ${errors.title ? 'border-red-500 focus:border-red-500' : ''}`}
+              className={`input-base ${errors.title && touchedFields.title ? 'border-red-500 focus:border-red-500' : ''}`}
               placeholder={t('tasks.placeholder_title')}
               disabled={isSubmitting}
             />
-            {errors.title && (
+            {errors.title && touchedFields.title && (
               <p className="text-xs text-red-500 ml-1 mt-1">{errors.title.message as string}</p>
             )}
           </div>
