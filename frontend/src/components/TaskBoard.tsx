@@ -90,7 +90,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
         setIsLoading(false);
       }
     },
-    [data.page_size, statusFilter, priorityFilter, debouncedSearchTerm, t],
+    [data.page_size, statusFilter, priorityFilter, debouncedSearchTerm, sortBy, sortDir, t],
   );
   useEffect(() => {
     refetch(1);
