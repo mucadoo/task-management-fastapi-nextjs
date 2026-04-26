@@ -11,13 +11,18 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { Mail, Lock, ArrowRight, BookOpen } from 'lucide-react';
 import { getLoginSchema } from '../../lib/validations';
 import * as z from 'zod';
+import { useAuth } from '../../hooks/useAuth';
+import { cn } from '../../lib/utils';
 
 type LoginForm = z.infer<ReturnType<typeof getLoginSchema>>;
 
 export default function LoginPage() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { login, isLoading } = useAuthStore();
+  const { login, isLoading: authActionLoading } = useAuthStore();
+  
+  // Redirect to /app if already logged in
+  const { isLoading: authCheckLoading } = useAuth(false);
 
   const {
     register,
@@ -40,6 +45,8 @@ export default function LoginPage() {
     }
   };
 
+  if (authCheckLoading) return null;
+
   return (
     <div className="min-h-screen flex">
       <div className="hidden lg:flex lg:w-5/12 bg-brand-600 dark:bg-brand-900 p-12 flex-col justify-between relative overflow-hidden">
@@ -49,7 +56,7 @@ export default function LoginPage() {
         }} />
         <div className="relative z-10">
           <div className="w-10 h-10 bg-white rounded flex items-center justify-center mb-6">
-            <BookOpen className="text-brand-600 h-6 w-6" />
+            < BookOpen className="text-brand-600 h-6 w-6" />
           </div>
           <h1 className="text-4xl font-bold text-white mb-2">TaskFlow</h1>
           <p className="text-white/80">{t('auth.slogan')}</p>
@@ -92,7 +99,7 @@ export default function LoginPage() {
                       type="text"
                       className={cn("input-base pl-10", errors.identifier && "border-red-500")}
                       placeholder={t('auth.email_or_username')}
-                      disabled={isLoading}
+                      disabled={authActionLoading}
                     />
                   </div>
                   {errors.identifier && (
@@ -111,7 +118,7 @@ export default function LoginPage() {
                       type="password"
                       className={cn("input-base pl-10", errors.password && "border-red-500")}
                       placeholder={t('auth.password')}
-                      disabled={isLoading}
+                      disabled={authActionLoading}
                     />
                   </div>
                   {errors.password && (
@@ -119,8 +126,8 @@ export default function LoginPage() {
                   )}
                 </div>
               </div>
-              <button type="submit" disabled={isLoading} className="btn-primary w-full">
-                {isLoading ? (
+              <button type="submit" disabled={authActionLoading} className="btn-primary w-full">
+                {authActionLoading ? (
                   <LoadingSpinner size="sm" className="text-white" />
                 ) : (
                   <>
@@ -135,8 +142,4 @@ export default function LoginPage() {
       </div>
     </div>
   );
-}
-
-function cn(...classes: any[]) {
-  return classes.filter(Boolean).join(' ');
 }

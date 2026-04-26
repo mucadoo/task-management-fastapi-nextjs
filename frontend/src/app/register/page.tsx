@@ -15,15 +15,19 @@ import { useDebounce } from 'use-debounce';
 import { getRegisterSchema } from '../../lib/validations';
 import * as z from 'zod';
 import { cn } from '../../lib/utils';
+import { useAuth } from '../../hooks/useAuth';
 
 type RegisterForm = z.infer<ReturnType<typeof getRegisterSchema>>;
 
 export default function RegisterPage() {
   const { t } = useTranslation();
-  const { register: registerUser, isLoading } = useAuthStore();
+  const { register: registerUser, isLoading: authActionLoading } = useAuthStore();
   const [emailStatus, setEmailStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
   
   const router = useRouter();
+
+  // Redirect to /app if already logged in
+  const { isLoading: authCheckLoading } = useAuth(false);
 
   const {
     register,
@@ -69,6 +73,8 @@ export default function RegisterPage() {
       // Handled by store
     }
   };
+
+  if (authCheckLoading) return null;
 
   return (
     <div className="min-h-screen flex">
@@ -121,7 +127,7 @@ export default function RegisterPage() {
                       type="text"
                       className={cn("input-base pl-10", errors.name && "border-red-500")}
                       placeholder={t('auth.name')}
-                      disabled={isLoading}
+                      disabled={authActionLoading}
                     />
                   </div>
                   {errors.name && <p className="text-[10px] text-red-500 font-medium ml-1">{errors.name.message}</p>}
@@ -141,7 +147,7 @@ export default function RegisterPage() {
                         errors.email || emailStatus === 'taken' ? 'border-red-500 focus:ring-red-500/20' : emailStatus === 'available' ? 'border-emerald-500 focus:ring-emerald-500/20' : ''
                       )}
                       placeholder={t('auth.email')}
-                      disabled={isLoading}
+                      disabled={authActionLoading}
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
                       {emailStatus === 'checking' && <Loader2 className="h-4 w-4 text-warm-400 animate-spin" />}
@@ -166,7 +172,7 @@ export default function RegisterPage() {
                       type="password"
                       className={cn("input-base pl-10", errors.password && "border-red-500")}
                       placeholder={t('auth.password')}
-                      disabled={isLoading}
+                      disabled={authActionLoading}
                     />
                   </div>
                   {errors.password && <p className="text-[10px] text-red-500 font-medium ml-1">{errors.password.message}</p>}
@@ -183,14 +189,14 @@ export default function RegisterPage() {
                       type="password"
                       className={cn("input-base pl-10", errors.confirmPassword && "border-red-500")}
                       placeholder={t('auth.confirm_password')}
-                      disabled={isLoading}
+                      disabled={authActionLoading}
                     />
                   </div>
                   {errors.confirmPassword && <p className="text-[10px] text-red-500 font-medium ml-1">{errors.confirmPassword.message}</p>}
                 </div>
               </div>
-              <button type="submit" disabled={isLoading || emailStatus === 'taken'} className="btn-primary w-full mt-2">
-                {isLoading ? <LoadingSpinner size="sm" className="text-white" /> : (
+              <button type="submit" disabled={authActionLoading || emailStatus === 'taken'} className="btn-primary w-full mt-2">
+                {authActionLoading ? <LoadingSpinner size="sm" className="text-white" /> : (
                   <>
                     {t('auth.register')}
                     <ArrowRight className="ml-2 h-4 w-4" />

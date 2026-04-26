@@ -1,25 +1,12 @@
 "use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import TaskBoard from '../../components/TaskBoard';
-import { useAuthStore } from '../../store/useAuthStore';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function AppDashboardPage() {
-  const router = useRouter();
-  const { isAuthenticated, fetchMe, isLoading: authLoading } = useAuthStore();
+  const { isLoading, isAuthenticated } = useAuth(true);
 
-  useEffect(() => {
-    fetchMe();
-  }, [fetchMe]);
-
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, authLoading, router]);
-
-  if (authLoading || !isAuthenticated) {
+  if (isLoading || !isAuthenticated) {
     return (
       <main className="min-h-screen flex items-center justify-center p-4">
         <div className="animate-pulse flex flex-col items-center gap-2">
