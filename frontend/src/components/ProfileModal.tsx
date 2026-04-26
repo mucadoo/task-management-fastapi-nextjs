@@ -171,17 +171,6 @@ export default function ProfileModal({ isOpen, onClose, onLogout, initialTab = '
           <div className="flex justify-center p-8"><LoadingSpinner /></div>
         ) : (
           <>
-            <div className="bg-warm-50 dark:bg-warm-950/40 p-4 border-b border-warm-200 dark:border-warm-800 flex items-center justify-between rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 flex items-center justify-center bg-brand-500 text-white font-bold rounded-lg text-sm">{user?.name?.charAt(0) || 'U'}</div>
-                <div>
-                  <p className="font-bold text-sm text-warm-900 dark:text-white">{user?.name}</p>
-                  <p className="text-xs text-warm-500">{user?.email}</p>
-                </div>
-              </div>
-              <button onClick={onLogout} className="text-xs font-semibold text-brand-500 dark:text-brand-400 hover:underline cursor-pointer">{t('auth.logout')}</button>
-            </div>
-
             <div className="flex gap-1 p-1 bg-warm-100 dark:bg-white/5 rounded-lg">
               <button 
                 onClick={() => { setActiveTab('personal'); setError(null); setSuccess(null); }}

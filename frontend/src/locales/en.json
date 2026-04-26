@@ -27,7 +27,10 @@
     "switch_english": "Switch to English",
     "select_language": "Select Language",
     "english": "English",
-    "portuguese": "Portuguese"
+    "portuguese": "Portuguese",
+    "pick_date": "Pick a date",
+    "set_time": "Set time",
+    "clear": "Clear"
   },
   "auth": {
     "login": "Login",
@@ -80,9 +83,10 @@
     "placeholder_title": "Enter task title",
     "placeholder_description": "Enter task description (optional)",
     "no_description": "No description provided.",
-    "add_due_date": "Add Due Date",
-    "include_time": "Include Time",
     "due_date": "Due Date",
+    "time": "Time",
+    "placeholder_due_date": "Pick a date",
+    "placeholder_time": "Time",
     "due_in": "Due in {{time}}",
     "overdue": "Overdue",
     "today": "Today",

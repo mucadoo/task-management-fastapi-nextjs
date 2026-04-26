@@ -27,7 +27,10 @@
     "switch_english": "Mudar para Inglês",
     "select_language": "Selecionar Idioma",
     "english": "Inglês",
-    "portuguese": "Português"
+    "portuguese": "Português",
+    "pick_date": "Escolher data",
+    "set_time": "Definir hora",
+    "clear": "Limpar"
   },
   "auth": {
     "login": "Entrar",
@@ -80,9 +83,10 @@
     "placeholder_title": "Digite o título da tarefa",
     "placeholder_description": "Digite a descrição da tarefa (opcional)",
     "no_description": "Nenhuma descrição fornecida.",
-    "add_due_date": "Adicionar Data de Entrega",
-    "include_time": "Incluir Horário",
     "due_date": "Data de Entrega",
+    "time": "Horário",
+    "placeholder_due_date": "Escolha uma data",
+    "placeholder_time": "Hora",
     "due_in": "Entrega em {{time}}",
     "overdue": "Atrasada",
     "today": "Hoje",
