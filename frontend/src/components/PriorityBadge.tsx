@@ -11,7 +11,7 @@ export default function PriorityBadge({ priority }: PriorityBadgeProps) {
     low: {
       label: t('tasks.low'),
       classes:
-        'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900',
+        'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900',
     },
     medium: {
       label: t('tasks.medium'),

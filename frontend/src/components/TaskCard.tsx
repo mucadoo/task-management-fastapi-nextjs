@@ -85,7 +85,7 @@ const TaskCard = memo(function TaskCard({
       case 'medium':
         return 'bg-amber-500';
       case 'low':
-        return 'bg-emerald-500';
+        return 'bg-blue-500';
       default:
         return 'bg-brand-500';
     }
@@ -243,10 +243,10 @@ const TaskCard = memo(function TaskCard({
 
   return (
     <div
-      className={`group card-surface p-5 flex flex-col h-full hover:shadow-md transition-all duration-300 relative pl-6 ${isCompleted ? 'opacity-80' : ''}`}
+      className={`group card-surface p-3.5 flex flex-col h-full hover:shadow-md transition-all duration-300 relative pl-6 ${isCompleted ? 'opacity-80' : ''}`}
     >
       <span className={`accent-bar ${accentColor}`} />
-      <div className="flex justify-between items-start mb-4">
+      <div className="flex justify-between items-start mb-3">
         {/* Action Capsule */}
         <div className="flex items-center gap-1 bg-warm-50 dark:bg-white/5 p-1 rounded-lg border border-warm-200 dark:border-white/10">
           <Tooltip>
@@ -301,7 +301,7 @@ const TaskCard = memo(function TaskCard({
         </div>
 
         {/* Labels Group */}
-        <div className="flex flex-col items-end gap-1.5">
+        <div className="flex flex-col items-end gap-1">
           <StatusBadge status={task.status} />
           <PriorityBadge priority={task.priority} />
         </div>
@@ -309,7 +309,7 @@ const TaskCard = memo(function TaskCard({
 
       <div className="flex-grow">
         <h3
-          className={`text-base font-semibold mb-2 transition-all duration-300 ${
+          className={`text-sm font-semibold mb-1 transition-all duration-300 ${
             isCompleted
               ? 'text-warm-400 dark:text-warm-600 line-through'
               : 'text-warm-900 dark:text-white group-hover:text-brand-500'
@@ -317,12 +317,12 @@ const TaskCard = memo(function TaskCard({
         >
           {task.title}
         </h3>
-        <p className="text-sm text-warm-600 dark:text-warm-400 line-clamp-3 leading-relaxed">
+        <p className="text-xs text-warm-600 dark:text-warm-400 line-clamp-3 leading-snug">
           {task.description || t('tasks.no_description')}
         </p>
         {task.due_date && (
           <div
-            className={`flex items-center gap-2 mt-4 text-xs font-semibold ${
+            className={`flex items-center gap-1.5 mt-2.5 text-[11px] font-semibold ${
               isOverdue
                 ? 'text-red-600 dark:text-red-400'
                 : isDueToday
@@ -331,7 +331,7 @@ const TaskCard = memo(function TaskCard({
             }`}
           >
             <div
-              className={`p-1.5 rounded-lg ${
+              className={`p-1 rounded-lg ${
                 isOverdue
                   ? 'bg-red-50 dark:bg-red-900/20'
                   : isDueToday
@@ -340,24 +340,24 @@ const TaskCard = memo(function TaskCard({
               }`}
             >
               {task.due_date_has_time ? (
-                <Clock className="h-3.5 w-3.5" />
+                <Clock className="h-3 w-3" />
               ) : (
-                <Calendar className="h-3.5 w-3.5" />
+                <Calendar className="h-3 w-3" />
               )}
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] uppercase tracking-wider text-warm-400 mb-0.5">
+              <span className="text-[9px] uppercase tracking-wider text-warm-400 mb-0">
                 {t('tasks.due_date')}
               </span>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 <span>{formattedDueDate}</span>
                 {isOverdue && (
-                  <span className="text-[9px] bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 rounded uppercase">
+                  <span className="text-[8px] bg-red-100 dark:bg-red-900/40 px-1 py-0 rounded uppercase">
                     {t('tasks.overdue')}
                   </span>
                 )}
                 {isDueToday && (
-                  <span className="text-[9px] bg-amber-100 dark:bg-amber-900/40 px-1.5 py-0.5 rounded uppercase">
+                  <span className="text-[8px] bg-amber-100 dark:bg-amber-900/40 px-1 py-0 rounded uppercase">
                     {t('tasks.today')}
                   </span>
                 )}
@@ -366,16 +366,16 @@ const TaskCard = memo(function TaskCard({
           </div>
         )}
       </div>
-      <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-warm-100 dark:border-white/5">
+      <div className="flex justify-end gap-1.5 pt-2.5 mt-2.5 border-t border-warm-100 dark:border-white/5">
         <Tooltip>
           <TooltipTrigger asChild>
             <button
               onClick={() => onEdit(task)}
               disabled={isDeleting}
               aria-label={t('common.edit')}
-              className="p-2 text-warm-500 dark:text-gray-400 hover:text-brand-500 dark:hover:text-white hover:bg-warm-100 dark:hover:bg-white/5 rounded-lg transition-all active:scale-95 cursor-pointer"
+              className="p-1.5 text-warm-500 dark:text-gray-400 hover:text-brand-500 dark:hover:text-white hover:bg-warm-100 dark:hover:bg-white/5 rounded-lg transition-all active:scale-95 cursor-pointer"
             >
-              <Pencil className="h-4 w-4" />
+              <Pencil className="h-3.5 w-3.5" />
             </button>
           </TooltipTrigger>
           <TooltipContent side="top">{t('common.edit')}</TooltipContent>
@@ -386,9 +386,9 @@ const TaskCard = memo(function TaskCard({
               onClick={() => onDelete(task.id)}
               disabled={isDeleting}
               aria-label={t('common.delete')}
-              className="p-2 text-warm-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all active:scale-95 cursor-pointer"
+              className="p-1.5 text-warm-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all active:scale-95 cursor-pointer"
             >
-              {isDeleting ? <LoadingSpinner size="sm" /> : <Trash2 className="h-4 w-4" />}
+              {isDeleting ? <LoadingSpinner size="sm" /> : <Trash2 className="h-3.5 w-3.5" />}
             </button>
           </TooltipTrigger>
           <TooltipContent side="top">{t('common.delete')}</TooltipContent>
