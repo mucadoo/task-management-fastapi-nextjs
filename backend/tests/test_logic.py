@@ -51,7 +51,7 @@ def test_ignores_floats():
 
 def test_analyze_numbers_endpoint(client):
     payload = [1, 2, 3, 4, 5, "a", None]
-    response = client.post("/api/analyze-numbers", json=payload)
+    response = client.post("/api/v1/analyze-numbers", json=payload)
     assert response.status_code == 200
     data = response.json()
     assert data["evenSum"] == 6
@@ -60,6 +60,6 @@ def test_analyze_numbers_endpoint(client):
 
 def test_analyze_numbers_endpoint_unauthenticated(client):
     payload = [2, 4]
-    response = client.post("/api/analyze-numbers", json=payload)
+    response = client.post("/api/v1/analyze-numbers", json=payload)
     assert response.status_code == 200
     assert response.json()["evenSum"] == 6

@@ -12,7 +12,7 @@ import { tokenManager } from './token';
 const API_BASE_URL =
   (typeof window === 'undefined'
     ? process.env.INTERNAL_API_URL
-    : process.env.NEXT_PUBLIC_API_URL) || '/api';
+    : process.env.NEXT_PUBLIC_API_URL) || '/api/v1';
 
 export class ApiError extends Error {
   constructor(

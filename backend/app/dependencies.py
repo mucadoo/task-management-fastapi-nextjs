@@ -9,7 +9,7 @@ from .services import auth_service
 from .services.task_service import TaskService
 from .config import get_settings
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 settings = get_settings()
 
 

@@ -41,9 +41,9 @@ def client(db):
 def auth_headers(client):
     email = "test@example.com"
     password = "password123"
-    client.post("/api/auth/register", json={"email": email, "password": password})
+    client.post("/api/v1/auth/register", json={"email": email, "password": password})
     response = client.post(
-        "/api/auth/login", json={"identifier": email, "password": password}
+        "/api/v1/auth/login", json={"identifier": email, "password": password}
     )
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
@@ -53,9 +53,9 @@ def auth_headers(client):
 def second_user_auth_headers(client):
     email = "second@example.com"
     password = "password123"
-    client.post("/api/auth/register", json={"email": email, "password": password})
+    client.post("/api/v1/auth/register", json={"email": email, "password": password})
     response = client.post(
-        "/api/auth/login", json={"identifier": email, "password": password}
+        "/api/v1/auth/login", json={"identifier": email, "password": password}
     )
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
@@ -64,7 +64,7 @@ def second_user_auth_headers(client):
 @pytest.fixture
 def sample_task(client, auth_headers):
     response = client.post(
-        "/api/tasks/",
+        "/api/v1/tasks/",
         json={"title": "Sample Task", "description": "Sample Description"},
         headers=auth_headers,
     )
