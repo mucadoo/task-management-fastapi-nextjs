@@ -7,7 +7,6 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -32,27 +31,26 @@ export default function ConfirmDialog({
 
   return (
     <AlertDialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
-      <AlertDialogContent>
+      <AlertDialogContent className="max-w-sm">
         <AlertDialogHeader>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-destructive/10 rounded-full flex items-center justify-center">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-            </div>
-            <AlertDialogTitle>{t('common.confirm_action')}</AlertDialogTitle>
+          <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <AlertTriangle className="h-8 w-8 text-red-500" />
           </div>
-          <AlertDialogDescription className="pt-2">
+          <AlertDialogTitle className="text-center text-xl font-bold text-gray-900 dark:text-white mb-2">
+            {t('common.confirm_action')}
+          </AlertDialogTitle>
+          <p className="text-center text-gray-500 dark:text-gray-400">
             {message}
-          </AlertDialogDescription>
+          </p>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>{t('common.cancel')}</AlertDialogCancel>
+        <AlertDialogFooter className="flex flex-col gap-3 mt-8">
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
               onConfirm();
             }}
             disabled={isLoading}
-            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold h-12 rounded-2xl shadow-lg shadow-red-500/25 transition-all active:scale-[0.98] border-none"
           >
             {isLoading ? (
               <LoadingSpinner size="sm" className="text-white" />
@@ -63,6 +61,12 @@ export default function ConfirmDialog({
               </>
             )}
           </AlertDialogAction>
+          <AlertDialogCancel 
+            disabled={isLoading}
+            className="w-full h-12 text-gray-700 dark:text-gray-300 font-bold bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-[0.98]"
+          >
+            {t('common.cancel')}
+          </AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

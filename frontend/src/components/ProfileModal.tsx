@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { api } from '../lib/api';
 import LoadingSpinner from './ui/LoadingSpinner';
 import { useForm } from 'react-hook-form';
@@ -16,9 +16,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from './ui/Dialog';
-import { Button } from './ui/Button';
-import { Input } from './ui/Input';
-import { Label } from './ui/Label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/Tabs';
 
 interface ProfileModalProps {
@@ -219,183 +216,195 @@ export default function ProfileModal({
           <TabsContent value="personal" className="mt-4">
             <form onSubmit={handleSubmit(onSaveProfile)} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">{t('common.name')}</Label>
-                <Input
+                <label htmlFor="name" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
+                  {t('common.name')}
+                </label>
+                <input
                   id="name"
                   {...register('name')}
                   type="text"
                   placeholder={t('common.name')}
-                  className={errors.name && touchedFields.name ? 'border-destructive focus-visible:ring-destructive' : ''}
+                  className={`input-base ${errors.name && touchedFields.name ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : ''}`}
                 />
                 {errors.name && touchedFields.name && (
-                  <p className="text-xs text-destructive font-medium">
+                  <p className="text-xs text-red-500 font-medium ml-1">
                     {errors.name.message as string}
                   </p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">{t('common.email')}</Label>
+                <label htmlFor="email" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
+                  {t('common.email')}
+                </label>
                 <div className="relative">
-                  <Input
+                  <input
                     id="email"
                     {...register('email')}
                     type="email"
                     placeholder={t('common.email')}
-                    className={`pr-10 ${emailStatus === 'taken' ? 'border-destructive focus-visible:ring-destructive' : emailStatus === 'available' ? 'border-emerald-500 focus-visible:ring-emerald-500' : (errors.email && touchedFields.email ? 'border-destructive focus-visible:ring-destructive' : '')}`}
+                    className={`input-base pr-10 ${emailStatus === 'taken' ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : emailStatus === 'available' ? 'border-emerald-500 focus:ring-emerald-500/20 focus:border-emerald-500' : (errors.email && touchedFields.email ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : '')}`}
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
                     {emailStatus === 'checking' && (
-                      <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
+                      <Loader2 className="h-4 w-4 text-warm-400 animate-spin" />
                     )}
                     {emailStatus === 'available' && (
                       <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                     )}
                     {emailStatus === 'taken' && (
-                      <AlertCircle className="h-4 w-4 text-destructive" />
+                      <AlertCircle className="h-4 w-4 text-red-500" />
                     )}
                   </div>
                 </div>
                 {emailStatus === 'checking' && (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-warm-500 ml-1">
                     {t('profile.email_checking')}
                   </p>
                 )}
                 {emailStatus === 'available' && (
-                  <p className="text-xs text-emerald-500">
+                  <p className="text-xs text-emerald-500 ml-1">
                     {t('profile.email_available')}
                   </p>
                 )}
                 {emailStatus === 'taken' && (
-                  <p className="text-xs text-destructive font-medium">
+                  <p className="text-xs text-red-500 font-medium ml-1">
                     {t('profile.email_taken')}
                   </p>
                 )}
                 {errors.email && touchedFields.email && (
-                  <p className="text-xs text-destructive font-medium">
+                  <p className="text-xs text-red-500 font-medium ml-1">
                     {errors.email.message as string}
                   </p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="username">{t('common.username')}</Label>
+                <label htmlFor="username" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
+                  {t('common.username')}
+                </label>
                 <div className="relative">
-                  <Input
+                  <input
                     id="username"
                     {...register('username')}
                     type="text"
                     placeholder={t('common.username')}
-                    className={`pr-10 ${usernameStatus === 'taken' ? 'border-destructive focus-visible:ring-destructive' : usernameStatus === 'available' ? 'border-emerald-500 focus-visible:ring-emerald-500' : (errors.username && touchedFields.username ? 'border-destructive focus-visible:ring-destructive' : '')}`}
+                    className={`input-base pr-10 ${usernameStatus === 'taken' ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : usernameStatus === 'available' ? 'border-emerald-500 focus:ring-emerald-500/20 focus:border-emerald-500' : (errors.username && touchedFields.username ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : '')}`}
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
                     {usernameStatus === 'checking' && (
-                      <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
+                      <Loader2 className="h-4 w-4 text-warm-400 animate-spin" />
                     )}
                     {usernameStatus === 'available' && (
                       <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                     )}
                     {usernameStatus === 'taken' && (
-                      <AlertCircle className="h-4 w-4 text-destructive" />
+                      <AlertCircle className="h-4 w-4 text-red-500" />
                     )}
                   </div>
                 </div>
                 {usernameStatus === 'checking' && (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-warm-500 ml-1">
                     {t('profile.username_checking')}
                   </p>
                 )}
                 {usernameStatus === 'available' && (
-                  <p className="text-xs text-emerald-500">
+                  <p className="text-xs text-emerald-500 ml-1">
                     {t('profile.username_available')}
                   </p>
                 )}
                 {usernameStatus === 'taken' && (
-                  <p className="text-xs text-destructive font-medium">
+                  <p className="text-xs text-red-500 font-medium ml-1">
                     {t('profile.username_taken')}
                   </p>
                 )}
                 {usernameStatus === 'invalid' && (
-                  <p className="text-xs text-destructive font-medium">
+                  <p className="text-xs text-red-500 font-medium ml-1">
                     {t('profile.username_invalid')}
                   </p>
                 )}
                 {errors.username && touchedFields.username && (
-                  <p className="text-xs text-destructive font-medium">
+                  <p className="text-xs text-red-500 font-medium ml-1">
                     {errors.username.message as string}
                   </p>
                 )}
               </div>
-              <DialogFooter className="pt-4">
-                <Button type="button" variant="outline" onClick={onClose}>
+              <DialogFooter className="pt-4 flex flex-row justify-end gap-2">
+                <button type="button" onClick={onClose} className="btn-ghost">
                   {t('common.cancel')}
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                </button>
+                <button type="submit" disabled={isSubmitting} className="btn-primary">
                   {isSubmitting ? (
-                    <LoadingSpinner size="sm" className="text-primary-foreground" />
+                    <LoadingSpinner size="sm" className="text-white" />
                   ) : (
                     t('common.save_changes')
                   )}
-                </Button>
+                </button>
               </DialogFooter>
             </form>
           </TabsContent>
           <TabsContent value="security" className="mt-4">
             <form onSubmit={handleSubmit(onSaveProfile)} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="current_password">{t('profile.current_password')}</Label>
-                <Input
+                <label htmlFor="current_password" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
+                  {t('profile.current_password')}
+                </label>
+                <input
                   id="current_password"
                   {...register('current_password')}
                   type="password"
                   placeholder={t('profile.current_password')}
-                  className={errors.current_password && touchedFields.current_password ? 'border-destructive focus-visible:ring-destructive' : ''}
+                  className={`input-base ${errors.current_password && touchedFields.current_password ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : ''}`}
                 />
                 {errors.current_password && touchedFields.current_password && (
-                  <p className="text-xs text-destructive font-medium">
+                  <p className="text-xs text-red-500 font-medium ml-1">
                     {errors.current_password.message as string}
                   </p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">{t('profile.new_password')}</Label>
-                <Input
+                <label htmlFor="password" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
+                  {t('profile.new_password')}
+                </label>
+                <input
                   id="password"
                   {...register('password')}
                   type="password"
                   placeholder={t('profile.new_password')}
-                  className={errors.password && touchedFields.password ? 'border-destructive focus-visible:ring-destructive' : ''}
+                  className={`input-base ${errors.password && touchedFields.password ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : ''}`}
                 />
                 {errors.password && touchedFields.password && (
-                  <p className="text-xs text-destructive font-medium">
+                  <p className="text-xs text-red-500 font-medium ml-1">
                     {errors.password.message as string}
                   </p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">{t('profile.confirm_new_password')}</Label>
-                <Input
+                <label htmlFor="confirmPassword" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
+                  {t('profile.confirm_new_password')}
+                </label>
+                <input
                   id="confirmPassword"
                   {...register('confirmPassword')}
                   type="password"
                   placeholder={t('profile.confirm_new_password')}
-                  className={errors.confirmPassword && touchedFields.confirmPassword ? 'border-destructive focus-visible:ring-destructive' : ''}
+                  className={`input-base ${errors.confirmPassword && touchedFields.confirmPassword ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : ''}`}
                 />
                 {errors.confirmPassword && touchedFields.confirmPassword && (
-                  <p className="text-xs text-destructive font-medium">
+                  <p className="text-xs text-red-500 font-medium ml-1">
                     {errors.confirmPassword.message as string}
                   </p>
                 )}
               </div>
-              <DialogFooter className="pt-4">
-                <Button type="button" variant="outline" onClick={onClose}>
+              <DialogFooter className="pt-4 flex flex-row justify-end gap-2">
+                <button type="button" onClick={onClose} className="btn-ghost">
                   {t('common.cancel')}
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                </button>
+                <button type="submit" disabled={isSubmitting} className="btn-primary">
                   {isSubmitting ? (
-                    <LoadingSpinner size="sm" className="text-primary-foreground" />
+                    <LoadingSpinner size="sm" className="text-white" />
                   ) : (
                     t('profile.change_password')
                   )}
-                </Button>
+                </button>
               </DialogFooter>
             </form>
           </TabsContent>

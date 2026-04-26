@@ -1,6 +1,6 @@
 'use client';
 import { memo } from 'react';
-import { Task, TaskStatus } from '../types/task';
+import { Task } from '../types/task';
 import StatusBadge from './StatusBadge';
 import PriorityBadge from './PriorityBadge';
 import LoadingSpinner from './ui/LoadingSpinner';
@@ -18,8 +18,6 @@ import {
   Pause,
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/Tooltip';
-import { Button } from './ui/Button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/Card';
 import { cn } from '../lib/utils';
 
 interface TaskCardProps {
@@ -28,6 +26,7 @@ interface TaskCardProps {
   onDelete: (id: string) => void;
   isDeleting: boolean;
   viewMode?: 'gallery' | 'list';
+  isToggling?: boolean;
 }
 
 const TaskCard = memo(function TaskCard({
@@ -36,11 +35,12 @@ const TaskCard = memo(function TaskCard({
   onDelete,
   isDeleting,
   viewMode = 'gallery',
+  isToggling: isTogglingProp,
 }: TaskCardProps) {
   const { t, i18n } = useTranslation();
   const toggleStatusMutation = useToggleTaskStatus();
   
-  const isToggling = toggleStatusMutation.isPending;
+  const isToggling = isTogglingProp ?? toggleStatusMutation.isPending;
 
   const isCompleted = task.status === 'completed';
   const isInProgress = task.status === 'in_progress';
@@ -90,7 +90,7 @@ const TaskCard = memo(function TaskCard({
       case 'low':
         return 'bg-blue-500';
       default:
-        return 'bg-primary';
+        return 'bg-brand-500';
     }
   })();
 
@@ -104,18 +104,16 @@ const TaskCard = memo(function TaskCard({
 
   if (viewMode === 'list') {
     return (
-      <Card className={cn("group relative pl-6 flex items-center gap-4 hover:shadow-md transition-all duration-300", isCompleted && "opacity-80")}>
+      <div className={cn("group card-surface p-3 flex items-center gap-4 hover:shadow-md transition-all duration-300 relative pl-6", isCompleted && "opacity-80")}>
         <span className={cn("accent-bar", accentColor)} />
         <div className="flex items-center gap-2">
           {/* Completion Toggle */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
+              <button
                 onClick={toggleCompletion}
                 disabled={isToggling || isDeleting}
-                className={cn("flex-shrink-0", isCompleted ? "text-emerald-600" : "text-muted-foreground hover:text-emerald-600")}
+                className={cn("flex-shrink-0 p-1 rounded-md transition-colors", isCompleted ? "text-emerald-600" : "text-warm-400 dark:text-gray-500 hover:text-emerald-600 hover:bg-warm-100 dark:hover:bg-white/5")}
               >
                 {isToggling ? (
                   <LoadingSpinner size="sm" />
@@ -124,7 +122,7 @@ const TaskCard = memo(function TaskCard({
                 ) : (
                   <Circle className="h-5 w-5" />
                 )}
-              </Button>
+              </button>
             </TooltipTrigger>
             <TooltipContent side="top">
               {isCompleted ? t('tasks.mark_pending') : t('tasks.mark_completed')}
@@ -135,19 +133,17 @@ const TaskCard = memo(function TaskCard({
           {!isCompleted && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
+                <button
                   onClick={toggleInProgress}
                   disabled={isToggling || isDeleting}
-                  className={cn("flex-shrink-0", isInProgress ? "text-amber-600 hover:text-muted-foreground" : "text-muted-foreground hover:text-amber-600")}
+                  className={cn("flex-shrink-0 p-1 rounded-md transition-colors", isInProgress ? "text-amber-600 hover:text-warm-400" : "text-warm-400 dark:text-gray-500 hover:text-amber-600 hover:bg-warm-100 dark:hover:bg-white/5")}
                 >
                   {isInProgress ? (
                     <Pause className="h-4 w-4" />
                   ) : (
                     <Play className="h-4 w-4" />
                   )}
-                </Button>
+                </button>
               </TooltipTrigger>
               <TooltipContent side="top">
                 {isInProgress ? t('tasks.mark_pending') : t('tasks.mark_in_progress')}
@@ -161,7 +157,7 @@ const TaskCard = memo(function TaskCard({
             <div className="flex items-center gap-2 mb-0.5">
               <h3
                 className={cn("text-sm font-semibold truncate transition-all duration-300",
-                  isCompleted ? "text-muted-foreground line-through" : "text-foreground group-hover:text-primary"
+                  isCompleted ? "text-warm-400 dark:text-gray-500 line-through" : "text-warm-900 dark:text-gray-100 group-hover:text-brand-500"
                 )}
               >
                 {task.title}
@@ -172,7 +168,7 @@ const TaskCard = memo(function TaskCard({
               </div>
             </div>
             {task.description && (
-              <p className="text-xs text-muted-foreground truncate max-w-2xl">
+              <p className="text-xs text-warm-500 dark:text-gray-400 truncate max-w-2xl">
                 {task.description}
               </p>
             )}
@@ -182,10 +178,10 @@ const TaskCard = memo(function TaskCard({
             <div
               className={cn("flex items-center gap-1.5 text-[10px] font-medium whitespace-nowrap flex-shrink-0 px-2 py-1 rounded-md transition-colors",
                 isOverdue
-                  ? 'text-destructive bg-destructive/10'
+                  ? 'text-red-600 bg-red-50 dark:bg-red-900/10'
                   : isDueToday
                     ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/10'
-                    : 'text-muted-foreground bg-muted'
+                    : 'text-warm-500 dark:text-gray-400 bg-warm-100 dark:bg-white/5'
               )}
             >
               {task.due_date_has_time ? (
@@ -207,53 +203,47 @@ const TaskCard = memo(function TaskCard({
         <div className="flex items-center gap-1 flex-shrink-0 ml-2">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
+              <button
                 onClick={() => onEdit(task)}
                 disabled={isDeleting}
                 aria-label={t('common.edit')}
-                className="text-muted-foreground hover:text-primary hover:bg-accent"
+                className="p-1 rounded-md text-warm-400 dark:text-gray-500 hover:text-brand-500 hover:bg-warm-100 dark:hover:bg-white/5 transition-colors"
               >
                 <Pencil className="h-3.5 w-3.5" />
-              </Button>
+              </button>
             </TooltipTrigger>
             <TooltipContent side="top">{t('common.edit')}</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
+              <button
                 onClick={() => onDelete(task.id)}
                 disabled={isDeleting}
                 aria-label={t('common.delete')}
-                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                className="p-1 rounded-md text-warm-400 dark:text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
               >
                 {isDeleting ? <LoadingSpinner size="sm" /> : <Trash2 className="h-3.5 w-3.5" />}
-              </Button>
+              </button>
             </TooltipTrigger>
             <TooltipContent side="top">{t('common.delete')}</TooltipContent>
           </Tooltip>
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card className={cn("group relative pl-6 flex flex-col h-full hover:shadow-md transition-all duration-300", isCompleted && "opacity-80")}>
+    <div className={cn("group card-surface p-3.5 flex flex-col h-full hover:shadow-md transition-all duration-300 relative pl-6", isCompleted && "opacity-80")}>
       <span className={cn("accent-bar", accentColor)} />
-      <CardHeader className="flex-row justify-between items-start pb-3">
+      <div className="flex justify-between items-start mb-3">
         {/* Action Capsule */}
-        <div className="flex items-center gap-1 bg-muted p-1 rounded-lg border border-border">
+        <div className="flex items-center gap-1 bg-warm-50 dark:bg-white/5 p-1 rounded-lg border border-warm-200 dark:border-white/10">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
+              <button
                 onClick={toggleCompletion}
                 disabled={isToggling || isDeleting}
-                className={cn("flex-shrink-0", isCompleted ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20" : "text-muted-foreground hover:text-emerald-600 hover:bg-accent")}
+                className={cn("p-1 rounded-md transition-colors", isCompleted ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20" : "text-warm-400 dark:text-gray-500 hover:text-emerald-600 hover:bg-warm-100 dark:hover:bg-white/5")}
               >
                 {isToggling ? (
                   <LoadingSpinner size="sm" />
@@ -262,7 +252,7 @@ const TaskCard = memo(function TaskCard({
                 ) : (
                   <Circle className="h-4 w-4" />
                 )}
-              </Button>
+              </button>
             </TooltipTrigger>
             <TooltipContent side="top">
               {isCompleted ? t('tasks.mark_pending') : t('tasks.mark_completed')}
@@ -272,19 +262,17 @@ const TaskCard = memo(function TaskCard({
           {!isCompleted && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
+                <button
                   onClick={toggleInProgress}
                   disabled={isToggling || isDeleting}
-                  className={cn("flex-shrink-0", isInProgress ? "text-amber-600 bg-amber-50 dark:bg-amber-900/20" : "text-muted-foreground hover:text-amber-600 hover:bg-accent")}
+                  className={cn("p-1 rounded-md transition-colors", isInProgress ? "text-amber-600 bg-amber-50 dark:bg-amber-900/20" : "text-warm-400 dark:text-gray-500 hover:text-amber-600 hover:bg-warm-100 dark:hover:bg-white/5")}
                 >
                   {isInProgress ? (
                     <Pause className="h-4 w-4" />
                   ) : (
                     <Play className="h-4 w-4" />
                   )}
-                </Button>
+                </button>
               </TooltipTrigger>
               <TooltipContent side="top">
                 {isInProgress ? t('tasks.mark_pending') : t('tasks.mark_in_progress')}
@@ -298,36 +286,36 @@ const TaskCard = memo(function TaskCard({
           <StatusBadge status={task.status} />
           <PriorityBadge priority={task.priority} />
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="flex-grow pt-0 pb-3">
-        <CardTitle
-          className={cn("text-sm mb-1 transition-all duration-300",
-            isCompleted ? "text-muted-foreground line-through" : "text-foreground group-hover:text-primary"
+      <div className="flex-grow">
+        <h3
+          className={cn("text-sm font-semibold mb-1 transition-all duration-300",
+            isCompleted ? "text-warm-400 dark:text-gray-500 line-through" : "text-warm-900 dark:text-gray-100 group-hover:text-brand-500"
           )}
         >
           {task.title}
-        </CardTitle>
-        <p className="text-xs text-muted-foreground line-clamp-3 leading-snug">
+        </h3>
+        <p className="text-xs text-warm-500 dark:text-gray-400 line-clamp-3 leading-snug">
           {task.description || t('tasks.no_description')}
         </p>
         {task.due_date && (
           <div
             className={cn("flex items-center gap-1.5 mt-2.5 text-[11px] font-semibold",
               isOverdue
-                ? 'text-destructive'
+                ? 'text-red-600'
                 : isDueToday
                   ? 'text-amber-600 dark:text-amber-400'
-                  : 'text-muted-foreground'
+                  : 'text-warm-500 dark:text-gray-400'
             )}
           >
             <div
               className={cn("p-1 rounded-lg",
                 isOverdue
-                  ? 'bg-destructive/10'
+                  ? 'bg-red-50 dark:bg-red-900/20'
                   : isDueToday
                     ? 'bg-amber-50 dark:bg-amber-900/20'
-                    : 'bg-muted'
+                    : 'bg-warm-100 dark:bg-white/5'
               )}
             >
               {task.due_date_has_time ? (
@@ -337,13 +325,13 @@ const TaskCard = memo(function TaskCard({
               )}
             </div>
             <div className="flex flex-col">
-              <span className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0">
+              <span className="text-[9px] uppercase tracking-wider text-warm-400 dark:text-gray-500 mb-0">
                 {t('tasks.due_date')}
               </span>
               <div className="flex items-center gap-1">
                 <span>{formattedDueDate}</span>
                 {isOverdue && (
-                  <span className="text-[8px] bg-destructive/20 px-1 py-0 rounded uppercase">
+                  <span className="text-[8px] bg-red-100 dark:bg-red-900/40 px-1 py-0 rounded uppercase">
                     {t('tasks.overdue')}
                   </span>
                 )}
@@ -356,40 +344,36 @@ const TaskCard = memo(function TaskCard({
             </div>
           </div>
         )}
-      </CardContent>
-      <CardFooter className="flex justify-end gap-1.5 pt-2.5 mt-2.5 border-t border-border">
+      </div>
+      <div className="flex justify-end gap-1.5 pt-2.5 mt-2.5 border-t border-warm-200 dark:border-white/10">
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
               onClick={() => onEdit(task)}
               disabled={isDeleting}
               aria-label={t('common.edit')}
-              className="text-muted-foreground hover:text-primary hover:bg-accent"
+              className="p-1 rounded-md text-warm-400 dark:text-gray-500 hover:text-brand-500 hover:bg-warm-100 dark:hover:bg-white/5 transition-colors"
             >
               <Pencil className="h-3.5 w-3.5" />
-            </Button>
+            </button>
           </TooltipTrigger>
           <TooltipContent side="top">{t('common.edit')}</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
               onClick={() => onDelete(task.id)}
               disabled={isDeleting}
               aria-label={t('common.delete')}
-              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              className="p-1 rounded-md text-warm-400 dark:text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
             >
               {isDeleting ? <LoadingSpinner size="sm" /> : <Trash2 className="h-3.5 w-3.5" />}
-            </Button>
+            </button>
           </TooltipTrigger>
           <TooltipContent side="top">{t('common.delete')}</TooltipContent>
         </Tooltip>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 });
 

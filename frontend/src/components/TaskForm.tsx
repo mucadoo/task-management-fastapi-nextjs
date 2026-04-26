@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { Task, TaskCreate } from '../types/task';
 import { useTranslation } from 'react-i18next';
-import { Save } from 'lucide-react';
+import { Save, ChevronDown } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -16,17 +16,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from './ui/Dialog';
-import { Button } from './ui/Button';
-import { Input } from './ui/Input';
-import { Textarea } from './ui/Textarea';
-import { Label } from './ui/Label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from './ui/Select';
 
 interface TaskFormProps {
   isOpen: boolean;
@@ -137,81 +126,75 @@ export default function TaskForm({
         </DialogHeader>
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="title">
-              {t('common.title')} <span className="text-destructive">*</span>
-            </Label>
-            <Input
+            <label htmlFor="title" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
+              {t('common.title')} <span className="text-red-500">*</span>
+            </label>
+            <input
               id="title"
               {...register('title')}
               placeholder={t('tasks.placeholder_title')}
               disabled={isSubmitting}
-              className={errors.title ? 'border-destructive focus-visible:ring-destructive' : ''}
+              className={`input-base ${errors.title ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : ''}`}
             />
             {errors.title && (
-              <p className="text-xs text-destructive font-medium">{errors.title.message as string}</p>
+              <p className="text-xs text-red-500 font-medium ml-1">{errors.title.message as string}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">{t('tasks.description')}</Label>
-            <Textarea
+            <label htmlFor="description" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
+              {t('tasks.description')}
+            </label>
+            <textarea
               id="description"
               {...register('description')}
               rows={3}
-              className="resize-none"
+              className="input-base resize-none"
               placeholder={t('tasks.placeholder_description')}
               disabled={isSubmitting}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="status">{t('tasks.status')}</Label>
-              <Controller
-                control={control}
-                name="status"
-                render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    disabled={isSubmitting}
-                  >
-                    <SelectTrigger id="status">
-                      <SelectValue placeholder={t('tasks.status')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">{t('tasks.pending')}</SelectItem>
-                      <SelectItem value="in_progress">{t('tasks.in_progress')}</SelectItem>
-                      <SelectItem value="completed">{t('tasks.completed')}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
+              <label htmlFor="status" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
+                {t('tasks.status')}
+              </label>
+              <div className="relative">
+                <select
+                  id="status"
+                  {...register('status')}
+                  disabled={isSubmitting}
+                  className="input-base appearance-none pr-10 cursor-pointer"
+                >
+                  <option value="pending">{t('tasks.pending')}</option>
+                  <option value="in_progress">{t('tasks.in_progress')}</option>
+                  <option value="completed">{t('tasks.completed')}</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
+              </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="priority">{t('tasks.priority')}</Label>
-              <Controller
-                control={control}
-                name="priority"
-                render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    disabled={isSubmitting}
-                  >
-                    <SelectTrigger id="priority">
-                      <SelectValue placeholder={t('tasks.priority')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">{t('tasks.low')}</SelectItem>
-                      <SelectItem value="medium">{t('tasks.medium')}</SelectItem>
-                      <SelectItem value="high">{t('tasks.high')}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
+              <label htmlFor="priority" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
+                {t('tasks.priority')}
+              </label>
+              <div className="relative">
+                <select
+                  id="priority"
+                  {...register('priority')}
+                  disabled={isSubmitting}
+                  className="input-base appearance-none pr-10 cursor-pointer"
+                >
+                  <option value="low">{t('tasks.low')}</option>
+                  <option value="medium">{t('tasks.medium')}</option>
+                  <option value="high">{t('tasks.high')}</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
+              </div>
             </div>
           </div>
           <div className="space-y-2">
-            <Label>{t('tasks.due_date')}</Label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
+              {t('tasks.due_date')}
+            </label>
             <Controller
               control={control}
               name="due_date"
@@ -225,29 +208,29 @@ export default function TaskForm({
               )}
             />
           </div>
-          <DialogFooter className="pt-4">
-            <Button
+          <DialogFooter className="pt-4 flex flex-row justify-end gap-2">
+            <button
               type="button"
-              variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
+              className="btn-ghost"
             >
               {t('common.cancel')}
-            </Button>
-            <Button
+            </button>
+            <button
               type="submit"
               disabled={isSubmitting}
-              className="min-w-[120px]"
+              className="btn-primary min-w-[120px]"
             >
               {isSubmitting ? (
-                <LoadingSpinner size="sm" className="text-primary-foreground" />
+                <LoadingSpinner size="sm" className="text-white" />
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
                   {editingTask ? t('tasks.edit_task') : t('tasks.create_task')}
                 </>
               )}
-            </Button>
+            </button>
           </DialogFooter>
         </form>
       </DialogContent>

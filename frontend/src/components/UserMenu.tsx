@@ -10,8 +10,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/DropdownMenu';
-import { Avatar, AvatarFallback } from './ui/Avatar';
-import { Button } from './ui/Button';
 
 interface UserMenuProps {
   onProfileOpen: (tab: 'personal' | 'security') => void;
@@ -31,22 +29,20 @@ export default function UserMenu({ onProfileOpen }: UserMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-auto p-1.5 px-2 gap-2 hover:bg-accent group">
-          <Avatar className="h-8 w-8 rounded-lg">
-            <AvatarFallback className="bg-primary text-primary-foreground font-bold rounded-lg group-hover:scale-105 transition-transform">
-              {userInitial.toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+        <button className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-warm-100 dark:hover:bg-white/5 transition-colors group">
+          <div className="w-8 h-8 flex items-center justify-center bg-brand-500 text-white font-bold rounded-lg shadow-sm group-hover:scale-105 transition-transform">
+            {userInitial.toUpperCase()}
+          </div>
           <div className="hidden sm:flex flex-col items-start text-left">
-            <span className="text-xs font-bold leading-none">
+            <span className="text-xs font-bold text-warm-900 dark:text-gray-100 leading-none">
               {user?.name || t('common.user')}
             </span>
-            <span className="text-[10px] text-muted-foreground leading-tight">
+            <span className="text-[10px] text-warm-500 dark:text-gray-500 leading-tight">
               {user?.username ? `@${user.username}` : user?.email || t('common.account')}
             </span>
           </div>
-          <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-        </Button>
+          <ChevronDown className="h-4 w-4 text-warm-400 group-hover:text-warm-900 dark:group-hover:text-gray-100 transition-colors" />
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
@@ -69,7 +65,7 @@ export default function UserMenu({ onProfileOpen }: UserMenuProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleLogout}
-          className="text-destructive focus:text-destructive focus:bg-destructive/10"
+          className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/10"
         >
           <LogOut className="mr-2 h-4 w-4" />
           <span>{t('common.logout')}</span>
