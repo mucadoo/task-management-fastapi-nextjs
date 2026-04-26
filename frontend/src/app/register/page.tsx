@@ -4,37 +4,49 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '../../lib/api';
 import { useTranslation } from 'react-i18next';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import LanguageSelector from '../../components/LanguageSelector';
 import ThemeToggle from '../../components/ThemeToggle';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Mail, Lock, User, ArrowRight, BookOpen, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
-import { useToastStore } from '../../store/useToastStore';
+import { getRegisterSchema } from '../../lib/validations';
+import * as z from 'zod';
+import { cn } from '../../lib/utils';
+
+type RegisterForm = z.infer<ReturnType<typeof getRegisterSchema>>;
 
 export default function RegisterPage() {
   const { t } = useTranslation();
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
-  const { register, isLoading } = useAuthStore();
-  const { addToast } = useToastStore();
-  
+  const { register: registerUser, isLoading } = useAuthStore();
   const [emailStatus, setEmailStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
-  const [debouncedEmail] = useDebounce(email, 500);
-
+  
   const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<RegisterForm>({
+    resolver: zodResolver(getRegisterSchema(t)),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+  });
+
+  const emailValue = watch('email');
+  const [debouncedEmail] = useDebounce(emailValue, 500);
 
   useEffect(() => {
     const checkEmail = async () => {
-      if (!debouncedEmail) {
+      if (!debouncedEmail || errors.email) {
         setEmailStatus('idle');
-        return;
-      }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(debouncedEmail)) {
-        setEmailStatus('invalid');
         return;
       }
       setEmailStatus('checking');
@@ -46,30 +58,21 @@ export default function RegisterPage() {
       }
     };
     checkEmail();
-  }, [debouncedEmail]);
+  }, [debouncedEmail, errors.email]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      addToast(t('auth.error_password_match'), 'error');
-      return;
-    }
-    if (emailStatus === 'taken') {
-      return;
-    }
+  const onSubmit = async (data: RegisterForm) => {
+    if (emailStatus === 'taken') return;
     try {
-      await register({ email, name, password });
+      await registerUser({ email: data.email, name: data.name, password: data.password });
       router.push('/app');
     } catch (err) {
-      // Error handled by store via toasts
+      // Handled by store
     }
   };
 
   return (
     <div className="min-h-screen flex">
-      <div
-        className="hidden lg:flex lg:w-5/12 bg-brand-600 dark:bg-brand-900 p-12 flex-col justify-between relative overflow-hidden"
-      >
+      <div className="hidden lg:flex lg:w-5/12 bg-brand-600 dark:bg-brand-900 p-12 flex-col justify-between relative overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{
           backgroundImage: 'repeating-linear-gradient(45deg, white 0, white 1px, transparent 0, transparent 50%)',
           backgroundSize: '20px 20px',
@@ -98,16 +101,13 @@ export default function RegisterPage() {
             </h2>
             <p className="mt-2 text-sm text-warm-500 dark:text-gray-400">
               {t('auth.or')}{' '}
-              <Link
-                href="/login"
-                className="text-brand-500 font-semibold hover:underline"
-              >
+              <Link href="/login" className="text-brand-500 font-semibold hover:underline">
                 {t('auth.already_registered')}
               </Link>
             </p>
           </div>
           <div className="card-surface p-6">
-            <form className="space-y-4" onSubmit={handleSubmit}>
+            <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label htmlFor="name" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
@@ -117,14 +117,14 @@ export default function RegisterPage() {
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
                     <input
                       id="name"
+                      {...register('name')}
                       type="text"
-                      className="input-base pl-10"
+                      className={cn("input-base pl-10", errors.name && "border-red-500")}
                       placeholder={t('auth.name')}
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
                       disabled={isLoading}
                     />
                   </div>
+                  {errors.name && <p className="text-[10px] text-red-500 font-medium ml-1">{errors.name.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="email" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
@@ -134,30 +134,24 @@ export default function RegisterPage() {
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
                     <input
                       id="email"
+                      {...register('email')}
                       type="email"
-                      required
-                      className={`input-base pl-10 pr-10 ${emailStatus === 'taken' ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : emailStatus === 'available' ? 'border-emerald-500 focus:ring-emerald-500/20 focus:border-emerald-500' : ''}`}
+                      className={cn(
+                        "input-base pl-10 pr-10",
+                        errors.email || emailStatus === 'taken' ? 'border-red-500 focus:ring-red-500/20' : emailStatus === 'available' ? 'border-emerald-500 focus:ring-emerald-500/20' : ''
+                      )}
                       placeholder={t('auth.email')}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
                       disabled={isLoading}
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      {emailStatus === 'checking' && (
-                        <Loader2 className="h-4 w-4 text-warm-400 animate-spin" />
-                      )}
-                      {emailStatus === 'available' && (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                      )}
-                      {emailStatus === 'taken' && (
-                        <AlertCircle className="h-4 w-4 text-red-500" />
-                      )}
+                      {emailStatus === 'checking' && <Loader2 className="h-4 w-4 text-warm-400 animate-spin" />}
+                      {emailStatus === 'available' && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                      {(emailStatus === 'taken' || errors.email) && <AlertCircle className="h-4 w-4 text-red-500" />}
                     </div>
                   </div>
-                  {emailStatus === 'taken' && (
-                    <p className="text-xs text-red-500 font-medium ml-1">
-                      {t('profile.email_taken')}
-                    </p>
+                  {errors.email && <p className="text-[10px] text-red-500 font-medium ml-1">{errors.email.message}</p>}
+                  {emailStatus === 'taken' && !errors.email && (
+                    <p className="text-xs text-red-500 font-medium ml-1">{t('profile.email_taken')}</p>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -168,15 +162,14 @@ export default function RegisterPage() {
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
                     <input
                       id="password"
+                      {...register('password')}
                       type="password"
-                      required
-                      className="input-base pl-10"
+                      className={cn("input-base pl-10", errors.password && "border-red-500")}
                       placeholder={t('auth.password')}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
                       disabled={isLoading}
                     />
                   </div>
+                  {errors.password && <p className="text-[10px] text-red-500 font-medium ml-1">{errors.password.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="confirmPassword" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
@@ -186,25 +179,18 @@ export default function RegisterPage() {
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
                     <input
                       id="confirmPassword"
+                      {...register('confirmPassword')}
                       type="password"
-                      required
-                      className="input-base pl-10"
+                      className={cn("input-base pl-10", errors.confirmPassword && "border-red-500")}
                       placeholder={t('auth.confirm_password')}
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
                       disabled={isLoading}
                     />
                   </div>
+                  {errors.confirmPassword && <p className="text-[10px] text-red-500 font-medium ml-1">{errors.confirmPassword.message}</p>}
                 </div>
               </div>
-              <button 
-                type="submit" 
-                disabled={isLoading || emailStatus === 'taken'} 
-                className="btn-primary w-full mt-2"
-              >
-                {isLoading ? (
-                  <LoadingSpinner size="sm" className="text-white" />
-                ) : (
+              <button type="submit" disabled={isLoading || emailStatus === 'taken'} className="btn-primary w-full mt-2">
+                {isLoading ? <LoadingSpinner size="sm" className="text-white" /> : (
                   <>
                     {t('auth.register')}
                     <ArrowRight className="ml-2 h-4 w-4" />

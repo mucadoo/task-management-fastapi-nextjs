@@ -1,14 +1,12 @@
 'use client';
-import { useEffect } from 'react';
-import { Task, TaskCreate } from '../types/task';
+import React from 'react';
+import { Task } from '../types/task';
 import { useTranslation } from 'react-i18next';
 import { Save, ChevronDown } from 'lucide-react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { Controller } from 'react-hook-form';
 import LoadingSpinner from './ui/LoadingSpinner';
 import { DateTimePicker } from './ui/DateTimePicker';
-import { useCreateTask, useUpdateTask } from '../hooks/useTasks';
+import { useTaskForm } from '../hooks/useTaskForm';
 import {
   Dialog,
   DialogContent,
@@ -30,90 +28,11 @@ export default function TaskForm({
 }: TaskFormProps) {
   const { t } = useTranslation();
   
-  const createTaskMutation = useCreateTask();
-  const updateTaskMutation = useUpdateTask();
-  
-  const isSubmitting = createTaskMutation.isPending || updateTaskMutation.isPending;
-
-  const taskSchema = z.object({
-    title: z.string().min(1, t('common.error_required', { field: t('common.title') })),
-    description: z.string().optional(),
-    status: z.enum(['pending', 'in_progress', 'completed']),
-    priority: z.enum(['low', 'medium', 'high']),
-    due_date: z.date().optional().nullable(),
-    due_date_has_time: z.boolean().default(false),
-  });
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    watch,
-    setValue,
-    clearErrors,
-    formState: { errors },
-    control,
-  } = useForm<TaskCreate & { due_date: Date | null }>({
-    resolver: zodResolver(taskSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      status: 'pending',
-      priority: 'medium',
-      due_date: null,
-      due_date_has_time: false,
-    },
-  });
-
-  useEffect(() => {
-    if (isOpen) {
-      clearErrors();
-      if (editingTask) {
-        reset({
-          title: editingTask.title,
-          description: editingTask.description || '',
-          status: editingTask.status,
-          priority: editingTask.priority,
-          due_date: editingTask.due_date ? new Date(editingTask.due_date) : null,
-          due_date_has_time: editingTask.due_date_has_time || false,
-        });
-      } else {
-        reset({
-          title: '',
-          description: '',
-          status: 'pending',
-          priority: 'medium',
-          due_date: null,
-          due_date_has_time: false,
-        });
-      }
-    }
-  }, [editingTask, isOpen, reset, clearErrors]);
-
-  const onFormSubmit = async (data: any) => {
-    try {
-      let finalDueDate = data.due_date;
-      if (finalDueDate) {
-        finalDueDate = finalDueDate.toISOString();
-      }
-      
-      const taskData = {
-        ...data,
-        title: data.title.trim(),
-        description: data.description?.trim() || undefined,
-        due_date: finalDueDate || undefined,
-      };
-
-      if (editingTask) {
-        await updateTaskMutation.mutateAsync({ id: editingTask.id, data: taskData });
-      } else {
-        await createTaskMutation.mutateAsync(taskData);
-      }
-      onClose();
-    } catch (err: any) {
-      // Error handled by the hooks via toasts
-    }
-  };
+  const { 
+    form: { register, control, watch, setValue, formState: { errors } }, 
+    isSubmitting, 
+    onSubmit 
+  } = useTaskForm({ editingTask, isOpen, onClose });
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -124,7 +43,7 @@ export default function TaskForm({
           </DialogTitle>
           <div className="rule-brand w-8 h-1" />
         </DialogHeader>
-        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 py-4">
+        <form onSubmit={onSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
             <label htmlFor="title" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
               {t('common.title')} <span className="text-red-500">*</span>
