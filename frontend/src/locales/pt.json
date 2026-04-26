@@ -33,6 +33,7 @@
     "login": "Entrar",
     "register": "Cadastrar",
     "email": "Endereço de e-mail",
+    "email_or_username": "E-mail ou Nome de usuário",
     "password": "Senha",
     "name": "Nome Completo",
     "confirm_password": "Confirmar Senha",
@@ -78,7 +79,18 @@
     "priority": "Prioridade",
     "placeholder_title": "Digite o título da tarefa",
     "placeholder_description": "Digite a descrição da tarefa (opcional)",
-    "no_description": "Nenhuma descrição fornecida."
+    "no_description": "Nenhuma descrição fornecida.",
+    "add_due_date": "Adicionar Data de Entrega",
+    "include_time": "Incluir Horário",
+    "due_date": "Data de Entrega",
+    "due_in": "Entrega em {{time}}",
+    "overdue": "Atrasada",
+    "today": "Hoje",
+    "sort_by": "Ordenar por",
+    "sort_created": "Data de Criação",
+    "sort_due": "Data de Entrega",
+    "sort_priority": "Prioridade",
+    "sort_title": "Título"
   },
   "profile": {
     "title": "Seu Perfil",

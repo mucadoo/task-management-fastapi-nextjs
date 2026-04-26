@@ -1,6 +1,7 @@
 import sys
 import os
 import random
+import datetime
 from faker import Faker
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -49,13 +50,26 @@ def seed_db():
         for user in all_users:
             num_tasks = random.randint(20, 30)
             for _ in range(num_tasks):
+                # Generate due date
+                due_date = None
+                due_date_has_time = False
+                if random.random() > 0.3:
+                    days_offset = random.randint(-7, 14)
+                    due_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=days_offset)
+                    if random.random() > 0.5:
+                        due_date_has_time = True
+                    else:
+                        # Normalize to date only (00:00:00 UTC)
+                        due_date = due_date.replace(hour=0, minute=0, second=0, microsecond=0)
+                
                 task = Task(
                     title=fake.sentence(nb_words=random.randint(3, 5), ext_word_list=pt_task_words).rstrip('.'),
                     description=fake.paragraph(nb_sentences=2, ext_word_list=pt_task_words) if random.random() > 0.2 else None,
                     status=random.choice(list(TaskStatus)),
                     priority=random.choice(list(TaskPriority)),
+                    due_date=due_date,
+                    due_date_has_time=due_date_has_time,
                     owner_id=user.id,
-                    created_at=fake.date_time_between(start_date="-30d", end_date="now")
                 )
                 db.add(task)
         

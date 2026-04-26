@@ -7,6 +7,8 @@ export interface Task {
   description?: string;
   status: TaskStatus;
   priority: TaskPriority;
+  due_date?: string;
+  due_date_has_time?: boolean;
   created_at: string;
 }
 
@@ -15,6 +17,8 @@ export interface TaskCreate {
   description?: string;
   status?: TaskStatus;
   priority?: TaskPriority;
+  due_date?: string;
+  due_date_has_time?: boolean;
 }
 
 export interface TaskUpdate {
@@ -22,6 +26,8 @@ export interface TaskUpdate {
   description?: string;
   status?: TaskStatus;
   priority?: TaskPriority;
+  due_date?: string;
+  due_date_has_time?: boolean;
 }
 export interface PaginatedResponse<T> {
   items: T[];

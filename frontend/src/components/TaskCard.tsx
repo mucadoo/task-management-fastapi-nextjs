@@ -4,7 +4,7 @@ import StatusBadge from "./StatusBadge";
 import PriorityBadge from "./PriorityBadge";
 import LoadingSpinner from "./ui/LoadingSpinner";
 import { useTranslation } from "react-i18next";
-import { Pencil, Trash2, CheckCircle2, Circle } from "lucide-react";
+import { Pencil, Trash2, CheckCircle2, Circle, Calendar, Clock, AlertCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/Tooltip";
 
 interface TaskCardProps {
@@ -35,6 +35,33 @@ export default function TaskCard({
   });
 
   const isCompleted = task.status === "completed";
+
+  const isOverdue = task.due_date && !isCompleted && (() => {
+    const dueDate = new Date(task.due_date);
+    const now = new Date();
+    if (task.due_date_has_time) {
+      return dueDate < now;
+    } else {
+      // For date-only, overdue means it's strictly before today's start
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const dueDay = new Date(task.due_date);
+      dueDay.setHours(0, 0, 0, 0);
+      return dueDay < today;
+    }
+  })();
+
+  const isDueToday = task.due_date && !isCompleted && !isOverdue && (() => {
+    const dueDate = new Date(task.due_date);
+    const now = new Date();
+    return dueDate.toDateString() === now.toDateString();
+  })();
+
+  const formattedDueDate = task.due_date ? new Date(task.due_date).toLocaleDateString(i18n.language, {
+    month: "short",
+    day: "numeric",
+    ...(task.due_date_has_time ? { hour: '2-digit', minute: '2-digit' } : {})
+  }) : null;
 
   if (viewMode === 'list') {
     return (
@@ -71,10 +98,20 @@ export default function TaskCard({
             <StatusBadge status={task.status} />
             <PriorityBadge priority={task.priority} />
           </div>
-          {task.description && (
+            {task.description && (
             <p className="text-xs text-warm-600 dark:text-warm-400 truncate max-w-2xl">
               {task.description}
             </p>
+          )}
+          {task.due_date && (
+            <div className={`flex items-center gap-1.5 mt-1 text-[10px] font-medium ${
+              isOverdue ? 'text-red-600 dark:text-red-400' : isDueToday ? 'text-amber-600 dark:text-amber-400' : 'text-warm-500'
+            }`}>
+              {task.due_date_has_time ? <Clock className="h-3 w-3" /> : <Calendar className="h-3 w-3" />}
+              <span>{formattedDueDate}</span>
+              {isOverdue && <AlertCircle className="h-2.5 w-2.5 ml-0.5" />}
+              {isDueToday && <span className="ml-1 text-[9px] uppercase tracking-wider font-bold">({t('tasks.today')})</span>}
+            </div>
           )}
         </div>
 
@@ -161,6 +198,26 @@ export default function TaskCard({
         <p className="text-sm text-warm-600 dark:text-warm-400 line-clamp-3 leading-relaxed">
           {task.description || t('tasks.no_description')}
         </p>
+        
+        {task.due_date && (
+          <div className={`flex items-center gap-2 mt-4 text-xs font-semibold ${
+            isOverdue ? 'text-red-600 dark:text-red-400' : isDueToday ? 'text-amber-600 dark:text-amber-400' : 'text-warm-500'
+          }`}>
+            <div className={`p-1.5 rounded-lg ${
+              isOverdue ? 'bg-red-50 dark:bg-red-900/20' : isDueToday ? 'bg-amber-50 dark:bg-amber-900/20' : 'bg-warm-50 dark:bg-warm-800/50'
+            }`}>
+              {task.due_date_has_time ? <Clock className="h-3.5 w-3.5" /> : <Calendar className="h-3.5 w-3.5" />}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] uppercase tracking-wider text-warm-400 mb-0.5">{t('tasks.due_date')}</span>
+              <div className="flex items-center gap-1.5">
+                <span>{formattedDueDate}</span>
+                {isOverdue && <span className="text-[9px] bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 rounded uppercase">{t('tasks.overdue')}</span>}
+                {isDueToday && <span className="text-[9px] bg-amber-100 dark:bg-amber-900/40 px-1.5 py-0.5 rounded uppercase">{t('tasks.today')}</span>}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-warm-100 dark:border-white/5">

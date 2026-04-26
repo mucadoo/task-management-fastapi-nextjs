@@ -8,7 +8,7 @@ class TaskRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_all(self, user_id: uuid.UUID, page: int, page_size: int, status: Optional[str] = None, priority: Optional[str] = None, q: Optional[str] = None) -> Tuple[List[Task], int]:
+    def get_all(self, user_id: uuid.UUID, page: int, page_size: int, status: Optional[str] = None, priority: Optional[str] = None, q: Optional[str] = None, sort_by: str = "created_at", sort_dir: str = "desc") -> Tuple[List[Task], int]:
         query = self.db.query(Task).filter(Task.owner_id == user_id)
         if status:
             query = query.filter(Task.status == status)
@@ -19,7 +19,15 @@ class TaskRepository:
             query = query.filter(Task.title.ilike(search) | Task.description.ilike(search))
         total = query.count()
         skip = (page - 1) * page_size
-        items = query.order_by(Task.created_at.desc()).offset(skip).limit(page_size).all()
+        
+        # Determine sort column
+        sort_col = getattr(Task, sort_by, Task.created_at)
+        if sort_dir == "asc":
+            query = query.order_by(sort_col.asc().nulls_last())
+        else:
+            query = query.order_by(sort_col.desc().nulls_last())
+            
+        items = query.offset(skip).limit(page_size).all()
         return items, total
 
     def get_by_id(self, user_id: uuid.UUID, task_id: uuid.UUID) -> Optional[Task]:

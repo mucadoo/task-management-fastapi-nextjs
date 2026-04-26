@@ -12,6 +12,11 @@ def get_by_email(db: Session, email: str) -> Optional[User]:
 def get_by_username(db: Session, username: str) -> Optional[User]:
     return db.query(User).filter(User.username == username).first()
 
+def get_by_email_or_username(db: Session, identifier: str) -> Optional[User]:
+    from sqlalchemy import or_
+    identifier_lower = identifier.lower()
+    return db.query(User).filter(or_(User.email == identifier_lower, User.username == identifier_lower)).first()
+
 def create(db: Session, email: str, hashed_password: str, name: Optional[str] = None, username: Optional[str] = None) -> User:
     db_user = User(email=email, hashed_password=hashed_password, name=name, username=username)
     db.add(db_user)

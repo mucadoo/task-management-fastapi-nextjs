@@ -29,6 +29,8 @@ def upgrade() -> None:
         sa.Column('description', sa.String(), nullable=True),
         sa.Column('status', sa.Enum('PENDING', 'IN_PROGRESS', 'COMPLETED', name='taskstatus'), nullable=True),
         sa.Column('priority', sa.Enum('LOW', 'MEDIUM', 'HIGH', name='taskpriority'), nullable=True),
+        sa.Column('due_date', sa.DateTime(timezone=True), nullable=True),
+        sa.Column('due_date_has_time', sa.Boolean(), server_default=sa.text('FALSE'), nullable=False),
         sa.Column('owner_id', sa.UUID(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=True),
         sa.ForeignKeyConstraint(['owner_id'], ['users.id'], ),

@@ -28,12 +28,14 @@ def create_user_tokens(db: Session, user: User):
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
     if user_repository.get_by_email(db, user_data.email):
         raise HTTPException(status_code=409, detail="Email already registered")
+    if user_data.username and user_repository.get_by_username(db, user_data.username):
+        raise HTTPException(status_code=409, detail="Username already taken")
     hashed = auth_service.hash_password(user_data.password)
-    user = user_repository.create(db, user_data.email, hashed, user_data.name)
+    user = user_repository.create(db, user_data.email, hashed, user_data.name, user_data.username)
     return create_user_tokens(db, user)
 @router.post("/login", response_model=TokenResponse)
 def login(login_data: LoginRequest, db: Session = Depends(get_db)):
-    user = user_repository.get_by_email(db, login_data.email)
+    user = user_repository.get_by_email_or_username(db, login_data.identifier)
     if not user or not auth_service.verify_password(login_data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     return create_user_tokens(db, user)

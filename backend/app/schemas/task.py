@@ -8,6 +8,8 @@ class TaskBase(BaseModel):
     description: Optional[str] = None
     status: TaskStatus = TaskStatus.PENDING
     priority: TaskPriority = TaskPriority.MEDIUM
+    due_date: Optional[datetime.datetime] = None
+    due_date_has_time: bool = False
 class TaskCreate(TaskBase):
     pass
 class TaskResponse(TaskBase):

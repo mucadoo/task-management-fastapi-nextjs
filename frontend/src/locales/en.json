@@ -33,6 +33,7 @@
     "login": "Login",
     "register": "Register",
     "email": "Email address",
+    "email_or_username": "Email or Username",
     "password": "Password",
     "name": "Full Name",
     "confirm_password": "Confirm Password",
@@ -78,7 +79,18 @@
     "priority": "Priority",
     "placeholder_title": "Enter task title",
     "placeholder_description": "Enter task description (optional)",
-    "no_description": "No description provided."
+    "no_description": "No description provided.",
+    "add_due_date": "Add Due Date",
+    "include_time": "Include Time",
+    "due_date": "Due Date",
+    "due_in": "Due in {{time}}",
+    "overdue": "Overdue",
+    "today": "Today",
+    "sort_by": "Sort by",
+    "sort_created": "Date Created",
+    "sort_due": "Due Date",
+    "sort_priority": "Priority",
+    "sort_title": "Title"
   },
   "profile": {
     "title": "Your Profile",

@@ -21,6 +21,8 @@ def read_tasks(
     q: Optional[str] = None,
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
+    sort_by: str = Query("created_at", pattern="^(created_at|due_date|priority|title)$"),
+    sort_dir: str = Query("desc", pattern="^(asc|desc)$"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -31,7 +33,9 @@ def read_tasks(
         page_size=page_size,
         status=status.value if status else None,
         priority=priority.value if priority else None,
-        q=q
+        q=q,
+        sort_by=sort_by,
+        sort_dir=sort_dir
     )
     return {
         "items": items,

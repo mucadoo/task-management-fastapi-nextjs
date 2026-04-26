@@ -13,7 +13,7 @@ import { Mail, Lock, ArrowRight, BookOpen } from "lucide-react";
 
 export default function LoginPage() {
   const { t } = useTranslation();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +25,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      await api.login({ email, password });
+      await api.login({ identifier, password });
       router.push("/tasks");
       router.refresh();
     } catch (err) {
@@ -73,7 +73,7 @@ export default function LoginPage() {
               <div className="space-y-4">
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
-                  <input type="email" required className="input-base pl-10" placeholder={t('auth.email')} value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <input type="text" required className="input-base pl-10" placeholder={t('auth.email_or_username')} value={identifier} onChange={(e) => setIdentifier(e.target.value)} />
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />

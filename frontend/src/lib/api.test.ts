@@ -93,7 +93,7 @@ describe('api', () => {
         json: async () => mockTokens,
       });
 
-      await api.login({ email: 'test@example.com', password: 'password' });
+      await api.login({ identifier: 'test@example.com', password: 'password' });
 
       expect(localStorage.getItem('token')).toBe('access');
       expect(localStorage.getItem('refresh_token')).toBe('refresh');

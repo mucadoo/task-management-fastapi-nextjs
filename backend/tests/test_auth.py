@@ -41,7 +41,7 @@ def test_login_success(client):
     )
     response = client.post(
         "/api/auth/login",
-        json={"email": email, "password": password}
+        json={"identifier": email, "password": password}
     )
     assert response.status_code == 200
     data = response.json()
@@ -75,12 +75,28 @@ def test_login_wrong_password(client):
     )
     response = client.post(
         "/api/auth/login",
-        json={"email": email, "password": "wrongpassword"}
+        json={"identifier": email, "password": "wrongpassword"}
     )
     assert response.status_code == 401
 def test_login_nonexistent_user(client):
     response = client.post(
         "/api/auth/login",
-        json={"email": "nonexistent@example.com", "password": "password123"}
+        json={"identifier": "nonexistent@example.com", "password": "password123"}
     )
     assert response.status_code == 401
+
+def test_login_with_username_success(client):
+    email = "userlogin@example.com"
+    username = "login_user"
+    password = "password123"
+    client.post(
+        "/api/auth/register",
+        json={"email": email, "password": password, "username": username}
+    )
+    response = client.post(
+        "/api/auth/login",
+        json={"identifier": username, "password": password}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "access_token" in data

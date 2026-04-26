@@ -29,6 +29,8 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<'gallery' | 'list'>('gallery');
+  const [sortBy, setSortBy] = useState("due_date");
+  const [sortDir, setSortDir] = useState("asc");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -46,7 +48,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
     router.refresh();
   };
 
-  const refetch = useCallback(async (page = 1, status = statusFilter, priority = priorityFilter, q = debouncedSearchTerm, append = false) => {
+  const refetch = useCallback(async (page = 1, status = statusFilter, priority = priorityFilter, q = debouncedSearchTerm, sort_by = sortBy, sort_dir = sortDir, append = false) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -56,6 +58,8 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
         status,
         priority,
         q: q || undefined,
+        sort_by,
+        sort_dir,
       });
       if (append) {
         setData(prev => ({
@@ -74,7 +78,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
 
   useEffect(() => {
     refetch(1);
-  }, [debouncedSearchTerm, statusFilter, priorityFilter]);
+  }, [debouncedSearchTerm, statusFilter, priorityFilter, sortBy, sortDir]);
 
   const handlePriorityChange = (priority: TaskPriority | "all") => {
     const val = priority === "all" ? undefined : priority;
@@ -88,7 +92,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
   const handleLoadMore = () => {
     const totalPages = Math.ceil(data.total / data.page_size);
     if (data.page < totalPages && !isLoading) {
-      refetch(data.page + 1, statusFilter, priorityFilter, debouncedSearchTerm, true);
+      refetch(data.page + 1, statusFilter, priorityFilter, debouncedSearchTerm, sortBy, sortDir, true);
     }
   };
 
@@ -246,6 +250,33 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
                 <option value="high">{t('tasks.high_priority')}</option>
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
+            </div>
+          </div>
+
+          <div className="flex-shrink-0 flex items-center gap-2">
+            <span className="text-[10px] font-bold text-warm-400 uppercase tracking-widest ml-1 hidden lg:block">
+              {t('tasks.sort_by')}
+            </span>
+            <div className="relative group/sort">
+              <select
+                value={`${sortBy}-${sortDir}`}
+                onChange={(e) => {
+                  const [field, dir] = e.target.value.split('-');
+                  setSortBy(field);
+                  setSortDir(dir);
+                }}
+                className="h-10 min-w-[140px] pl-3 pr-9 py-1 bg-warm-50 dark:bg-warm-900/50 border border-warm-200 dark:border-warm-800 rounded-lg text-xs font-semibold text-warm-700 dark:text-warm-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all appearance-none cursor-pointer"
+              >
+                <option value="due_date-asc">{t('tasks.sort_due')} (↑)</option>
+                <option value="due_date-desc">{t('tasks.sort_due')} (↓)</option>
+                <option value="created_at-desc">{t('tasks.sort_created')} (↓)</option>
+                <option value="created_at-asc">{t('tasks.sort_created')} (↑)</option>
+                <option value="priority-desc">{t('tasks.sort_priority')} (↓)</option>
+                <option value="priority-asc">{t('tasks.sort_priority')} (↑)</option>
+                <option value="title-asc">{t('tasks.sort_title')} (A-Z)</option>
+                <option value="title-desc">{t('tasks.sort_title')} (Z-A)</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none group-hover/sort:text-brand-500 transition-colors" />
             </div>
           </div>
 

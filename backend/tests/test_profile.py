@@ -28,7 +28,7 @@ def test_update_me_password(client: TestClient, auth_headers: dict):
     
     # Try to login with new password
     login_response = client.post("/api/auth/login", json={
-        "email": "test@example.com",
+        "identifier": "test@example.com",
         "password": new_password
     })
     assert login_response.status_code == 200

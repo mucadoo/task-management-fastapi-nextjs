@@ -77,13 +77,15 @@ async function request<T>(path: string, options?: RequestInit & { token?: string
 }
 
 export const api = {
-  async getTasks(params?: { status?: TaskStatus; priority?: TaskPriority; q?: string; page?: number; page_size?: number; token?: string }): Promise<PaginatedResponse<Task>> {
+  async getTasks(params?: { status?: TaskStatus; priority?: TaskPriority; q?: string; page?: number; page_size?: number; sort_by?: string; sort_dir?: string; token?: string }): Promise<PaginatedResponse<Task>> {
     const searchParams = new URLSearchParams();
     if (params?.status) searchParams.append("status", params.status);
     if (params?.priority) searchParams.append("priority", params.priority);
     if (params?.q) searchParams.append("q", params.q);
     if (params?.page) searchParams.append("page", params.page.toString());
     if (params?.page_size) searchParams.append("page_size", params.page_size.toString());
+    if (params?.sort_by) searchParams.append("sort_by", params.sort_by);
+    if (params?.sort_dir) searchParams.append("sort_dir", params.sort_dir);
     const query = searchParams.toString();
     return request<PaginatedResponse<Task>>(`/tasks/${query ? `?${query}` : ""}`, { token: params?.token });
   },

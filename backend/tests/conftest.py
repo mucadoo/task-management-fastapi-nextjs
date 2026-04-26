@@ -39,7 +39,7 @@ def auth_headers(client):
     )
     response = client.post(
         "/api/auth/login",
-        json={"email": email, "password": password}
+        json={"identifier": email, "password": password}
     )
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
@@ -53,7 +53,7 @@ def second_user_auth_headers(client):
     )
     response = client.post(
         "/api/auth/login",
-        json={"email": email, "password": password}
+        json={"identifier": email, "password": password}
     )
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
