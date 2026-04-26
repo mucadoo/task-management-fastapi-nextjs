@@ -16,6 +16,7 @@ import { getRegisterSchema } from '../../lib/validations';
 import * as z from 'zod';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../hooks/useAuth';
+import { FormControl } from '../../components/ui/FormControl';
 
 type RegisterForm = z.infer<ReturnType<typeof getRegisterSchema>>;
 
@@ -25,8 +26,6 @@ export default function RegisterPage() {
   const [emailStatus, setEmailStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
   
   const router = useRouter();
-
-  // Redirect to /app if already logged in
   const { isLoading: authCheckLoading } = useAuth(false);
 
   const {
@@ -115,10 +114,7 @@ export default function RegisterPage() {
           <div className="card-surface p-6">
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="name" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                    {t('auth.name')}
-                  </label>
+                <FormControl id="name" label={t('auth.name')} error={errors.name?.message}>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
                     <input
@@ -130,12 +126,13 @@ export default function RegisterPage() {
                       disabled={authActionLoading}
                     />
                   </div>
-                  {errors.name && <p className="text-[10px] text-red-500 font-medium ml-1">{errors.name.message}</p>}
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="email" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                    {t('auth.email')}
-                  </label>
+                </FormControl>
+
+                <FormControl 
+                  id="email" 
+                  label={t('auth.email')} 
+                  error={errors.email?.message || (emailStatus === 'taken' ? t('profile.email_taken') : undefined)}
+                >
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
                     <input
@@ -155,15 +152,9 @@ export default function RegisterPage() {
                       {(emailStatus === 'taken' || errors.email) && <AlertCircle className="h-4 w-4 text-red-500" />}
                     </div>
                   </div>
-                  {errors.email && <p className="text-[10px] text-red-500 font-medium ml-1">{errors.email.message}</p>}
-                  {emailStatus === 'taken' && !errors.email && (
-                    <p className="text-xs text-red-500 font-medium ml-1">{t('profile.email_taken')}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="password" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                    {t('auth.password')}
-                  </label>
+                </FormControl>
+
+                <FormControl id="password" label={t('auth.password')} error={errors.password?.message}>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
                     <input
@@ -175,12 +166,9 @@ export default function RegisterPage() {
                       disabled={authActionLoading}
                     />
                   </div>
-                  {errors.password && <p className="text-[10px] text-red-500 font-medium ml-1">{errors.password.message}</p>}
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="confirmPassword" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                    {t('auth.confirm_password')}
-                  </label>
+                </FormControl>
+
+                <FormControl id="confirmPassword" label={t('auth.confirm_password')} error={errors.confirmPassword?.message}>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
                     <input
@@ -192,8 +180,7 @@ export default function RegisterPage() {
                       disabled={authActionLoading}
                     />
                   </div>
-                  {errors.confirmPassword && <p className="text-[10px] text-red-500 font-medium ml-1">{errors.confirmPassword.message}</p>}
-                </div>
+                </FormControl>
               </div>
               <button type="submit" disabled={authActionLoading || emailStatus === 'taken'} className="btn-primary w-full mt-2">
                 {authActionLoading ? <LoadingSpinner size="sm" className="text-white" /> : (

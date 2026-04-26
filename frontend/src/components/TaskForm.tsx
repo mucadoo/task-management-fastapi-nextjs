@@ -7,6 +7,7 @@ import { Controller } from 'react-hook-form';
 import LoadingSpinner from './ui/LoadingSpinner';
 import { DateTimePicker } from './ui/DateTimePicker';
 import { useTaskForm } from '../hooks/useTaskForm';
+import { FormControl } from './ui/FormControl';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from './ui/Dialog';
+import { cn } from '../lib/utils';
 
 interface TaskFormProps {
   isOpen: boolean;
@@ -44,25 +46,17 @@ export default function TaskForm({
           <div className="rule-brand w-8 h-1" />
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4 py-4">
-          <div className="space-y-2">
-            <label htmlFor="title" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-              {t('common.title')} <span className="text-red-500">*</span>
-            </label>
+          <FormControl id="title" label={t('common.title')} error={errors.title?.message} required>
             <input
               id="title"
               {...register('title')}
               placeholder={t('tasks.placeholder_title')}
               disabled={isSubmitting}
-              className={`input-base ${errors.title ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : ''}`}
+              className={cn("input-base", errors.title && "border-red-500 focus:ring-red-500/20")}
             />
-            {errors.title && (
-              <p className="text-xs text-red-500 font-medium ml-1">{errors.title.message as string}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="description" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-              {t('tasks.description')}
-            </label>
+          </FormControl>
+
+          <FormControl id="description" label={t('tasks.description')} error={errors.description?.message}>
             <textarea
               id="description"
               {...register('description')}
@@ -71,12 +65,10 @@ export default function TaskForm({
               placeholder={t('tasks.placeholder_description')}
               disabled={isSubmitting}
             />
-          </div>
+          </FormControl>
+
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label htmlFor="status" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                {t('tasks.status')}
-              </label>
+            <FormControl id="status" label={t('tasks.status')}>
               <div className="relative">
                 <select
                   id="status"
@@ -90,11 +82,9 @@ export default function TaskForm({
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
               </div>
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="priority" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                {t('tasks.priority')}
-              </label>
+            </FormControl>
+
+            <FormControl id="priority" label={t('tasks.priority')}>
               <div className="relative">
                 <select
                   id="priority"
@@ -108,12 +98,10 @@ export default function TaskForm({
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
               </div>
-            </div>
+            </FormControl>
           </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-              {t('tasks.due_date')}
-            </label>
+
+          <FormControl label={t('tasks.due_date')}>
             <Controller
               control={control}
               name="due_date"
@@ -126,7 +114,8 @@ export default function TaskForm({
                 />
               )}
             />
-          </div>
+          </FormControl>
+
           <DialogFooter className="pt-4 flex flex-row justify-end gap-2">
             <button
               type="button"

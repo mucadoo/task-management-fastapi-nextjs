@@ -13,6 +13,7 @@ import { getLoginSchema } from '../../lib/validations';
 import * as z from 'zod';
 import { useAuth } from '../../hooks/useAuth';
 import { cn } from '../../lib/utils';
+import { FormControl } from '../../components/ui/FormControl';
 
 type LoginForm = z.infer<ReturnType<typeof getLoginSchema>>;
 
@@ -21,7 +22,6 @@ export default function LoginPage() {
   const router = useRouter();
   const { login, isLoading: authActionLoading } = useAuthStore();
   
-  // Redirect to /app if already logged in
   const { isLoading: authCheckLoading } = useAuth(false);
 
   const {
@@ -41,7 +41,7 @@ export default function LoginPage() {
       await login(data);
       router.push('/app');
     } catch (err) {
-      // Error handled by store
+      // Handled by store
     }
   };
 
@@ -56,7 +56,7 @@ export default function LoginPage() {
         }} />
         <div className="relative z-10">
           <div className="w-10 h-10 bg-white rounded flex items-center justify-center mb-6">
-            < BookOpen className="text-brand-600 h-6 w-6" />
+            <BookOpen className="text-brand-600 h-6 w-6" />
           </div>
           <h1 className="text-4xl font-bold text-white mb-2">TaskFlow</h1>
           <p className="text-white/80">{t('auth.slogan')}</p>
@@ -87,10 +87,11 @@ export default function LoginPage() {
           <div className="card-surface p-6">
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="identifier" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                    {t('auth.email_or_username')}
-                  </label>
+                <FormControl
+                  id="identifier"
+                  label={t('auth.email_or_username')}
+                  error={errors.identifier?.message}
+                >
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
                     <input
@@ -102,14 +103,13 @@ export default function LoginPage() {
                       disabled={authActionLoading}
                     />
                   </div>
-                  {errors.identifier && (
-                    <p className="text-[10px] text-red-500 font-medium ml-1">{errors.identifier.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="password" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                    {t('auth.password')}
-                  </label>
+                </FormControl>
+
+                <FormControl
+                  id="password"
+                  label={t('auth.password')}
+                  error={errors.password?.message}
+                >
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
                     <input
@@ -121,10 +121,7 @@ export default function LoginPage() {
                       disabled={authActionLoading}
                     />
                   </div>
-                  {errors.password && (
-                    <p className="text-[10px] text-red-500 font-medium ml-1">{errors.password.message}</p>
-                  )}
-                </div>
+                </FormControl>
               </div>
               <button type="submit" disabled={authActionLoading} className="btn-primary w-full">
                 {authActionLoading ? (

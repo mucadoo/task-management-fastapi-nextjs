@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import LoadingSpinner from './ui/LoadingSpinner';
 import { useProfileForm } from '../hooks/useProfileForm';
+import { FormControl } from './ui/FormControl';
 import {
   Dialog,
   DialogContent,
@@ -56,10 +57,7 @@ export default function ProfileModal({
           
           <TabsContent value="personal" className="mt-4">
             <form onSubmit={onSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="name" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                  {t('common.name')}
-                </label>
+              <FormControl id="name" label={t('common.name')} error={errors.name && touchedFields.name ? (errors.name.message as string) : undefined}>
                 <input
                   id="name"
                   {...register('name')}
@@ -67,15 +65,13 @@ export default function ProfileModal({
                   placeholder={t('common.name')}
                   className={cn("input-base", errors.name && touchedFields.name && "border-red-500")}
                 />
-                {errors.name && touchedFields.name && (
-                  <p className="text-xs text-red-500 font-medium ml-1">{errors.name.message as string}</p>
-                )}
-              </div>
+              </FormControl>
 
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                  {t('common.email')}
-                </label>
+              <FormControl 
+                id="email" 
+                label={t('common.email')} 
+                error={(errors.email && touchedFields.email ? (errors.email.message as string) : undefined) || (emailStatus === 'taken' ? t('profile.email_taken') : undefined)}
+              >
                 <div className="relative">
                   <input
                     id="email"
@@ -93,15 +89,14 @@ export default function ProfileModal({
                     {emailStatus === 'taken' && <AlertCircle className="h-4 w-4 text-red-500" />}
                   </div>
                 </div>
-                {emailStatus === 'available' && <p className="text-xs text-emerald-500 ml-1">{t('profile.email_available')}</p>}
-                {emailStatus === 'taken' && <p className="text-xs text-red-500 font-medium ml-1">{t('profile.email_taken')}</p>}
-                {errors.email && touchedFields.email && <p className="text-xs text-red-500 font-medium ml-1">{errors.email.message as string}</p>}
-              </div>
+                {emailStatus === 'available' && <p className="text-[10px] text-emerald-500 ml-1">{t('profile.email_available')}</p>}
+              </FormControl>
 
-              <div className="space-y-2">
-                <label htmlFor="username" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                  {t('common.username')}
-                </label>
+              <FormControl 
+                id="username" 
+                label={t('common.username')} 
+                error={(errors.username && touchedFields.username ? (errors.username.message as string) : undefined) || (usernameStatus === 'taken' ? t('profile.username_taken') : undefined) || (usernameStatus === 'invalid' ? t('profile.username_invalid') : undefined)}
+              >
                 <div className="relative">
                   <input
                     id="username"
@@ -119,11 +114,8 @@ export default function ProfileModal({
                     {usernameStatus === 'taken' && <AlertCircle className="h-4 w-4 text-red-500" />}
                   </div>
                 </div>
-                {usernameStatus === 'available' && <p className="text-xs text-emerald-500 ml-1">{t('profile.username_available')}</p>}
-                {usernameStatus === 'taken' && <p className="text-xs text-red-500 font-medium ml-1">{t('profile.username_taken')}</p>}
-                {usernameStatus === 'invalid' && <p className="text-xs text-red-500 font-medium ml-1">{t('profile.username_invalid')}</p>}
-                {errors.username && touchedFields.username && <p className="text-xs text-red-500 font-medium ml-1">{errors.username.message as string}</p>}
-              </div>
+                {usernameStatus === 'available' && <p className="text-[10px] text-emerald-500 ml-1">{t('profile.username_available')}</p>}
+              </FormControl>
 
               <DialogFooter className="pt-4 flex flex-row justify-end gap-2">
                 <button type="button" onClick={onClose} className="btn-ghost">{t('common.cancel')}</button>
@@ -136,10 +128,7 @@ export default function ProfileModal({
 
           <TabsContent value="security" className="mt-4">
             <form onSubmit={onSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="current_password" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                  {t('profile.current_password')}
-                </label>
+              <FormControl id="current_password" label={t('profile.current_password')} error={errors.current_password && touchedFields.current_password ? (errors.current_password.message as string) : undefined}>
                 <input
                   id="current_password"
                   {...register('current_password')}
@@ -147,14 +136,8 @@ export default function ProfileModal({
                   placeholder={t('profile.current_password')}
                   className={cn("input-base", errors.current_password && touchedFields.current_password && "border-red-500")}
                 />
-                {errors.current_password && touchedFields.current_password && (
-                  <p className="text-xs text-red-500 font-medium ml-1">{errors.current_password.message as string}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                  {t('profile.new_password')}
-                </label>
+              </FormControl>
+              <FormControl id="password" label={t('profile.new_password')} error={errors.password && touchedFields.password ? (errors.password.message as string) : undefined}>
                 <input
                   id="password"
                   {...register('password')}
@@ -162,14 +145,8 @@ export default function ProfileModal({
                   placeholder={t('profile.new_password')}
                   className={cn("input-base", errors.password && touchedFields.password && "border-red-500")}
                 />
-                {errors.password && touchedFields.password && (
-                  <p className="text-xs text-red-500 font-medium ml-1">{errors.password.message as string}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                  {t('profile.confirm_new_password')}
-                </label>
+              </FormControl>
+              <FormControl id="confirmPassword" label={t('profile.confirm_new_password')} error={errors.confirmPassword && touchedFields.confirmPassword ? (errors.confirmPassword.message as string) : undefined}>
                 <input
                   id="confirmPassword"
                   {...register('confirmPassword')}
@@ -177,10 +154,7 @@ export default function ProfileModal({
                   placeholder={t('profile.confirm_new_password')}
                   className={cn("input-base", errors.confirmPassword && touchedFields.confirmPassword && "border-red-500")}
                 />
-                {errors.confirmPassword && touchedFields.confirmPassword && (
-                  <p className="text-xs text-red-500 font-medium ml-1">{errors.confirmPassword.message as string}</p>
-                )}
-              </div>
+              </FormControl>
               <DialogFooter className="pt-4 flex flex-row justify-end gap-2">
                 <button type="button" onClick={onClose} className="btn-ghost">{t('common.cancel')}</button>
                 <button type="submit" disabled={isSubmitting} className="btn-primary">
