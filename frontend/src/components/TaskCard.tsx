@@ -1,39 +1,34 @@
 "use client";
-import { Task } from "../types/task";
+import { useState, memo } from "react";
+import { Task, TaskStatus } from "../types/task";
 import StatusBadge from "./StatusBadge";
 import PriorityBadge from "./PriorityBadge";
 import LoadingSpinner from "./ui/LoadingSpinner";
 import { useTranslation } from "react-i18next";
-import { Pencil, Trash2, CheckCircle2, Circle, Calendar, Clock, AlertCircle } from "lucide-react";
+import { Pencil, Trash2, CheckCircle2, Circle, Calendar, Clock, AlertCircle, Play, RotateCcw } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/Tooltip";
 
 interface TaskCardProps {
   task: Task;
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
-  onToggle: (id: string) => void;
+  onStatusChange: (id: string, status: TaskStatus) => void;
   isDeleting: boolean;
   isToggling?: boolean;
   viewMode?: 'gallery' | 'list';
 }
 
-export default function TaskCard({
+const TaskCard = memo(function TaskCard({
   task,
   onEdit,
   onDelete,
-  onToggle,
+  onStatusChange,
   isDeleting,
   isToggling,
   viewMode = 'gallery'
 }: TaskCardProps) {
   const { t, i18n } = useTranslation();
   
-  const formattedDate = new Date(task.created_at).toLocaleDateString(i18n.language, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-
   const isCompleted = task.status === "completed";
 
   const isOverdue = task.due_date && !isCompleted && (() => {
@@ -68,23 +63,55 @@ export default function TaskCard({
       <div className={`group card-surface p-3 flex items-center gap-4 hover:shadow-md transition-all duration-300 relative pl-6 ${isCompleted ? 'opacity-80' : ''}`}>
         <span className={`accent-bar ${task.priority === 'high' ? 'bg-brand-500' : task.priority === 'medium' ? 'bg-amber-500' : 'bg-sky-500'}`} />
         
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button 
-              onClick={() => onToggle(task.id)}
-              disabled={isToggling || isDeleting}
-              aria-label={t('tasks.click_to_toggle')}
-              className="flex-shrink-0 focus:outline-none group/status cursor-pointer"
-            >
-              <div className={`p-1 rounded-sm transition-colors ${isCompleted ? 'text-emerald-600' : 'text-warm-400 group-hover/status:text-brand-500'}`}>
-                {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : <Circle className="h-5 w-5" />}
-              </div>
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="right">
-            {t('tasks.click_to_toggle')}
-          </TooltipContent>
-        </Tooltip>
+        <div className="flex items-center gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button 
+                onClick={() => {
+                  if (task.status === 'pending') onStatusChange(task.id, 'in_progress');
+                  else if (task.status === 'in_progress') onStatusChange(task.id, 'completed');
+                  else onStatusChange(task.id, 'pending');
+                }}
+                disabled={isToggling || isDeleting}
+                aria-label={task.status === 'pending' ? t('tasks.mark_in_progress') : 
+                           task.status === 'in_progress' ? t('tasks.mark_completed') : 
+                           t('tasks.mark_pending')}
+                className={`flex-shrink-0 focus:outline-none group/status cursor-pointer p-1 rounded-sm transition-colors ${
+                  task.status === 'completed' ? 'text-emerald-600' : 
+                  task.status === 'in_progress' ? 'text-amber-600' : 
+                  'text-warm-400 group-hover/status:text-brand-500'
+                }`}
+              >
+                {isToggling ? <LoadingSpinner size="sm" /> : (
+                  task.status === 'completed' ? <CheckCircle2 className="h-5 w-5" /> : 
+                  task.status === 'in_progress' ? <Play className="h-5 w-5" /> : 
+                  <Circle className="h-5 w-5" />
+                )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {task.status === 'pending' ? t('tasks.mark_in_progress') : 
+               task.status === 'in_progress' ? t('tasks.mark_completed') : 
+               t('tasks.mark_pending')}
+            </TooltipContent>
+          </Tooltip>
+          
+          {task.status === 'pending' && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={() => onStatusChange(task.id, 'completed')}
+                  disabled={isToggling || isDeleting}
+                  aria-label={t('tasks.mark_completed')}
+                  className="p-1 text-warm-400 hover:text-emerald-600 transition-colors cursor-pointer"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>{t('tasks.mark_completed')}</TooltipContent>
+            </Tooltip>
+          )}
+        </div>
 
         <div className="flex-grow min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
@@ -113,10 +140,6 @@ export default function TaskCard({
               {isDueToday && <span className="ml-1 text-[9px] uppercase tracking-wider font-bold">({t('tasks.today')})</span>}
             </div>
           )}
-        </div>
-
-        <div className="hidden sm:block text-[10px] font-medium text-warm-500 whitespace-nowrap px-4">
-          {formattedDate}
         </div>
 
         <div className="flex items-center gap-1 flex-shrink-0">
@@ -162,28 +185,57 @@ export default function TaskCard({
       
       <div className="flex justify-between items-start mb-4">
         <div className="flex flex-col gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button 
-                onClick={() => onToggle(task.id)}
-                disabled={isToggling || isDeleting}
-                aria-label={t('tasks.click_to_toggle')}
-                className="flex items-center gap-2 focus:outline-none group/status cursor-pointer"
-              >
-                <div className={`p-0.5 rounded-sm transition-colors ${isCompleted ? 'text-emerald-600' : 'text-warm-400 group-hover/status:text-brand-500'}`}>
-                  {isCompleted ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
-                </div>
-                <StatusBadge status={task.status} />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">
-              {t('tasks.click_to_toggle')}
-            </TooltipContent>
-          </Tooltip>
+          <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={() => {
+                    if (task.status === 'pending') onStatusChange(task.id, 'in_progress');
+                    else if (task.status === 'in_progress') onStatusChange(task.id, 'completed');
+                    else onStatusChange(task.id, 'pending');
+                  }}
+                  disabled={isToggling || isDeleting}
+                  aria-label={task.status === 'pending' ? t('tasks.mark_in_progress') : 
+                             task.status === 'in_progress' ? t('tasks.mark_completed') : 
+                             t('tasks.mark_pending')}
+                  className={`flex items-center gap-2 focus:outline-none group/status cursor-pointer p-0.5 rounded-sm transition-colors ${
+                    task.status === 'completed' ? 'text-emerald-600' : 
+                    task.status === 'in_progress' ? 'text-amber-600' : 
+                    'text-warm-400 group-hover/status:text-brand-500'
+                  }`}
+                >
+                  {isToggling ? <LoadingSpinner size="sm" /> : (
+                    task.status === 'completed' ? <CheckCircle2 className="h-4 w-4" /> : 
+                    task.status === 'in_progress' ? <Play className="h-4 w-4" /> : 
+                    <Circle className="h-4 w-4" />
+                  )}
+                  <StatusBadge status={task.status} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                {task.status === 'pending' ? t('tasks.mark_in_progress') : 
+                 task.status === 'in_progress' ? t('tasks.mark_completed') : 
+                 t('tasks.mark_pending')}
+              </TooltipContent>
+            </Tooltip>
+
+            {task.status === 'pending' && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    onClick={() => onStatusChange(task.id, 'completed')}
+                    disabled={isToggling || isDeleting}
+                    aria-label={t('tasks.mark_completed')}
+                    className="p-1 text-warm-400 hover:text-emerald-600 transition-colors cursor-pointer"
+                  >
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">{t('tasks.mark_completed')}</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
           <PriorityBadge priority={task.priority} />
-        </div>
-        <div className="text-[10px] font-medium text-warm-500">
-          {formattedDate}
         </div>
       </div>
 
@@ -255,4 +307,6 @@ export default function TaskCard({
       </div>
     </div>
   );
-}
+});
+
+export default TaskCard;

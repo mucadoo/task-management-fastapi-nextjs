@@ -8,7 +8,6 @@ export default function TaskSkeleton() {
           <div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
           <div className="h-5 w-20 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
         </div>
-        <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
       </div>
       <div className="h-6 w-full bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
       <div className="h-16 w-full bg-gray-200 dark:bg-gray-700 rounded mb-6"></div>

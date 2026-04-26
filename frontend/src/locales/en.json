@@ -90,7 +90,10 @@
     "sort_created": "Date Created",
     "sort_due": "Due Date",
     "sort_priority": "Priority",
-    "sort_title": "Title"
+    "sort_title": "Title",
+    "mark_in_progress": "Mark as In Progress",
+    "mark_completed": "Mark as Completed",
+    "mark_pending": "Mark as Pending"
   },
   "profile": {
     "title": "Your Profile",

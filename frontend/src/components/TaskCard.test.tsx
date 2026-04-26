@@ -32,7 +32,7 @@ const renderWithProviders = (ui: React.ReactElement) => {
 describe('TaskCard', () => {
   const onEdit = vi.fn();
   const onDelete = vi.fn();
-  const onToggle = vi.fn();
+  const onStatusChange = vi.fn();
 
   it('renders task details correctly', () => {
     renderWithProviders(
@@ -40,7 +40,7 @@ describe('TaskCard', () => {
         task={mockTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onToggle={onToggle}
+        onStatusChange={onStatusChange}
         isDeleting={false}
       />
     );
@@ -57,7 +57,7 @@ describe('TaskCard', () => {
         task={mockTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onToggle={onToggle}
+        onStatusChange={onStatusChange}
         isDeleting={false}
       />
     );
@@ -72,7 +72,7 @@ describe('TaskCard', () => {
         task={mockTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onToggle={onToggle}
+        onStatusChange={onStatusChange}
         isDeleting={false}
       />
     );
@@ -81,19 +81,20 @@ describe('TaskCard', () => {
     expect(onDelete).toHaveBeenCalledWith(mockTask.id);
   });
 
-  it('calls onToggle when Status Badge is clicked', () => {
+  it('calls onStatusChange when Status cycle button is clicked', () => {
     renderWithProviders(
       <TaskCard
         task={mockTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onToggle={onToggle}
+        onStatusChange={onStatusChange}
         isDeleting={false}
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /click_to_toggle/i }));
-    expect(onToggle).toHaveBeenCalledWith(mockTask.id);
+    // Initial status is pending, so it should cycle to in_progress
+    fireEvent.click(screen.getByRole('button', { name: /mark_in_progress/i }));
+    expect(onStatusChange).toHaveBeenCalledWith(mockTask.id, 'in_progress');
   });
 
   it('disables buttons when isDeleting is true', () => {
@@ -102,13 +103,13 @@ describe('TaskCard', () => {
         task={mockTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onToggle={onToggle}
+        onStatusChange={onStatusChange}
         isDeleting={true}
       />
     );
 
     expect(screen.getByRole('button', { name: /edit/i })).toBeDisabled();
-    expect(screen.getByRole('button', { name: /click_to_toggle/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /mark_in_progress/i })).toBeDisabled();
     expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
   });
 
@@ -118,13 +119,13 @@ describe('TaskCard', () => {
         task={mockTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onToggle={onToggle}
+        onStatusChange={onStatusChange}
         isDeleting={false}
         isToggling={true}
       />
     );
 
-    expect(screen.getByRole('button', { name: /click_to_toggle/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /mark_in_progress/i })).toBeDisabled();
   });
 
   it('renders correctly in list view mode', () => {
@@ -133,7 +134,7 @@ describe('TaskCard', () => {
         task={mockTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onToggle={onToggle}
+        onStatusChange={onStatusChange}
         isDeleting={false}
         viewMode="list"
       />
@@ -149,8 +150,8 @@ describe('TaskCard', () => {
     fireEvent.click(screen.getByRole('button', { name: /delete/i }));
     expect(onDelete).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: /click_to_toggle/i }));
-    expect(onToggle).toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: /mark_in_progress/i }));
+    expect(onStatusChange).toHaveBeenCalled();
   });
 
   it('renders correctly in list view mode when completed and high priority', () => {
@@ -160,7 +161,7 @@ describe('TaskCard', () => {
         task={task}
         onEdit={onEdit}
         onDelete={onDelete}
-        onToggle={onToggle}
+        onStatusChange={onStatusChange}
         isDeleting={false}
         viewMode="list"
       />
@@ -176,7 +177,7 @@ describe('TaskCard', () => {
         task={taskWithoutDesc}
         onEdit={onEdit}
         onDelete={onDelete}
-        onToggle={onToggle}
+        onStatusChange={onStatusChange}
         isDeleting={false}
       />
     );
@@ -193,7 +194,7 @@ describe('TaskCard', () => {
           task={taskWithPriority}
           onEdit={onEdit}
           onDelete={onDelete}
-          onToggle={onToggle}
+          onStatusChange={onStatusChange}
           isDeleting={false}
         />
       );
@@ -209,7 +210,7 @@ describe('TaskCard', () => {
         task={completedTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onToggle={onToggle}
+        onStatusChange={onStatusChange}
         isDeleting={false}
       />
     );

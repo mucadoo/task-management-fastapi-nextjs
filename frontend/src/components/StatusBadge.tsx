@@ -13,8 +13,8 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
   const configs = {
     pending: {
       label: t('tasks.pending'),
-      classes: "bg-warm-100 text-warm-700 border-warm-200 dark:bg-warm-900 dark:text-warm-400 dark:border-warm-700",
-      dot: "bg-warm-400"
+      classes: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900",
+      dot: "bg-blue-500"
     },
     in_progress: {
       label: t('tasks.in_progress'),

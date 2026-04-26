@@ -129,6 +129,22 @@ def test_task_ownership_isolation(client, auth_headers, second_user_auth_headers
     
     response = client.get(f"/api/tasks/{task_id}", headers=second_user_auth_headers)
     assert response.status_code == 404
+    
+    # User 2 tries to UPDATE User 1's task
+    response = client.put(
+        f"/api/tasks/{task_id}",
+        json={"title": "Hacked"},
+        headers=second_user_auth_headers
+    )
+    assert response.status_code == 404
+    
+    # User 2 tries to DELETE User 1's task
+    response = client.delete(f"/api/tasks/{task_id}", headers=second_user_auth_headers)
+    assert response.status_code == 404
+    
+    # User 2 tries to TOGGLE User 1's task
+    response = client.post(f"/api/tasks/{task_id}/toggle", headers=second_user_auth_headers)
+    assert response.status_code == 404
 
 def test_search_tasks(client, auth_headers):
     client.post("/api/tasks/", json={"title": "Buy milk", "description": "Grocery store"}, headers=auth_headers)

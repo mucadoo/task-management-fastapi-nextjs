@@ -14,6 +14,7 @@ import LanguageSelector from "./LanguageSelector";
 import ThemeToggle from "./ThemeToggle";
 import ProfileModal from "./ProfileModal";
 import UserMenu from "./UserMenu";
+import SearchInput from "./ui/SearchInput";
 import { useTranslation } from "react-i18next";
 import { Plus, Search, LayoutGrid, List, Clock, AlertCircle, CheckSquare as CheckSquareIcon, ChevronDown } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipSimple } from "./ui/Tooltip";
@@ -127,18 +128,34 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
     }
   };
 
-  const handleToggleTask = async (id: string) => {
+  const handleEdit = useCallback((t: Task) => {
+    setEditingTask(t);
+    setIsFormOpen(true);
+  }, []);
+
+  const handleDelete = useCallback((id: string) => {
+    setDeletingId(id);
+  }, []);
+
+  const handleStatusUpdate = useCallback(async (id: string, newStatus: TaskStatus) => {
     const originalItems = [...data.items];
-    const taskToToggle = originalItems.find(t => t.id === id);
-    if (!taskToToggle) return;
+    const taskToUpdate = originalItems.find(t => t.id === id);
+    if (!taskToUpdate) return;
+    
     setTogglingId(id);
-    const newStatus: TaskStatus = taskToToggle.status === "completed" ? "pending" : "completed";
     setData(prev => ({
       ...prev,
       items: prev.items.map(t => t.id === id ? { ...t, status: newStatus } : t)
     }));
     try {
-      const updated = await api.toggleTaskStatus(id);
+      const updated = await api.updateTask(id, {
+        title: taskToUpdate.title,
+        description: taskToUpdate.description || undefined,
+        status: newStatus,
+        priority: taskToUpdate.priority,
+        due_date: taskToUpdate.due_date || undefined,
+        due_date_has_time: taskToUpdate.due_date_has_time
+      });
       setData(prev => ({
         ...prev,
         items: prev.items.map(t => t.id === id ? updated : t)
@@ -152,7 +169,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
     } finally {
       setTogglingId(null);
     }
-  };
+  }, [data.items, t]);
 
   const tabs: { label: string; value: TaskStatus | undefined; translationKey: string; icon: any }[] = [
     { label: "All", value: undefined, translationKey: "tasks.all", icon: LayoutGrid },
@@ -211,16 +228,12 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center gap-3 mb-8">
-          <div className="relative flex-[2]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 dark:text-gray-500" />
-            <input 
-              type="text" 
-              placeholder={t('tasks.search')} 
-              value={searchTerm} 
-              onChange={(e) => setSearchTerm(e.target.value)} 
-              className="h-10 w-full pl-9 pr-4 bg-white dark:bg-[#141414] border border-warm-200 dark:border-white/10 rounded-lg text-sm text-warm-900 dark:text-gray-100 placeholder:text-warm-400 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500/5 focus:border-brand-500 transition-all"
-            />
-          </div>
+          <SearchInput 
+            placeholder={t('tasks.search')} 
+            value={searchTerm} 
+            onChange={setSearchTerm} 
+            className="flex-[2]"
+          />
 
           <div className="flex flex-1 items-center gap-3">
             <div className="relative flex-1">
@@ -257,7 +270,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
             <span className="text-[10px] font-bold text-warm-400 uppercase tracking-widest ml-1 hidden lg:block">
               {t('tasks.sort_by')}
             </span>
-            <div className="relative group/sort">
+            <div className="relative">
               <select
                 value={`${sortBy}-${sortDir}`}
                 onChange={(e) => {
@@ -265,7 +278,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
                   setSortBy(field);
                   setSortDir(dir);
                 }}
-                className="h-10 min-w-[140px] pl-3 pr-9 py-1 bg-warm-50 dark:bg-warm-900/50 border border-warm-200 dark:border-warm-800 rounded-lg text-xs font-semibold text-warm-700 dark:text-warm-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all appearance-none cursor-pointer"
+                className="h-10 min-w-[160px] pl-3 pr-10 bg-white dark:bg-[#141414] border border-warm-200 dark:border-white/10 rounded-lg text-sm text-warm-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/5 focus:border-brand-500 transition-all cursor-pointer appearance-none"
               >
                 <option value="due_date-asc">{t('tasks.sort_due')} (↑)</option>
                 <option value="due_date-desc">{t('tasks.sort_due')} (↓)</option>
@@ -276,7 +289,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
                 <option value="title-asc">{t('tasks.sort_title')} (A-Z)</option>
                 <option value="title-desc">{t('tasks.sort_title')} (Z-A)</option>
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none group-hover/sort:text-brand-500 transition-colors" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
             </div>
           </div>
 
@@ -304,9 +317,9 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
                   key={task.id}
                   task={task}
                   viewMode={viewMode}
-                  onEdit={(t) => { setEditingTask(t); setIsFormOpen(true); }}
-                  onDelete={(id) => setDeletingId(id)}
-                  onToggle={handleToggleTask}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onStatusChange={handleStatusUpdate}
                   isDeleting={deletingId === task.id}
                   isToggling={togglingId === task.id}
                 />

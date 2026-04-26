@@ -58,6 +58,10 @@ def seed_db():
                     due_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=days_offset)
                     if random.random() > 0.5:
                         due_date_has_time = True
+                        # Randomize time portion
+                        random_hour = random.randint(0, 23)
+                        random_minute = random.randint(0, 59)
+                        due_date = due_date.replace(hour=random_hour, minute=random_minute, second=0, microsecond=0)
                     else:
                         # Normalize to date only (00:00:00 UTC)
                         due_date = due_date.replace(hour=0, minute=0, second=0, microsecond=0)

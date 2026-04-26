@@ -13,7 +13,7 @@ describe('StatusBadge', () => {
     const { container } = render(<StatusBadge status="pending" />)
     const badge = container.firstChild as HTMLElement;
     expect(badge).toBeInTheDocument()
-    expect(badge.className).toMatch(/warm/)
+    expect(badge.className).toMatch(/blue/)
   })
 
   it('renders correctly for in_progress status', () => {

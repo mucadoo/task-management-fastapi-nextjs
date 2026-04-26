@@ -12,18 +12,18 @@ describe('PriorityBadge', () => {
   it('renders high priority with correct style', () => {
     const { container } = render(<PriorityBadge priority="high" />);
     const badge = container.firstChild as HTMLElement;
-    expect(badge.className).toMatch(/brand/);
+    expect(badge.className).toMatch(/red/);
   });
 
   it('renders medium priority with correct style', () => {
     const { container } = render(<PriorityBadge priority="medium" />);
     const badge = container.firstChild as HTMLElement;
-    expect(badge.className).toMatch(/orange/);
+    expect(badge.className).toMatch(/amber/);
   });
 
   it('renders low priority with correct style', () => {
     const { container } = render(<PriorityBadge priority="low" />);
     const badge = container.firstChild as HTMLElement;
-    expect(badge.className).toMatch(/sky/);
+    expect(badge.className).toMatch(/emerald/);
   });
 });
