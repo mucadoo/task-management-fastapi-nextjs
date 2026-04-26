@@ -13,7 +13,15 @@
     "profile": "Perfil",
     "back": "Voltar",
     "title": "Título",
-    "confirm_action": "Confirmar Ação"
+    "name": "Nome",
+    "email": "E-mail",
+    "save_changes": "Salvar Alterações",
+    "copyright": "TaskFlow Scholarly",
+    "confirm_action": "Confirmar Ação",
+    "light_mode": "Modo Claro",
+    "dark_mode": "Modo Escuro",
+    "switch_portuguese": "Mudar para Português",
+    "switch_english": "Mudar para Inglês"
   },
   "auth": {
     "login": "Entrar",
@@ -28,10 +36,12 @@
     "register_header": "Crie sua conta",
     "or": "Ou",
     "logout": "Sair",
+    "slogan": "Organize. Execute. Entregue.",
     "error_password_match": "As senhas não coincidem"
   },
   "tasks": {
     "title": "Quadro de Tarefas",
+    "tasks_count": "{{count}} tarefas",
     "subtitle": "Você tem {{count}} tarefas no total.",
     "new_task": "Nova Tarefa",
     "search": "Pesquisar tarefas...",

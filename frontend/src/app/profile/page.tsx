@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import LanguageSelector from "../../components/LanguageSelector";
 import ThemeToggle from "../../components/ThemeToggle";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import { ProfileSkeleton } from "../../components/ui/Skeleton";
 import { ChevronLeft, User, Shield, Save, CheckCircle2 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -33,7 +34,7 @@ export default function ProfilePage() {
         setName(userData.name || "");
         setEmail(userData.email);
       } catch (err) {
-        setError(t('profile.error_load', { defaultValue: 'Failed to load profile' }));
+        setError(t('profile.error_load'));
         if (err instanceof Error && err.message.includes("401")) {
             router.push("/login");
         }
@@ -88,14 +89,7 @@ export default function ProfilePage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950">
-        <div className="flex flex-col items-center gap-4">
-          <LoadingSpinner />
-          <p className="text-gray-500 font-medium animate-pulse">{t('common.loading')}</p>
-        </div>
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   return (

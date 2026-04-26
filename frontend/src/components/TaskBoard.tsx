@@ -162,12 +162,12 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
           <div className="p-1.5 bg-brand-500 rounded"><CheckSquareIcon className="h-4 w-4 text-white" /></div>
           <span className="font-semibold text-sm text-warm-900 dark:text-gray-100">TaskFlow</span>
           <span className="mx-2 text-warm-300">·</span>
-          <span className="text-xs text-warm-600 dark:text-gray-500">{data.total} {t('tasks.title').toLowerCase()}</span>
+          <span className="text-xs text-warm-600 dark:text-gray-500">{t('tasks.tasks_count', { count: data.total })}</span>
         </div>
         <div className="flex-grow" />
         <div className="flex items-center gap-2">
           <button onClick={() => setIsProfileOpen(true)} className="h-9 px-3 text-xs font-semibold text-warm-700 dark:text-gray-300 border border-warm-200 dark:border-white/10 rounded-lg hover:bg-warm-100 dark:hover:bg-white/5 transition-colors cursor-pointer">
-            {t('common.profile', 'Profile')}
+            {t('common.profile')}
           </button>
           <LanguageSelector />
           <ThemeToggle />
@@ -182,7 +182,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
               </button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              {t('common.logout', 'Logout')}
+              {t('common.logout')}
             </TooltipContent>
           </Tooltip>
         </div>

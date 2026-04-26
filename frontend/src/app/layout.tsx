@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-full flex flex-col font-sans antialiased transition-colors duration-300`}>
-        <NextTopLoader color="#3b82f6" height={3} showSpinner={false} />
+        <NextTopLoader color="#3a5fa3" height={3} showSpinner={false} />
         <ClientProviders>
           <div className="flex-grow flex flex-col">
             {children}

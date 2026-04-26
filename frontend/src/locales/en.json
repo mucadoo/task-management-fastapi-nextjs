@@ -13,7 +13,15 @@
     "profile": "Profile",
     "back": "Back",
     "title": "Title",
-    "confirm_action": "Confirm Action"
+    "name": "Name",
+    "email": "Email",
+    "save_changes": "Save Changes",
+    "copyright": "TaskFlow Scholarly",
+    "confirm_action": "Confirm Action",
+    "light_mode": "Light Mode",
+    "dark_mode": "Dark Mode",
+    "switch_portuguese": "Switch to Portuguese",
+    "switch_english": "Switch to English"
   },
   "auth": {
     "login": "Login",
@@ -28,10 +36,12 @@
     "register_header": "Create your account",
     "or": "Or",
     "logout": "Logout",
+    "slogan": "Organize. Execute. Deliver.",
     "error_password_match": "Passwords do not match"
   },
   "tasks": {
     "title": "Task Board",
+    "tasks_count": "{{count}} tasks",
     "subtitle": "You have {{count}} tasks total.",
     "new_task": "New Task",
     "search": "Search tasks...",

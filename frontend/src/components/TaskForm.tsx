@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Task, TaskCreate, TaskStatus, TaskPriority } from "../types/task";
 import { useTranslation } from "react-i18next";
 import { X, Save, AlertCircle, ChevronDown } from "lucide-react";
+import LoadingSpinner from "./ui/LoadingSpinner";
 
 interface TaskFormProps {
   isOpen: boolean;
@@ -26,6 +27,17 @@ export default function TaskForm({
   const [priority, setPriority] = useState<TaskPriority>("medium");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (editingTask) {
@@ -174,7 +186,7 @@ export default function TaskForm({
               className="flex-[1.5] btn-primary"
             >
               {isSubmitting ? (
-                <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <LoadingSpinner size="sm" className="text-white" />
               ) : <Save className="h-4 w-4" />}
               {editingTask ? t('tasks.edit_task') : t('tasks.create_task')}
             </button>

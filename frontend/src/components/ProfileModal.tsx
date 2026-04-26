@@ -23,6 +23,17 @@ export default function ProfileModal({ isOpen, onClose, onLogout }: ProfileModal
 
   useEffect(() => {
     if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
       setIsLoading(true);
       api.getMe()
         .then(setUser)
@@ -66,13 +77,13 @@ export default function ProfileModal({ isOpen, onClose, onLogout }: ProfileModal
                 onClick={() => setActiveTab('personal')}
                 className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${activeTab === 'personal' ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm' : 'text-warm-600 dark:text-gray-500 hover:text-warm-900 dark:hover:text-gray-300'}`}
               >
-                Personal Info
+                {t('profile.personal_info')}
               </button>
               <button 
                 onClick={() => setActiveTab('security')}
                 className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${activeTab === 'security' ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm' : 'text-warm-600 dark:text-gray-500 hover:text-warm-900 dark:hover:text-gray-300'}`}
               >
-                Security
+                {t('profile.security')}
               </button>
             </div>
 
@@ -83,13 +94,13 @@ export default function ProfileModal({ isOpen, onClose, onLogout }: ProfileModal
               <div className="space-y-3">
                 {activeTab === 'personal' ? (
                   <>
-                    <input type="text" className="input-base" defaultValue={user?.name} placeholder="Name" />
-                    <input type="email" className="input-base" defaultValue={user?.email} placeholder="Email" />
+                    <input type="text" className="input-base" defaultValue={user?.name} placeholder={t('common.name')} />
+                    <input type="email" className="input-base" defaultValue={user?.email} placeholder={t('common.email')} />
                   </>
                 ) : (
                   <>
-                    <input type="password" className="input-base" placeholder="New password" />
-                    <input type="password" className="input-base" placeholder="Confirm new password" />
+                    <input type="password" className="input-base" placeholder={t('profile.new_password')} />
+                    <input type="password" className="input-base" placeholder={t('profile.confirm_new_password')} />
                   </>
                 )}
               </div>
@@ -106,7 +117,7 @@ export default function ProfileModal({ isOpen, onClose, onLogout }: ProfileModal
                   type="button"
                   className="flex-[1.5] btn-primary"
                 >
-                  {activeTab === 'personal' ? 'Save changes' : 'Change password'}
+                  {activeTab === 'personal' ? t('common.save_changes') : t('profile.change_password')}
                 </button>
               </div>
             </form>

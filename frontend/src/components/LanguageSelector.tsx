@@ -23,7 +23,7 @@ export default function LanguageSelector() {
         </button>
       </TooltipTrigger>
       <TooltipContent side="bottom">
-        {i18n.language.startsWith('en') ? t('common.switch_portuguese', 'Switch to Portuguese') : t('common.switch_english', 'Switch to English')}
+        {i18n.language.startsWith('en') ? t('common.switch_portuguese') : t('common.switch_english')}
       </TooltipContent>
     </Tooltip>
   );

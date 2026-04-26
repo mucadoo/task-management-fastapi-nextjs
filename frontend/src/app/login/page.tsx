@@ -8,6 +8,7 @@ import ErrorMessage from "../../components/ui/ErrorMessage";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "../../components/LanguageSelector";
 import ThemeToggle from "../../components/ThemeToggle";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { Mail, Lock, ArrowRight, BookOpen } from "lucide-react";
 
 export default function LoginPage() {
@@ -40,9 +41,9 @@ export default function LoginPage() {
         <div>
           <div className="w-10 h-10 bg-white rounded flex items-center justify-center mb-6"><BookOpen className="text-brand-600 h-6 w-6" /></div>
           <h1 className="text-4xl font-bold text-white mb-2">TaskFlow</h1>
-          <p className="text-brand-100">Organize. Execute. Deliver.</p>
+          <p className="text-brand-100">{t('auth.slogan')}</p>
         </div>
-        <div className="text-brand-200 text-sm opacity-60">© {new Date().getFullYear()} TaskFlow Scholarly</div>
+        <div className="text-brand-200 text-sm opacity-60">© {new Date().getFullYear()} {t('common.copyright')}</div>
       </div>
 
       <div className="flex-1 flex flex-col justify-center p-8 lg:p-16 relative bg-warm-50 dark:bg-[#0d0c0b]">
@@ -81,7 +82,7 @@ export default function LoginPage() {
               </div>
 
               <button type="submit" disabled={isLoading} className="btn-primary w-full">
-                {isLoading ? t('common.loading') : <>{t('auth.login')}<ArrowRight className="h-4 w-4" /></>}
+                {isLoading ? <LoadingSpinner size="sm" className="text-white" /> : <>{t('auth.login')}<ArrowRight className="h-4 w-4" /></>}
               </button>
             </form>
           </div>

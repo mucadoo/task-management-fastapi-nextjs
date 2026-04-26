@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import LoadingSpinner from './ui/LoadingSpinner';
 
 interface InfiniteScrollTriggerProps {
   onIntersect: () => void;
@@ -39,9 +40,7 @@ export const InfiniteScrollTrigger: React.FC<InfiniteScrollTriggerProps> = ({
 
   return (
     <div ref={triggerRef} className="h-10 w-full flex items-center justify-center py-8">
-      {isLoading && (
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-      )}
+      {isLoading && <LoadingSpinner size="md" />}
     </div>
   );
 };

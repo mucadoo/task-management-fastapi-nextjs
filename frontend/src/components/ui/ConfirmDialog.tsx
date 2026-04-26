@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { AlertTriangle, Trash2 } from "lucide-react";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -19,6 +21,17 @@ export default function ConfirmDialog({
   isLoading,
 }: ConfirmDialogProps) {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
   
   if (!isOpen) return null;
 
@@ -30,7 +43,7 @@ export default function ConfirmDialog({
         </div>
         
         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {t('common.confirm_action', { defaultValue: 'Are you sure?' })}
+          {t('common.confirm_action')}
         </h3>
         <p className="text-gray-500 dark:text-gray-400 mb-8 font-medium leading-relaxed">{message}</p>
         
@@ -41,7 +54,7 @@ export default function ConfirmDialog({
             className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl shadow-lg shadow-red-500/25 transition-all active:scale-[0.98] disabled:opacity-50"
           >
             {isLoading ? (
-              <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <LoadingSpinner size="sm" className="text-white" />
             ) : (
               <>
                 <Trash2 className="h-4 w-4" />
@@ -52,7 +65,7 @@ export default function ConfirmDialog({
           <button
             onClick={onCancel}
             disabled={isLoading}
-            className="w-full py-3.5 px-6 text-gray-700 dark:text-gray-300 font-bold bg-gray-100 dark:bg-gray-700/50 rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all active:scale-[0.98] disabled:opacity-50"
+            className="w-full py-3.5 px-6 text-gray-700 dark:text-gray-300 font-bold bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-[0.98] disabled:opacity-50"
           >
             {t('common.cancel')}
           </button>

@@ -39,7 +39,7 @@ export default function ThemeToggle() {
         </button>
       </TooltipTrigger>
       <TooltipContent side="bottom">
-        {resolvedTheme === 'dark' ? t('common.light_mode', 'Light Mode') : t('common.dark_mode', 'Dark Mode')}
+        {resolvedTheme === 'dark' ? t('common.light_mode') : t('common.dark_mode')}
       </TooltipContent>
     </Tooltip>
   );
