@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Annotated
 from ..schemas.user import (
     UserCreate,
     UserUpdate,
@@ -11,7 +12,7 @@ from ..repositories.user_repository import UserRepository
 from ..repositories.auth_repository import AuthRepository
 from ..services import auth_service
 from ..config import get_settings
-from ..dependencies import get_current_user, get_user_repository, get_auth_repository
+from ..dependencies import CurrentUser, UserRepo, AuthRepo
 from ..models.user import User
 from datetime import datetime, timedelta, timezone
 
@@ -44,8 +45,8 @@ def create_user_tokens(
 )
 def register(
     user_data: UserCreate,
-    user_repo: UserRepository = Depends(get_user_repository),
-    auth_repo: AuthRepository = Depends(get_auth_repository),
+    user_repo: UserRepo,
+    auth_repo: AuthRepo,
 ):
     if user_repo.get_by_email(user_data.email):
         raise HTTPException(status_code=409, detail="Email already registered")
@@ -61,8 +62,8 @@ def register(
 @router.post("/login", response_model=TokenResponse)
 def login(
     login_data: LoginRequest,
-    user_repo: UserRepository = Depends(get_user_repository),
-    auth_repo: AuthRepository = Depends(get_auth_repository),
+    user_repo: UserRepo,
+    auth_repo: AuthRepo,
 ):
     user = user_repo.get_by_email_or_username(login_data.identifier)
     if not user or not auth_service.verify_password(
@@ -75,8 +76,8 @@ def login(
 @router.post("/refresh", response_model=TokenResponse)
 def refresh(
     refresh_data: RefreshRequest,
-    user_repo: UserRepository = Depends(get_user_repository),
-    auth_repo: AuthRepository = Depends(get_auth_repository),
+    user_repo: UserRepo,
+    auth_repo: AuthRepo,
 ):
     db_token = auth_repo.get_refresh_token(refresh_data.refresh_token)
     if (
@@ -93,15 +94,15 @@ def refresh(
 
 
 @router.get("/me", response_model=UserResponse)
-def get_me(current_user: User = Depends(get_current_user)):
+def get_me(current_user: CurrentUser):
     return current_user
 
 
 @router.patch("/me", response_model=UserResponse)
 def update_me(
     user_update: UserUpdate,
-    current_user: User = Depends(get_current_user),
-    user_repo: UserRepository = Depends(get_user_repository),
+    current_user: CurrentUser,
+    user_repo: UserRepo,
 ):
     hashed_password = None
     if user_update.password:
@@ -132,7 +133,7 @@ def update_me(
 
 @router.get("/check-username")
 def check_username(
-    username: str, user_repo: UserRepository = Depends(get_user_repository)
+    username: str, user_repo: UserRepo
 ):
     username = username.lower()
     user = user_repo.get_by_username(username)
@@ -141,7 +142,7 @@ def check_username(
 
 @router.get("/check-email")
 def check_email(
-    email: str, user_repo: UserRepository = Depends(get_user_repository)
+    email: str, user_repo: UserRepo
 ):
     email = email.lower()
     user = user_repo.get_by_email(email)
