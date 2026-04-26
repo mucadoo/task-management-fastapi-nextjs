@@ -190,7 +190,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
     translationKey: string;
     icon: any;
   }[] = [
-    { label: 'All', value: undefined, translationKey: 'tasks.all', icon: LayoutGrid },
+    { label: 'All', value: undefined, translationKey: 'tasks.status_all', icon: LayoutGrid },
     { label: 'Pending', value: 'pending', translationKey: 'tasks.pending', icon: Clock },
     {
       label: 'In Progress',

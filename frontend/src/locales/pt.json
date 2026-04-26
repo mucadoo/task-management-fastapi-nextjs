@@ -62,7 +62,7 @@
     "low_priority": "Prioridade Baixa",
     "medium_priority": "Prioridade Média",
     "high_priority": "Prioridade Alta",
-    "all": "Todas",
+    "status_all": "Todos os Status",
     "pending": "Pendente",
     "in_progress": "Em Andamento",
     "completed": "Concluída",

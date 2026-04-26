@@ -14,6 +14,7 @@ import {
   Clock,
   AlertCircle,
   Play,
+  Pause,
   RotateCcw,
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/Tooltip';
@@ -37,6 +38,9 @@ const TaskCard = memo(function TaskCard({
 }: TaskCardProps) {
   const { t, i18n } = useTranslation();
   const isCompleted = task.status === 'completed';
+  const isInProgress = task.status === 'in_progress';
+  const isPending = task.status === 'pending';
+
   const isOverdue =
     task.due_date &&
     !isCompleted &&
@@ -87,6 +91,14 @@ const TaskCard = memo(function TaskCard({
     }
   })();
 
+  const toggleCompletion = () => {
+    onStatusChange(task.id, isCompleted ? 'pending' : 'completed');
+  };
+
+  const toggleInProgress = () => {
+    onStatusChange(task.id, isInProgress ? 'pending' : 'in_progress');
+  };
+
   if (viewMode === 'list') {
     return (
       <div
@@ -94,92 +106,91 @@ const TaskCard = memo(function TaskCard({
       >
         <span className={`accent-bar ${accentColor}`} />
         <div className="flex items-center gap-2">
+          {/* Completion Toggle */}
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                onClick={() => {
-                  if (task.status === 'pending') onStatusChange(task.id, 'in_progress');
-                  else if (task.status === 'in_progress') onStatusChange(task.id, 'completed');
-                  else onStatusChange(task.id, 'pending');
-                }}
+                onClick={toggleCompletion}
                 disabled={isToggling || isDeleting}
-                aria-label={
-                  task.status === 'pending'
-                    ? t('tasks.mark_in_progress')
-                    : task.status === 'in_progress'
-                      ? t('tasks.mark_completed')
-                      : t('tasks.mark_pending')
-                }
-                className={`flex-shrink-0 focus:outline-none group/status cursor-pointer p-1 rounded-sm transition-colors ${
-                  task.status === 'completed'
+                className={`flex-shrink-0 focus:outline-none transition-colors p-1 rounded-sm ${
+                  isCompleted
                     ? 'text-emerald-600'
-                    : task.status === 'in_progress'
-                      ? 'text-amber-600'
-                      : 'text-warm-400 group-hover/status:text-brand-500'
+                    : 'text-warm-400 hover:text-emerald-600'
                 }`}
               >
                 {isToggling ? (
                   <LoadingSpinner size="sm" />
-                ) : task.status === 'completed' ? (
+                ) : isCompleted ? (
                   <CheckCircle2 className="h-5 w-5" />
-                ) : task.status === 'in_progress' ? (
-                  <Play className="h-5 w-5" />
                 ) : (
                   <Circle className="h-5 w-5" />
                 )}
               </button>
             </TooltipTrigger>
-            <TooltipContent side="right">
-              {task.status === 'pending'
-                ? t('tasks.mark_in_progress')
-                : task.status === 'in_progress'
-                  ? t('tasks.mark_completed')
-                  : t('tasks.mark_pending')}
+            <TooltipContent side="top">
+              {isCompleted ? t('tasks.mark_pending') : t('tasks.mark_completed')}
             </TooltipContent>
           </Tooltip>
-          {task.status === 'pending' && (
+
+          {/* In Progress Toggle */}
+          {!isCompleted && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  onClick={() => onStatusChange(task.id, 'completed')}
+                  onClick={toggleInProgress}
                   disabled={isToggling || isDeleting}
-                  aria-label={t('tasks.mark_completed')}
-                  className="p-1 text-warm-400 hover:text-emerald-600 transition-colors cursor-pointer"
+                  className={`flex-shrink-0 focus:outline-none transition-colors p-1 rounded-sm ${
+                    isInProgress
+                      ? 'text-amber-600 hover:text-warm-500'
+                      : 'text-warm-400 hover:text-amber-600'
+                  }`}
                 >
-                  <CheckCircle2 className="h-4 w-4" />
+                  {isInProgress ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
                 </button>
               </TooltipTrigger>
-              <TooltipContent>{t('tasks.mark_completed')}</TooltipContent>
+              <TooltipContent side="top">
+                {isInProgress ? t('tasks.mark_pending') : t('tasks.mark_in_progress')}
+              </TooltipContent>
             </Tooltip>
           )}
         </div>
-        <div className="flex-grow min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
-            <h3
-              className={`text-sm font-semibold truncate transition-all duration-300 ${
-                isCompleted
-                  ? 'text-warm-400 dark:text-warm-600 line-through'
-                  : 'text-warm-900 dark:text-white group-hover:text-brand-500'
-              }`}
-            >
-              {task.title}
-            </h3>
-            <StatusBadge status={task.status} />
-            <PriorityBadge priority={task.priority} />
+
+        <div className="flex-grow min-w-0 flex items-center justify-between gap-4">
+          <div className="flex-grow min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <h3
+                className={`text-sm font-semibold truncate transition-all duration-300 ${
+                  isCompleted
+                    ? 'text-warm-400 dark:text-warm-600 line-through'
+                    : 'text-warm-900 dark:text-white group-hover:text-brand-500'
+                }`}
+              >
+                {task.title}
+              </h3>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <StatusBadge status={task.status} />
+                <PriorityBadge priority={task.priority} />
+              </div>
+            </div>
+            {task.description && (
+              <p className="text-xs text-warm-600 dark:text-warm-400 truncate max-w-2xl">
+                {task.description}
+              </p>
+            )}
           </div>
-          {task.description && (
-            <p className="text-xs text-warm-600 dark:text-warm-400 truncate max-w-2xl">
-              {task.description}
-            </p>
-          )}
+
           {task.due_date && (
             <div
-              className={`flex items-center gap-1.5 mt-1 text-[10px] font-medium ${
+              className={`flex items-center gap-1.5 text-[10px] font-medium whitespace-nowrap flex-shrink-0 px-2 py-1 rounded-md transition-colors ${
                 isOverdue
-                  ? 'text-red-600 dark:text-red-400'
+                  ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/10'
                   : isDueToday
-                    ? 'text-amber-600 dark:text-amber-400'
-                    : 'text-warm-500'
+                    ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/10'
+                    : 'text-warm-500 bg-warm-50 dark:bg-white/5'
               }`}
             >
               {task.due_date_has_time ? (
@@ -188,16 +199,17 @@ const TaskCard = memo(function TaskCard({
                 <Calendar className="h-3 w-3" />
               )}
               <span>{formattedDueDate}</span>
-              {isOverdue && <AlertCircle className="h-2.5 w-2.5 ml-0.5" />}
+              {isOverdue && <AlertCircle className="h-2.5 w-2.5" />}
               {isDueToday && (
-                <span className="ml-1 text-[9px] uppercase tracking-wider font-bold">
-                  ({t('tasks.today')})
+                <span className="text-[9px] uppercase tracking-wider font-bold">
+                  {t('tasks.today')}
                 </span>
               )}
             </div>
           )}
         </div>
-        <div className="flex items-center gap-1 flex-shrink-0">
+
+        <div className="flex items-center gap-1 flex-shrink-0 ml-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <button
@@ -228,77 +240,73 @@ const TaskCard = memo(function TaskCard({
       </div>
     );
   }
+
   return (
     <div
       className={`group card-surface p-5 flex flex-col h-full hover:shadow-md transition-all duration-300 relative pl-6 ${isCompleted ? 'opacity-80' : ''}`}
     >
       <span className={`accent-bar ${accentColor}`} />
       <div className="flex justify-between items-start mb-4">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
+        {/* Action Capsule */}
+        <div className="flex items-center gap-1 bg-warm-50 dark:bg-white/5 p-1 rounded-lg border border-warm-200 dark:border-white/10">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={toggleCompletion}
+                disabled={isToggling || isDeleting}
+                className={`flex-shrink-0 focus:outline-none transition-colors p-1 rounded-md ${
+                  isCompleted
+                    ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20'
+                    : 'text-warm-400 hover:text-emerald-600 hover:bg-warm-100 dark:hover:bg-white/5'
+                }`}
+              >
+                {isToggling ? (
+                  <LoadingSpinner size="sm" />
+                ) : isCompleted ? (
+                  <CheckCircle2 className="h-4 w-4" />
+                ) : (
+                  <Circle className="h-4 w-4" />
+                )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              {isCompleted ? t('tasks.mark_pending') : t('tasks.mark_completed')}
+            </TooltipContent>
+          </Tooltip>
+
+          {!isCompleted && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  onClick={() => {
-                    if (task.status === 'pending') onStatusChange(task.id, 'in_progress');
-                    else if (task.status === 'in_progress') onStatusChange(task.id, 'completed');
-                    else onStatusChange(task.id, 'pending');
-                  }}
+                  onClick={toggleInProgress}
                   disabled={isToggling || isDeleting}
-                  aria-label={
-                    task.status === 'pending'
-                      ? t('tasks.mark_in_progress')
-                      : task.status === 'in_progress'
-                        ? t('tasks.mark_completed')
-                        : t('tasks.mark_pending')
-                  }
-                  className={`flex items-center gap-2 focus:outline-none group/status cursor-pointer p-0.5 rounded-sm transition-colors ${
-                    task.status === 'completed'
-                      ? 'text-emerald-600'
-                      : task.status === 'in_progress'
-                        ? 'text-amber-600'
-                        : 'text-warm-400 group-hover/status:text-brand-500'
+                  className={`flex-shrink-0 focus:outline-none transition-colors p-1 rounded-md ${
+                    isInProgress
+                      ? 'text-amber-600 bg-amber-50 dark:bg-amber-900/20'
+                      : 'text-warm-400 hover:text-amber-600 hover:bg-warm-100 dark:hover:bg-white/5'
                   }`}
                 >
-                  {isToggling ? (
-                    <LoadingSpinner size="sm" />
-                  ) : task.status === 'completed' ? (
-                    <CheckCircle2 className="h-4 w-4" />
-                  ) : task.status === 'in_progress' ? (
-                    <Play className="h-4 w-4" />
+                  {isInProgress ? (
+                    <Pause className="h-4 w-4" />
                   ) : (
-                    <Circle className="h-4 w-4" />
+                    <Play className="h-4 w-4" />
                   )}
-                  <StatusBadge status={task.status} />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="right">
-                {task.status === 'pending'
-                  ? t('tasks.mark_in_progress')
-                  : task.status === 'in_progress'
-                    ? t('tasks.mark_completed')
-                    : t('tasks.mark_pending')}
+              <TooltipContent side="top">
+                {isInProgress ? t('tasks.mark_pending') : t('tasks.mark_in_progress')}
               </TooltipContent>
             </Tooltip>
-            {task.status === 'pending' && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => onStatusChange(task.id, 'completed')}
-                    disabled={isToggling || isDeleting}
-                    aria-label={t('tasks.mark_completed')}
-                    className="p-1 text-warm-400 hover:text-emerald-600 transition-colors cursor-pointer"
-                  >
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="right">{t('tasks.mark_completed')}</TooltipContent>
-              </Tooltip>
-            )}
-          </div>
+          )}
+        </div>
+
+        {/* Labels Group */}
+        <div className="flex flex-col items-end gap-1.5">
+          <StatusBadge status={task.status} />
           <PriorityBadge priority={task.priority} />
         </div>
       </div>
+
       <div className="flex-grow">
         <h3
           className={`text-base font-semibold mb-2 transition-all duration-300 ${
