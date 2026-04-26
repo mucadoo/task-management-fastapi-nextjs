@@ -5,6 +5,30 @@ import re
 from typing import Optional
 
 
+def validate_username_logic(v: Optional[str]) -> Optional[str]:
+    if v is None:
+        return v
+    if not re.match(r"^[a-zA-Z_]+$", v):
+        raise ValueError("Username must contain only letters and underscores")
+    return v.lower()
+
+
+def validate_password_logic(v: Optional[str]) -> Optional[str]:
+    if v is None:
+        return v
+    if len(v) < 8:
+        raise ValueError("Password must be at least 8 characters")
+    if not re.search(r"[A-Z]", v):
+        raise ValueError("Password must contain at least one uppercase letter")
+    if not re.search(r"[a-z]", v):
+        raise ValueError("Password must contain at least one lowercase letter")
+    if not re.search(r"[0-9]", v):
+        raise ValueError("Password must contain at least one number")
+    if not re.search(r"[^A-Za-z0-9]", v):
+        raise ValueError("Password must contain at least one special character")
+    return v
+
+
 class UserCreate(BaseModel):
     email: EmailStr
     username: Optional[str] = Field(None, min_length=3)
@@ -14,26 +38,12 @@ class UserCreate(BaseModel):
     @field_validator("username")
     @classmethod
     def validate_username(cls, v: Optional[str]) -> Optional[str]:
-        if v is None:
-            return v
-        if not re.match(r"^[a-zA-Z_]+$", v):
-            raise ValueError("Username must contain only letters and underscores")
-        return v.lower()
+        return validate_username_logic(v)
 
     @field_validator("password")
     @classmethod
     def validate_password(cls, v: str) -> str:
-        if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters")
-        if not re.search(r"[A-Z]", v):
-            raise ValueError("Password must contain at least one uppercase letter")
-        if not re.search(r"[a-z]", v):
-            raise ValueError("Password must contain at least one lowercase letter")
-        if not re.search(r"[0-9]", v):
-            raise ValueError("Password must contain at least one number")
-        if not re.search(r"[^A-Za-z0-9]", v):
-            raise ValueError("Password must contain at least one special character")
-        return v
+        return validate_password_logic(v)
 
 
 class UserUpdate(BaseModel):
@@ -46,28 +56,12 @@ class UserUpdate(BaseModel):
     @field_validator("username")
     @classmethod
     def validate_username(cls, v: Optional[str]) -> Optional[str]:
-        if v is None:
-            return v
-        if not re.match(r"^[a-zA-Z_]+$", v):
-            raise ValueError("Username must contain only letters and underscores")
-        return v.lower()
+        return validate_username_logic(v)
 
     @field_validator("password")
     @classmethod
     def validate_password(cls, v: Optional[str]) -> Optional[str]:
-        if v is None:
-            return v
-        if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters")
-        if not re.search(r"[A-Z]", v):
-            raise ValueError("Password must contain at least one uppercase letter")
-        if not re.search(r"[a-z]", v):
-            raise ValueError("Password must contain at least one lowercase letter")
-        if not re.search(r"[0-9]", v):
-            raise ValueError("Password must contain at least one number")
-        if not re.search(r"[^A-Za-z0-9]", v):
-            raise ValueError("Password must contain at least one special character")
-        return v
+        return validate_password_logic(v)
 
 
 class UserResponse(BaseModel):

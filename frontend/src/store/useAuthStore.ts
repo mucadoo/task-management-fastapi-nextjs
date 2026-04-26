@@ -2,20 +2,19 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User } from '../types/auth';
 import { api } from '../lib/api';
+import { tokenManager } from '../lib/token';
 import { useToastStore } from './useToastStore';
 
 interface AuthState {
   user: User | null;
-  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  setToken: (token: string | null) => void;
   setUser: (user: User | null) => void;
   login: (data: any) => Promise<void>;
   register: (data: any) => Promise<void>;
   logout: () => void;
-  fetchMe: () => Promise<void>;
+  fetchMe: (force?: boolean) => Promise<void>;
   updateMe: (data: any) => Promise<void>;
 }
 
@@ -23,31 +22,25 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
-      token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
-      isAuthenticated: typeof window !== 'undefined' ? !!localStorage.getItem('token') : false,
+      isAuthenticated: tokenManager.isAuthenticated(),
       isLoading: false,
       error: null,
 
-      setToken: (token) => {
-        set({ token, isAuthenticated: !!token });
-      },
-
       setUser: (user) => {
-        set({ user });
+        set({ user, isAuthenticated: !!user || tokenManager.isAuthenticated() });
       },
 
       login: async (data) => {
         set({ isLoading: true, error: null });
         const { addToast } = useToastStore.getState();
         try {
-          const res = await api.login(data);
-          set({ token: res.access_token, isAuthenticated: true });
-          const user = await api.getMe(res.access_token);
-          set({ user, isLoading: false });
+          await api.login(data);
+          const user = await api.getMe();
+          set({ user, isAuthenticated: true, isLoading: false });
           addToast('Successfully logged in!', 'success');
         } catch (err: any) {
           const message = err.message || 'Login failed';
-          set({ error: message, isLoading: false });
+          set({ error: message, isLoading: false, isAuthenticated: false });
           addToast(message, 'error');
           throw err;
         }
@@ -57,14 +50,13 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         const { addToast } = useToastStore.getState();
         try {
-          const res = await api.register(data);
-          set({ token: res.access_token, isAuthenticated: true });
-          const user = await api.getMe(res.access_token);
-          set({ user, isLoading: false });
+          await api.register(data);
+          const user = await api.getMe();
+          set({ user, isAuthenticated: true, isLoading: false });
           addToast('Account created successfully!', 'success');
         } catch (err: any) {
           const message = err.message || 'Registration failed';
-          set({ error: message, isLoading: false });
+          set({ error: message, isLoading: false, isAuthenticated: false });
           addToast(message, 'error');
           throw err;
         }
@@ -72,21 +64,29 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         api.logout();
-        set({ user: null, token: null, isAuthenticated: false });
+        set({ user: null, isAuthenticated: false, error: null });
         useToastStore.getState().addToast('Logged out successfully', 'info');
       },
 
-      fetchMe: async () => {
-        const token = localStorage.getItem('token');
-        if (!token) return;
+      fetchMe: async (force = false) => {
+        if (!tokenManager.isAuthenticated()) {
+          if (get().user || get().isAuthenticated) {
+             set({ user: null, isAuthenticated: false });
+          }
+          return;
+        }
         
+        // Skip if we already have a user and aren't forcing a refresh
+        if (get().user && !force) return;
+
         set({ isLoading: true });
         try {
-          const user = await api.getMe(token);
+          const user = await api.getMe();
           set({ user, isAuthenticated: true, isLoading: false });
         } catch (err) {
+          // If fetchMe fails, the token is likely invalid/expired
           api.logout();
-          set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+          set({ user: null, isAuthenticated: false, isLoading: false });
         }
       },
 
@@ -107,7 +107,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({ token: state.token, isAuthenticated: state.isAuthenticated }),
+      partialize: (state) => ({ isAuthenticated: state.isAuthenticated }),
     }
   )
 );

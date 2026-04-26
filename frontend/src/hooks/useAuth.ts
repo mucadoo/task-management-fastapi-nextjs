@@ -1,17 +1,22 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../store/useAuthStore';
 
 export function useAuth(requireAuth: boolean = true) {
   const router = useRouter();
-  const { isAuthenticated, fetchMe, isLoading } = useAuthStore();
+  const { isAuthenticated, user, fetchMe, isLoading } = useAuthStore();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    fetchMe();
+    if (!hasFetched.current) {
+      fetchMe();
+      hasFetched.current = true;
+    }
   }, [fetchMe]);
 
   useEffect(() => {
+    // Only redirect if loading is finished
     if (!isLoading) {
       if (requireAuth && !isAuthenticated) {
         router.push('/login');
@@ -21,5 +26,5 @@ export function useAuth(requireAuth: boolean = true) {
     }
   }, [isAuthenticated, isLoading, router, requireAuth]);
 
-  return { isAuthenticated, isLoading };
+  return { isAuthenticated, user, isLoading };
 }
