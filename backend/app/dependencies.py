@@ -6,7 +6,7 @@ from .database import get_db
 from .repositories.user_repository import UserRepository
 from .repositories.task_repository import TaskRepository
 from .repositories.auth_repository import AuthRepository
-from .services import auth_service
+from .services.auth_service import AuthService
 from .services.task_service import TaskService
 from .config import get_settings
 from .models.user import User
@@ -32,6 +32,15 @@ TaskRepo = Annotated[TaskRepository, Depends(get_task_repository)]
 AuthRepo = Annotated[AuthRepository, Depends(get_auth_repository)]
 
 # Service Dependencies
+def get_auth_service() -> AuthService:
+    return AuthService(
+        secret=settings.jwt_secret,
+        expire_minutes=settings.jwt_expire_minutes,
+        refresh_expire_days=settings.jwt_refresh_expire_days,
+    )
+
+AuthServ = Annotated[AuthService, Depends(get_auth_service)]
+
 def get_task_service(repo: TaskRepo) -> TaskService:
     return TaskService(repo)
 
@@ -41,8 +50,9 @@ TaskServ = Annotated[TaskService, Depends(get_task_service)]
 def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     user_repo: UserRepo,
+    auth_service: AuthServ,
 ) -> User:
-    payload = auth_service.decode_token(token, settings.jwt_secret)
+    payload = auth_service.decode_token(token)
     if not payload or "sub" not in payload:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"

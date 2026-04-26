@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from typing import Annotated
+from fastapi import APIRouter, HTTPException, status
+from typing import Optional
 from ..schemas.user import (
     UserCreate,
     UserUpdate,
@@ -8,37 +8,10 @@ from ..schemas.user import (
     TokenResponse,
     RefreshRequest,
 )
-from ..repositories.user_repository import UserRepository
-from ..repositories.auth_repository import AuthRepository
-from ..services import auth_service
-from ..config import get_settings
-from ..dependencies import CurrentUser, UserRepo, AuthRepo
-from ..models.user import User
-from datetime import datetime, timedelta, timezone
+from ..dependencies import CurrentUser, UserRepo, AuthRepo, AuthServ
+from datetime import datetime, timezone
 
 router = APIRouter()
-settings = get_settings()
-
-
-def create_user_tokens(
-    user: User, auth_repo: AuthRepository, user_repo: UserRepository
-):
-    access_token = auth_service.create_access_token(
-        {"sub": user.email}, settings.jwt_secret, settings.jwt_expire_minutes
-    )
-    refresh_token_str = auth_service.create_refresh_token(
-        {"sub": user.email}, settings.jwt_secret, settings.jwt_refresh_expire_days
-    )
-    expires_at = datetime.now(timezone.utc) + timedelta(
-        days=settings.jwt_refresh_expire_days
-    )
-    auth_repo.create_refresh_token(user.id, refresh_token_str, expires_at)
-    return {
-        "access_token": access_token,
-        "refresh_token": refresh_token_str,
-        "token_type": "bearer",
-    }
-
 
 @router.post(
     "/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED
@@ -47,6 +20,7 @@ def register(
     user_data: UserCreate,
     user_repo: UserRepo,
     auth_repo: AuthRepo,
+    auth_service: AuthServ,
 ):
     if user_repo.get_by_email(user_data.email):
         raise HTTPException(status_code=409, detail="Email already registered")
@@ -56,7 +30,7 @@ def register(
     user = user_repo.create_user(
         user_data.email, hashed, user_data.name, user_data.username
     )
-    return create_user_tokens(user, auth_repo, user_repo)
+    return auth_service.create_user_tokens(user, auth_repo)
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -64,13 +38,14 @@ def login(
     login_data: LoginRequest,
     user_repo: UserRepo,
     auth_repo: AuthRepo,
+    auth_service: AuthServ,
 ):
     user = user_repo.get_by_email_or_username(login_data.identifier)
     if not user or not auth_service.verify_password(
         login_data.password, user.hashed_password
     ):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    return create_user_tokens(user, auth_repo, user_repo)
+    return auth_service.create_user_tokens(user, auth_repo)
 
 
 @router.post("/refresh", response_model=TokenResponse)
@@ -78,6 +53,7 @@ def refresh(
     refresh_data: RefreshRequest,
     user_repo: UserRepo,
     auth_repo: AuthRepo,
+    auth_service: AuthServ,
 ):
     db_token = auth_repo.get_refresh_token(refresh_data.refresh_token)
     if (
@@ -90,7 +66,7 @@ def refresh(
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
     auth_repo.revoke_token(db_token.id)
-    return create_user_tokens(user, auth_repo, user_repo)
+    return auth_service.create_user_tokens(user, auth_repo)
 
 
 @router.get("/me", response_model=UserResponse)
@@ -103,6 +79,7 @@ def update_me(
     user_update: UserUpdate,
     current_user: CurrentUser,
     user_repo: UserRepo,
+    auth_service: AuthServ,
 ):
     update_data = user_update.model_dump(exclude_unset=True)
     

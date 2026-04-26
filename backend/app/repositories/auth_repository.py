@@ -1,30 +1,29 @@
 import uuid
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
+from .base_repository import BaseRepository
 from ..models.auth import RefreshToken
 from typing import Optional
 
 
-class AuthRepository:
+class AuthRepository(BaseRepository[RefreshToken]):
     def __init__(self, db: Session):
-        self.db = db
+        super().__init__(RefreshToken, db)
 
-    def create_refresh_token(
+    def create_token(
         self, user_id: uuid.UUID, token: str, expires_at: datetime
     ) -> RefreshToken:
-        db_token = RefreshToken(user_id=user_id, token=token, expires_at=expires_at)
-        self.db.add(db_token)
-        self.db.commit()
-        self.db.refresh(db_token)
-        return db_token
+        return super().create({
+            "user_id": user_id,
+            "token": token,
+            "expires_at": expires_at
+        })
 
     def get_refresh_token(self, token: str) -> Optional[RefreshToken]:
         return self.db.query(RefreshToken).filter(RefreshToken.token == token).first()
 
     def revoke_token(self, token_id: uuid.UUID):
-        db_token = (
-            self.db.query(RefreshToken).filter(RefreshToken.id == token_id).first()
-        )
+        db_token = self.get_by_id(token_id)
         if db_token:
             db_token.revoked = True
             self.db.commit()
