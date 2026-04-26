@@ -4,9 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routers import tasks, auth, logic
 from .config import get_settings
 from .schemas.common import ErrorResponse
-from .utils.logging import setup_logging
 
-setup_logging()
 settings = get_settings()
 app = FastAPI(
     title="Task Management API",

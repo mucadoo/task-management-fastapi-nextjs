@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useDebounce } from 'use-debounce';
-import { useTaskStore } from '../store/useTaskStore';
-import { useTasks, useDeleteTask } from './useTasks';
-import { Task } from '../types/task';
+import { useTaskStore } from '@/store/useTaskStore';
+import { useTasks, useDeleteTask } from '@/hooks/useTasks';
+import { Task } from '@/types/task';
 
 export function useTaskBoard() {
   const {

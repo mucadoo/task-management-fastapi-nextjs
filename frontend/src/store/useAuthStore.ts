@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User } from '../types/auth';
-import { authService } from '../services/auth-service';
-import { tokenManager } from '../lib/token';
-import { useToastStore } from './useToastStore';
+import { User } from '@/types/auth';
+import { authService } from '@/services/auth-service';
+import { tokenManager } from '@/lib/token';
+import { useToastStore } from '@/store/useToastStore';
 
 interface AuthState {
   user: User | null;

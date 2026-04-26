@@ -3,8 +3,8 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import { taskService } from '../services/task-service';
-import { taskKeys } from '../lib/query-keys';
+import { taskService } from '@/services/task-service';
+import { taskKeys } from '@/lib/query-keys';
 import {
   TaskCreate,
   TaskUpdate,
@@ -12,8 +12,8 @@ import {
   TaskPriority,
   PaginatedResponse,
   Task,
-} from '../types/task';
-import { useToastStore } from '../store/useToastStore';
+} from '@/types/task';
+import { useToastStore } from '@/store/useToastStore';
 
 export function useTasks(filters: {
   status?: TaskStatus;

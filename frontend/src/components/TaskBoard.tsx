@@ -8,10 +8,10 @@ import ConfirmDialog from './ui/ConfirmDialog';
 import DashboardHeader from './DashboardHeader';
 import TaskFilters from './TaskFilters';
 import { useTranslation } from 'react-i18next';
-import { useTaskBoard } from '../hooks/useTaskBoard';
+import { useTaskBoard } from '@/hooks/useTaskBoard';
 import { LayoutGrid, List } from 'lucide-react';
 import { TooltipSimple } from './ui/Tooltip';
-import { cn } from '../lib/utils';
+import { cn } from '@/lib/utils';
 
 export default function TaskBoard() {
   const { t } = useTranslation();
