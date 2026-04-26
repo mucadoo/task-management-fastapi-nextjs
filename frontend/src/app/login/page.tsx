@@ -8,12 +8,13 @@ import LanguageSelector from '../../components/LanguageSelector';
 import ThemeToggle from '../../components/ThemeToggle';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { useAuthStore } from '../../store/useAuthStore';
-import { Mail, Lock, ArrowRight, BookOpen } from 'lucide-react';
+import { Mail, Lock, ArrowRight } from 'lucide-react';
 import { getLoginSchema } from '../../lib/validations';
 import * as z from 'zod';
 import { useAuth } from '../../hooks/useAuth';
 import { cn } from '../../lib/utils';
 import { FormControl } from '../../components/ui/FormControl';
+import AuthSidebar from '../../components/AuthSidebar';
 
 type LoginForm = z.infer<ReturnType<typeof getLoginSchema>>;
 
@@ -49,22 +50,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex">
-      <div className="hidden lg:flex lg:w-5/12 bg-brand-600 dark:bg-brand-900 p-12 flex-col justify-between relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: 'repeating-linear-gradient(45deg, white 0, white 1px, transparent 0, transparent 50%)',
-          backgroundSize: '20px 20px',
-        }} />
-        <div className="relative z-10">
-          <div className="w-10 h-10 bg-white rounded flex items-center justify-center mb-6">
-            <BookOpen className="text-brand-600 h-6 w-6" />
-          </div>
-          <h1 className="text-4xl font-bold text-white mb-2">TaskFlow</h1>
-          <p className="text-white/80">{t('auth.slogan')}</p>
-        </div>
-        <div className="relative z-10 text-white/60 text-sm">
-          © {new Date().getFullYear()} {t('common.copyright')}
-        </div>
-      </div>
+      <AuthSidebar />
       <div className="flex-1 flex flex-col justify-center p-8 lg:p-16 relative bg-warm-50 dark:bg-[#0a0a0a]">
         <div className="absolute top-6 right-6 flex items-center space-x-3">
           <LanguageSelector />
