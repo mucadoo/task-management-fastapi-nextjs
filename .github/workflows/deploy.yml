@@ -53,6 +53,11 @@ jobs:
           cd frontend
           npm run lint
 
+      - name: Run frontend tests with coverage
+        run: |
+          cd frontend
+          npm run test:coverage
+
       - name: Next.js type-check and build
         run: |
           cd frontend
