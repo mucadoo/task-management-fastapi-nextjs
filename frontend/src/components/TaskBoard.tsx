@@ -14,7 +14,7 @@ import LanguageSelector from "./LanguageSelector";
 import ThemeToggle from "./ThemeToggle";
 import ProfileModal from "./ProfileModal";
 import { useTranslation } from "react-i18next";
-import { Plus, Search, LayoutGrid, Clock, AlertCircle, CheckSquare as CheckSquareIcon, ChevronDown, LogOut } from "lucide-react";
+import { Plus, Search, LayoutGrid, List, Clock, AlertCircle, CheckSquare as CheckSquareIcon, ChevronDown, LogOut } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/Tooltip";
 
 interface TaskBoardProps {
@@ -27,6 +27,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
   const [statusFilter, setStatusFilter] = useState<TaskStatus | undefined>(undefined);
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState("");
+  const [viewMode, setViewMode] = useState<'gallery' | 'list'>('gallery');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -188,11 +189,27 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        <div className="mb-6">
-          <div className="rule-brand mb-4" />
-          <h1 className="text-2xl font-bold text-warm-900 dark:text-gray-100 tracking-tight">
-            {t('tasks.title')}
-          </h1>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <div className="rule-brand mb-4 w-8" />
+            <h1 className="text-2xl font-bold text-warm-900 dark:text-gray-100 tracking-tight">
+              {t('tasks.title')}
+            </h1>
+          </div>
+          <div className="flex gap-1 p-1 bg-warm-100 dark:bg-white/5 rounded-lg border border-warm-200 dark:border-white/5">
+            <button 
+              onClick={() => setViewMode('gallery')}
+              className={`p-1.5 rounded-md transition-all cursor-pointer ${viewMode === 'gallery' ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm' : 'text-warm-500 hover:text-warm-900'}`}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+            <button 
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded-md transition-all cursor-pointer ${viewMode === 'list' ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm' : 'text-warm-500 hover:text-warm-900'}`}
+            >
+              <List className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         <div className="mb-6">
@@ -250,16 +267,17 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
         {error && <div className="mb-6"><ErrorMessage message={error} /></div>}
 
         {isLoading && data.items.length === 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className={viewMode === 'gallery' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-3"}>
             {[...Array(6)].map((_, i) => <TaskSkeleton key={i} />)}
           </div>
         ) : data.items.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-in fade-in duration-500">
+            <div className={viewMode === 'gallery' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-in fade-in duration-500" : "flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-500"}>
               {data.items.map((task) => (
                 <TaskCard
                   key={task.id}
                   task={task}
+                  viewMode={viewMode}
                   onEdit={(t) => { setEditingTask(t); setIsFormOpen(true); }}
                   onDelete={(id) => setDeletingId(id)}
                   onToggle={handleToggleTask}
