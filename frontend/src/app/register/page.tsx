@@ -147,7 +147,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
                 {emailStatus === 'taken' && (
-                  <p className="text-[10px] text-red-500 ml-1 -mt-3">
+                  <p className="text-xs text-red-500 ml-1 -mt-3">
                     {t('profile.email_taken')}
                   </p>
                 )}

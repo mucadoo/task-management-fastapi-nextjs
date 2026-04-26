@@ -265,7 +265,7 @@ export default function ProfileModal({
                         placeholder={t('common.name')}
                       />
                       {errors.name && (
-                        <p className="text-[10px] text-red-500 ml-1">
+                        <p className="text-xs text-red-500 ml-1 mt-1">
                           {errors.name.message as string}
                         </p>
                       )}
@@ -294,22 +294,22 @@ export default function ProfileModal({
                         </div>
                       </div>
                       {emailStatus === 'checking' && (
-                        <p className="text-[10px] text-warm-500 ml-1">
+                        <p className="text-xs text-warm-500 ml-1 mt-1">
                           {t('profile.email_checking')}
                         </p>
                       )}
                       {emailStatus === 'available' && (
-                        <p className="text-[10px] text-emerald-500 ml-1">
+                        <p className="text-xs text-emerald-500 ml-1 mt-1">
                           {t('profile.email_available')}
                         </p>
                       )}
                       {emailStatus === 'taken' && (
-                        <p className="text-[10px] text-red-500 ml-1">
+                        <p className="text-xs text-red-500 ml-1 mt-1">
                           {t('profile.email_taken')}
                         </p>
                       )}
                       {errors.email && (
-                        <p className="text-[10px] text-red-500 ml-1">
+                        <p className="text-xs text-red-500 ml-1 mt-1">
                           {errors.email.message as string}
                         </p>
                       )}
@@ -338,27 +338,27 @@ export default function ProfileModal({
                         </div>
                       </div>
                       {usernameStatus === 'checking' && (
-                        <p className="text-[10px] text-warm-500 ml-1">
+                        <p className="text-xs text-warm-500 ml-1 mt-1">
                           {t('profile.username_checking')}
                         </p>
                       )}
                       {usernameStatus === 'available' && (
-                        <p className="text-[10px] text-emerald-500 ml-1">
+                        <p className="text-xs text-emerald-500 ml-1 mt-1">
                           {t('profile.username_available')}
                         </p>
                       )}
                       {usernameStatus === 'taken' && (
-                        <p className="text-[10px] text-red-500 ml-1">
+                        <p className="text-xs text-red-500 ml-1 mt-1">
                           {t('profile.username_taken')}
                         </p>
                       )}
                       {usernameStatus === 'invalid' && (
-                        <p className="text-[10px] text-red-500 ml-1">
+                        <p className="text-xs text-red-500 ml-1 mt-1">
                           {t('profile.username_invalid')}
                         </p>
                       )}
                       {errors.username && (
-                        <p className="text-[10px] text-red-500 ml-1">
+                        <p className="text-xs text-red-500 ml-1 mt-1">
                           {errors.username.message as string}
                         </p>
                       )}
@@ -377,7 +377,7 @@ export default function ProfileModal({
                         placeholder={t('profile.current_password')}
                       />
                       {errors.current_password && (
-                        <p className="text-[10px] text-red-500 ml-1">
+                        <p className="text-xs text-red-500 ml-1 mt-1">
                           {errors.current_password.message as string}
                         </p>
                       )}
@@ -393,7 +393,7 @@ export default function ProfileModal({
                         placeholder={t('profile.new_password')}
                       />
                       {errors.password && (
-                        <p className="text-[10px] text-red-500 ml-1">
+                        <p className="text-xs text-red-500 ml-1 mt-1">
                           {errors.password.message as string}
                         </p>
                       )}
@@ -409,7 +409,7 @@ export default function ProfileModal({
                         placeholder={t('profile.confirm_new_password')}
                       />
                       {errors.confirmPassword && (
-                        <p className="text-[10px] text-red-500 ml-1">
+                        <p className="text-xs text-red-500 ml-1 mt-1">
                           {errors.confirmPassword.message as string}
                         </p>
                       )}

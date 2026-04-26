@@ -134,7 +134,7 @@ export default function TaskForm({
               disabled={isSubmitting}
             />
             {errors.title && (
-              <p className="text-[10px] text-red-500 ml-1">{errors.title.message as string}</p>
+              <p className="text-xs text-red-500 ml-1 mt-1">{errors.title.message as string}</p>
             )}
           </div>
           <div className="space-y-1">
