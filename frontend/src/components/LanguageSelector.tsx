@@ -18,17 +18,15 @@ export default function LanguageSelector() {
     languages.find((lang) => i18n.language.startsWith(lang.code)) || languages[0];
   return (
     <DropdownMenu>
-      <TooltipSimple content={t('common.select_language')} side="bottom">
-        <DropdownMenuTrigger asChild>
-          <button
-            className="h-9 px-2.5 flex items-center gap-2 rounded-lg border border-warm-200 dark:border-white/10 hover:bg-warm-100 dark:hover:bg-white/5 text-xs font-bold tracking-widest uppercase text-warm-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all duration-150 shadow-sm cursor-pointer"
-            aria-label={t('common.select_language')}
-          >
-            <Languages className="h-4 w-4" />
-            <span>{currentLanguage.label}</span>
-          </button>
-        </DropdownMenuTrigger>
-      </TooltipSimple>
+      <DropdownMenuTrigger asChild>
+        <button
+          className="h-9 px-2.5 flex items-center gap-2 rounded-lg border border-warm-200 dark:border-white/10 hover:bg-warm-100 dark:hover:bg-white/5 text-xs font-bold tracking-widest uppercase text-warm-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all duration-150 shadow-sm cursor-pointer"
+          aria-label={t('common.select_language')}
+        >
+          <Languages className="h-4 w-4" />
+          <span>{currentLanguage.label}</span>
+        </button>
+      </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {languages.map((lang) => (
           <DropdownMenuItem

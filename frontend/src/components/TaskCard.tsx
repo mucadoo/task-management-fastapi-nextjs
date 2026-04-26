@@ -69,14 +69,30 @@ const TaskCard = memo(function TaskCard({
         ...(task.due_date_has_time ? { hour: '2-digit', minute: '2-digit' } : {}),
       })
     : null;
+
+  const accentColor = (() => {
+    if (isCompleted) return 'bg-emerald-500';
+    if (isOverdue) return 'bg-red-600';
+    if (isDueToday) return 'bg-amber-500';
+
+    switch (task.priority) {
+      case 'high':
+        return 'bg-red-500';
+      case 'medium':
+        return 'bg-amber-500';
+      case 'low':
+        return 'bg-emerald-500';
+      default:
+        return 'bg-brand-500';
+    }
+  })();
+
   if (viewMode === 'list') {
     return (
       <div
         className={`group card-surface p-3 flex items-center gap-4 hover:shadow-md transition-all duration-300 relative pl-6 ${isCompleted ? 'opacity-80' : ''}`}
       >
-        <span
-          className={`accent-bar ${task.priority === 'high' ? 'bg-brand-500' : task.priority === 'medium' ? 'bg-amber-500' : 'bg-sky-500'}`}
-        />
+        <span className={`accent-bar ${accentColor}`} />
         <div className="flex items-center gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
@@ -216,9 +232,7 @@ const TaskCard = memo(function TaskCard({
     <div
       className={`group card-surface p-5 flex flex-col h-full hover:shadow-md transition-all duration-300 relative pl-6 ${isCompleted ? 'opacity-80' : ''}`}
     >
-      <span
-        className={`accent-bar ${task.priority === 'high' ? 'bg-brand-500' : task.priority === 'medium' ? 'bg-amber-500' : 'bg-sky-500'}`}
-      />
+      <span className={`accent-bar ${accentColor}`} />
       <div className="flex justify-between items-start mb-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
