@@ -1,6 +1,17 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { api } from '../lib/api';
-import { TaskCreate, TaskUpdate, TaskStatus, TaskPriority } from '../types/task';
+import {
+  TaskCreate,
+  TaskUpdate,
+  TaskStatus,
+  TaskPriority,
+  PaginatedResponse,
+  Task,
+} from '../types/task';
 import { useToastStore } from '../store/useToastStore';
 
 export function useTasks(filters: {
@@ -47,7 +58,8 @@ export function useUpdateTask() {
   const { addToast } = useToastStore();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: TaskUpdate }) => api.updateTask(id, data),
+    mutationFn: ({ id, data }: { id: string; data: TaskUpdate }) =>
+      api.updateTask(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       if (variables.data.title) {
@@ -66,11 +78,46 @@ export function useToggleTaskStatus() {
 
   return useMutation({
     mutationFn: (id: string) => api.toggleTaskStatus(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    onMutate: async (id: string) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ['tasks'] });
+
+      // Snapshot the previous value
+      const previousTasks = queryClient.getQueryData(['tasks']);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(['tasks'], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page: PaginatedResponse<Task>) => ({
+            ...page,
+            items: page.items.map((task: Task) => {
+              if (task.id === id) {
+                return {
+                  ...task,
+                  status:
+                    task.status === 'completed' ? 'pending' : 'completed',
+                };
+              }
+              return task;
+            }),
+          })),
+        };
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousTasks };
     },
-    onError: (error: any) => {
-      addToast(error.message || 'Failed to update status', 'error');
+    onError: (err: any, id: string, context: any) => {
+      if (context?.previousTasks) {
+        queryClient.setQueryData(['tasks'], context.previousTasks);
+      }
+      addToast(err.message || 'Failed to update status', 'error');
+    },
+    onSettled: () => {
+      // Always refetch after error or success to keep server in sync
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
   });
 }
@@ -81,12 +128,35 @@ export function useDeleteTask() {
 
   return useMutation({
     mutationFn: (id: string) => api.deleteTask(id),
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey: ['tasks'] });
+      const previousTasks = queryClient.getQueryData(['tasks']);
+
+      queryClient.setQueryData(['tasks'], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page: PaginatedResponse<Task>) => ({
+            ...page,
+            items: page.items.filter((task: Task) => task.id !== id),
+            total: page.total - 1,
+          })),
+        };
+      });
+
+      return { previousTasks };
+    },
+    onError: (err: any, id: string, context: any) => {
+      if (context?.previousTasks) {
+        queryClient.setQueryData(['tasks'], context.previousTasks);
+      }
+      addToast(err.message || 'Failed to delete task', 'error');
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
       addToast('Task deleted successfully', 'info');
     },
-    onError: (error: any) => {
-      addToast(error.message || 'Failed to delete task', 'error');
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
   });
 }

@@ -2,11 +2,12 @@ import {
   PaginatedResponse,
   Task,
   TaskCreate,
-  TaskStatus,
   TaskUpdate,
+  TaskStatus,
   TaskPriority,
 } from '../types/task';
 import { TokenResponse, User } from '../types/auth';
+import { tokenManager } from './token';
 
 const API_BASE_URL =
   (typeof window === 'undefined'
@@ -23,26 +24,25 @@ export class ApiError extends Error {
   }
 }
 
-// Helper to manage tokens in one place
-const tokenManager = {
-  get: () => (typeof window !== 'undefined' ? localStorage.getItem('token') : null),
-  getRefresh: () => (typeof window !== 'undefined' ? localStorage.getItem('refresh_token') : null),
-  set: (access: string, refresh: string) => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('token', access);
-    localStorage.setItem('refresh_token', refresh);
-    document.cookie = `token=${access}; path=/; max-age=3600; SameSite=Lax`;
-  },
-  clear: () => {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem('token');
-    localStorage.removeItem('refresh_token');
-    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
-  },
-};
+interface RequestOptions extends RequestInit {
+  token?: string;
+  params?: Record<string, any>;
+  skipRefresh?: boolean;
+}
 
-async function request<T>(path: string, options?: RequestInit & { token?: string; params?: Record<string, any> }): Promise<T> {
-  // Build URL with params if provided
+// A simple lock to prevent multiple refresh calls at once
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
+
+function onTokenRefreshed(token: string) {
+  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers = [];
+}
+
+async function request<T>(
+  path: string,
+  options?: RequestOptions,
+): Promise<T> {
   let url = `${API_BASE_URL}${path}`;
   if (options?.params) {
     const searchParams = new URLSearchParams();
@@ -57,10 +57,10 @@ async function request<T>(path: string, options?: RequestInit & { token?: string
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options?.headers as any,
+    ...(options?.headers as any),
   };
 
-  const token = options?.token || tokenManager.get();
+  const token = options?.token || tokenManager.getAccessToken();
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
@@ -70,28 +70,50 @@ async function request<T>(path: string, options?: RequestInit & { token?: string
     headers,
   });
 
-  // Handle Token Refresh (Industry standard 401 retry)
+  // Handle Token Refresh
   if (
     response.status === 401 &&
+    !options?.skipRefresh &&
     typeof window !== 'undefined' &&
     !path.includes('/auth/refresh') &&
     !path.includes('/auth/login')
   ) {
-    const refreshToken = tokenManager.getRefresh();
+    const refreshToken = tokenManager.getRefreshToken();
     if (refreshToken) {
-      try {
-        const tokenRes = await api.refresh(refreshToken);
-        const retryResponse = await fetch(url, {
-          ...options,
-          headers: {
-            ...headers,
-            Authorization: `Bearer ${tokenRes.access_token}`,
-          },
-        });
-        if (retryResponse.ok) return retryResponse.json();
-      } catch {
-        api.logout();
+      if (!isRefreshing) {
+        isRefreshing = true;
+        try {
+          const tokenRes = await api.refresh(refreshToken);
+          isRefreshing = false;
+          onTokenRefreshed(tokenRes.access_token);
+        } catch (error) {
+          isRefreshing = false;
+          api.logout();
+          throw error;
+        }
       }
+
+      // Wait for the new token
+      return new Promise<T>((resolve, reject) => {
+        refreshSubscribers.push(async (newToken) => {
+          try {
+            const retryResponse = await fetch(url, {
+              ...options,
+              headers: {
+                ...headers,
+                Authorization: `Bearer ${newToken}`,
+              },
+            });
+            if (retryResponse.ok) {
+              resolve(retryResponse.json());
+            } else {
+              reject(new ApiError(retryResponse.status, 'Retry failed after refresh'));
+            }
+          } catch (e) {
+            reject(e);
+          }
+        });
+      });
     }
   }
 
@@ -108,8 +130,11 @@ async function request<T>(path: string, options?: RequestInit & { token?: string
   return response.json();
 }
 
-export const api = {
-  async getTasks(params?: {
+/**
+ * Task related API calls
+ */
+export const taskService = {
+  getTasks: (params?: {
     status?: TaskStatus;
     priority?: TaskPriority;
     q?: string;
@@ -118,7 +143,7 @@ export const api = {
     sort_by?: string;
     sort_dir?: string;
     token?: string;
-  }): Promise<PaginatedResponse<Task>> {
+  }) => {
     const { token, ...queryParams } = params || {};
     return request<PaginatedResponse<Task>>('/tasks/', {
       token,
@@ -126,97 +151,95 @@ export const api = {
     });
   },
 
-  async getTask(id: string): Promise<Task> {
-    return request<Task>(`/tasks/${id}`);
-  },
+  getTask: (id: string) => request<Task>(`/tasks/${id}`),
 
-  async createTask(data: TaskCreate): Promise<Task> {
-    return request<Task>('/tasks/', {
+  createTask: (data: TaskCreate) =>
+    request<Task>('/tasks/', {
       method: 'POST',
       body: JSON.stringify(data),
-    });
-  },
+    }),
 
-  async updateTask(id: string, data: TaskUpdate): Promise<Task> {
-    return request<Task>(`/tasks/${id}`, {
+  updateTask: (id: string, data: TaskUpdate) =>
+    request<Task>(`/tasks/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
-    });
-  },
+    }),
 
-  async toggleTaskStatus(id: string): Promise<Task> {
-    return request<Task>(`/tasks/${id}/toggle`, {
+  toggleTaskStatus: (id: string) =>
+    request<Task>(`/tasks/${id}/toggle`, {
       method: 'POST',
-    });
-  },
+    }),
 
-  async deleteTask(id: string): Promise<void> {
-    return request<void>(`/tasks/${id}`, {
+  deleteTask: (id: string) =>
+    request<void>(`/tasks/${id}`, {
       method: 'DELETE',
-    });
-  },
+    }),
+};
 
-  async login(data: any): Promise<TokenResponse> {
+/**
+ * Auth related API calls
+ */
+export const authService = {
+  login: async (data: any) => {
     const res = await request<TokenResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    tokenManager.set(res.access_token, res.refresh_token);
+    tokenManager.setTokens(res.access_token, res.refresh_token);
     return res;
   },
 
-  async register(data: any): Promise<TokenResponse> {
+  register: async (data: any) => {
     const res = await request<TokenResponse>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    tokenManager.set(res.access_token, res.refresh_token);
+    tokenManager.setTokens(res.access_token, res.refresh_token);
     return res;
   },
 
-  async refresh(refreshToken: string): Promise<TokenResponse> {
+  refresh: async (refreshToken: string) => {
     const res = await request<TokenResponse>('/auth/refresh', {
       method: 'POST',
       body: JSON.stringify({ refresh_token: refreshToken }),
+      skipRefresh: true,
     });
-    tokenManager.set(res.access_token, res.refresh_token);
+    tokenManager.setTokens(res.access_token, res.refresh_token);
     return res;
   },
 
-  async getMe(token?: string): Promise<User> {
-    return request<User>('/auth/me', { token });
-  },
+  getMe: (token?: string) => request<User>('/auth/me', { token }),
 
-  async updateMe(data: {
+  updateMe: (data: {
     email?: string;
     name?: string;
     username?: string;
     password?: string;
     current_password?: string;
-  }): Promise<User> {
-    return request<User>('/auth/me', {
+  }) =>
+    request<User>('/auth/me', {
       method: 'PATCH',
       body: JSON.stringify(data),
-    });
-  },
+    }),
 
-  async checkUsername(username: string): Promise<{ available: boolean }> {
-    return request<{ available: boolean }>('/auth/check-username', {
-      params: { username }
-    });
-  },
+  checkUsername: (username: string) =>
+    request<{ available: boolean }>('/auth/check-username', {
+      params: { username },
+    }),
 
-  async checkEmail(email: string): Promise<{ available: boolean }> {
-    return request<{ available: boolean }>('/auth/check-email', {
-      params: { email }
-    });
-  },
+  checkEmail: (email: string) =>
+    request<{ available: boolean }>('/auth/check-email', {
+      params: { email },
+    }),
 
-  logout() {
-    tokenManager.clear();
+  logout: () => {
+    tokenManager.clearTokens();
   },
+};
 
-  isAuthenticated(): boolean {
-    return !!tokenManager.get();
-  },
+// Maintain the `api` object for backward compatibility
+export const api = {
+  ...taskService,
+  ...authService,
+  isAuthenticated: tokenManager.isAuthenticated,
 };
