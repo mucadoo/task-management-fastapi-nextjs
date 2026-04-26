@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import Optional
 import uuid
-from ..dependencies import get_current_user, get_task_repository
+from ..dependencies import get_current_user, get_task_repository, get_task_service
 from ..repositories.task_repository import TaskRepository
-from ..schemas.task import TaskCreate, TaskResponse, TaskListResponse
+from ..services.task_service import TaskService
+from ..schemas.task import TaskCreate, TaskUpdate, TaskResponse, TaskListResponse
 from ..models.task import TaskStatus, TaskPriority
 from ..models.user import User
 
@@ -61,7 +62,7 @@ def read_task(
 @router.put("/{task_id}", response_model=TaskResponse)
 def update_task(
     task_id: uuid.UUID,
-    task: TaskCreate,
+    task: TaskUpdate,
     current_user: User = Depends(get_current_user),
     repo: TaskRepository = Depends(get_task_repository),
 ):
@@ -86,9 +87,9 @@ def delete_task(
 def toggle_task(
     task_id: uuid.UUID,
     current_user: User = Depends(get_current_user),
-    repo: TaskRepository = Depends(get_task_repository),
+    service: TaskService = Depends(get_task_service),
 ):
-    updated = repo.toggle(current_user.id, task_id)
+    updated = service.toggle_task(current_user.id, task_id)
     if not updated:
         raise HTTPException(status_code=404, detail="Task not found")
     return updated

@@ -31,7 +31,9 @@ def test_update_me_email(client: TestClient, auth_headers: dict):
 def test_update_me_password(client: TestClient, auth_headers: dict):
     new_password = "newpassword123"
     response = client.patch(
-        "/api/auth/me", json={"password": new_password}, headers=auth_headers
+        "/api/auth/me",
+        json={"password": new_password, "current_password": "password123"},
+        headers=auth_headers,
     )
     assert response.status_code == 200
 

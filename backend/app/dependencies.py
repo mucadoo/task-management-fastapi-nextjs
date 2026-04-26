@@ -6,6 +6,7 @@ from .repositories.user_repository import UserRepository
 from .repositories.task_repository import TaskRepository
 from .repositories.auth_repository import AuthRepository
 from .services import auth_service
+from .services.task_service import TaskService
 from .config import get_settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
@@ -18,6 +19,10 @@ def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
 
 def get_task_repository(db: Session = Depends(get_db)) -> TaskRepository:
     return TaskRepository(db)
+
+
+def get_task_service(repo: TaskRepository = Depends(get_task_repository)) -> TaskService:
+    return TaskService(repo)
 
 
 def get_auth_repository(db: Session = Depends(get_db)) -> AuthRepository:

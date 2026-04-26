@@ -1,7 +1,7 @@
 import uuid
 from sqlalchemy.orm import Session
 from ..models.task import Task, TaskStatus
-from ..schemas.task import TaskCreate
+from ..schemas.task import TaskCreate, TaskUpdate
 from typing import List, Optional, Tuple
 
 
@@ -55,13 +55,16 @@ class TaskRepository:
         return db_task
 
     def update(
-        self, user_id: uuid.UUID, task_id: uuid.UUID, task_data: TaskCreate
+        self, user_id: uuid.UUID, task_id: uuid.UUID, task_data: TaskUpdate
     ) -> Optional[Task]:
         db_task = self.get_by_id(user_id, task_id)
         if not db_task:
             return None
-        for key, value in task_data.model_dump().items():
+        
+        update_data = task_data.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
             setattr(db_task, key, value)
+            
         self.db.commit()
         self.db.refresh(db_task)
         return db_task
@@ -73,18 +76,3 @@ class TaskRepository:
         self.db.delete(db_task)
         self.db.commit()
         return True
-
-    def toggle(self, user_id: uuid.UUID, task_id: uuid.UUID) -> Optional[Task]:
-        db_task = self.get_by_id(user_id, task_id)
-        if not db_task:
-            return None
-
-        db_task.status = (
-            TaskStatus.PENDING
-            if db_task.status == TaskStatus.COMPLETED
-            else TaskStatus.COMPLETED
-        )
-
-        self.db.commit()
-        self.db.refresh(db_task)
-        return db_task

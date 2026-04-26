@@ -19,9 +19,19 @@ class TaskCreate(TaskBase):
     pass
 
 
+class TaskUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=1)
+    description: Optional[str] = None
+    status: Optional[TaskStatus] = None
+    priority: Optional[TaskPriority] = None
+    due_date: Optional[datetime.datetime] = None
+    due_date_has_time: Optional[bool] = None
+
+
 class TaskResponse(TaskBase):
     id: uuid.UUID
     created_at: datetime.datetime
+    updated_at: Optional[datetime.datetime] = None
     model_config = ConfigDict(from_attributes=True)
 
 
