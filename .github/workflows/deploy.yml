@@ -80,11 +80,15 @@ jobs:
         run: cd terraform && terraform init
 
       - name: Terraform Apply
-        run: cd terraform && terraform apply -auto-approve -var="key_name=${{ secrets.EC2_KEY_NAME }}"
+        run: |
+          cd terraform
+          terraform apply -auto-approve -var="key_name=${{ secrets.EC2_KEY_NAME }}" -var="aws_region=${{ secrets.AWS_REGION || 'us-east-1' }}"
+          echo "### Infrastructure Provisioned" >> $GITHUB_STEP_SUMMARY
+          echo "Instance Public IP: $(terraform output -raw instance_public_ip)" >> $GITHUB_STEP_SUMMARY
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: "us-east-1"
+          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
 
   build-and-push:
     name: Build & Push Docker Images
