@@ -1,5 +1,4 @@
 'use client';
-
 import { useTranslation } from 'react-i18next';
 import {
   DropdownMenu,
@@ -9,17 +8,14 @@ import {
 } from './ui/DropdownMenu';
 import { Languages } from 'lucide-react';
 import { TooltipSimple } from './ui/Tooltip';
-
 export default function LanguageSelector() {
   const { i18n, t } = useTranslation();
-
   const languages = [
     { code: 'en', name: t('common.english'), label: 'EN' },
     { code: 'pt', name: t('common.portuguese'), label: 'PT' },
   ];
-
-  const currentLanguage = languages.find(lang => i18n.language.startsWith(lang.code)) || languages[0];
-
+  const currentLanguage =
+    languages.find((lang) => i18n.language.startsWith(lang.code)) || languages[0];
   return (
     <DropdownMenu>
       <TooltipSimple content={t('common.select_language')} side="bottom">
@@ -38,7 +34,9 @@ export default function LanguageSelector() {
           <DropdownMenuItem
             key={lang.code}
             onClick={() => i18n.changeLanguage(lang.code)}
-            className={i18n.language.startsWith(lang.code) ? 'bg-warm-50 dark:bg-white/5 font-semibold' : ''}
+            className={
+              i18n.language.startsWith(lang.code) ? 'bg-warm-50 dark:bg-white/5 font-semibold' : ''
+            }
           >
             {lang.name}
           </DropdownMenuItem>

@@ -104,6 +104,7 @@
     "error_load": "Failed to load profile.",
     "personal_info": "Personal Information",
     "security": "Security",
+    "current_password": "Current Password",
     "new_password": "New Password",
     "confirm_new_password": "Confirm New Password",
     "update_info": "Update Information",
@@ -113,6 +114,15 @@
     "username_checking": "Checking availability...",
     "username_invalid": "Username must be at least 3 characters and contain only letters and underscores",
     "update_success": "Profile information updated successfully!",
-    "password_success": "Password updated successfully!"
+    "password_success": "Password updated successfully!",
+    "password_min": "Password must be at least 8 characters",
+    "password_uppercase": "Password must contain at least one uppercase letter",
+    "password_lowercase": "Password must contain at least one lowercase letter",
+    "password_number": "Password must contain at least one number",
+    "password_special": "Password must contain at least one special character",
+    "password_match": "Passwords do not match",
+    "current_password_required": "Current password is required",
+    "name_required": "Name is required",
+    "email_invalid": "Invalid email address"
   }
 }

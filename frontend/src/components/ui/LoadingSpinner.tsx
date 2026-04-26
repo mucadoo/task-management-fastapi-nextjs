@@ -1,19 +1,15 @@
 'use client';
-
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
-
 export default function LoadingSpinner({ size = 'md', className }: LoadingSpinnerProps) {
   const sizeClasses = {
     sm: 'h-4 w-4',
     md: 'h-8 w-8',
     lg: 'h-12 w-12',
   };
-
   const colorClass = className || 'text-blue-600 dark:text-blue-400';
-
   return (
     <div className="flex justify-center items-center" data-testid="loading-spinner">
       <svg

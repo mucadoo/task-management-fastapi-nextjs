@@ -104,6 +104,7 @@
     "error_load": "Falha ao carregar perfil.",
     "personal_info": "Informações Pessoais",
     "security": "Segurança",
+    "current_password": "Senha Atual",
     "new_password": "Nova Senha",
     "confirm_new_password": "Confirmar Nova Senha",
     "update_info": "Atualizar Informações",
@@ -113,6 +114,15 @@
     "username_checking": "Verificando disponibilidade...",
     "username_invalid": "O nome de usuário deve ter pelo menos 3 caracteres e conter apenas letras e sublinhados",
     "update_success": "Informações do perfil atualizadas com sucesso!",
-    "password_success": "Senha atualizada com sucesso!"
+    "password_success": "Senha atualizada com sucesso!",
+    "password_min": "A senha deve ter pelo menos 8 caracteres",
+    "password_uppercase": "A senha deve conter pelo menos uma letra maiúscula",
+    "password_lowercase": "A senha deve conter pelo menos uma letra minúscula",
+    "password_number": "A senha deve conter pelo menos um número",
+    "password_special": "A senha deve conter pelo menos um caractere especial",
+    "password_match": "As senhas não coincidem",
+    "current_password_required": "A senha atual é obrigatória",
+    "name_required": "O nome é obrigatório",
+    "email_invalid": "E-mail inválido"
   }
 }

@@ -1,9 +1,7 @@
 'use client';
-
 interface SkeletonProps {
   className?: string;
 }
-
 export function Skeleton({ className }: SkeletonProps) {
   return (
     <div
@@ -11,7 +9,6 @@ export function Skeleton({ className }: SkeletonProps) {
     />
   );
 }
-
 export function ProfileSkeleton() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
@@ -26,7 +23,6 @@ export function ProfileSkeleton() {
             <Skeleton className="h-10 w-10 rounded-full" />
           </div>
         </header>
-
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           <div className="md:col-span-2">
             <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none">
@@ -35,10 +31,12 @@ export function ProfileSkeleton() {
               <Skeleton className="h-4 w-40 mx-auto" />
             </div>
           </div>
-
           <div className="md:col-span-3 space-y-8">
             {[1, 2].map((i) => (
-              <section key={i} className="bg-white dark:bg-gray-900 rounded-3xl p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none">
+              <section
+                key={i}
+                className="bg-white dark:bg-gray-900 rounded-3xl p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none"
+              >
                 <div className="flex items-center gap-3 mb-6">
                   <Skeleton className="h-9 w-9 rounded-lg" />
                   <Skeleton className="h-6 w-32" />

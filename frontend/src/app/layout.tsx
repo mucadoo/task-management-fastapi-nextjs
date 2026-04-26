@@ -1,24 +1,20 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import NextTopLoader from "nextjs-toploader";
-import "./globals.css";
-import ClientProviders from "../components/ClientProviders";
-
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import NextTopLoader from 'nextjs-toploader';
+import './globals.css';
+import ClientProviders from '../components/ClientProviders';
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
-
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
-
 export const metadata: Metadata = {
-  title: "TaskFlow | Modern Task Management",
-  description: "Manage your tasks efficiently with a beautiful interface.",
+  title: 'TaskFlow | Modern Task Management',
+  description: 'Manage your tasks efficiently with a beautiful interface.',
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -26,12 +22,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} min-h-full flex flex-col font-sans antialiased transition-colors duration-300`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} min-h-full flex flex-col font-sans antialiased transition-colors duration-300`}
+      >
         <NextTopLoader color="#3a5fa3" height={3} showSpinner={false} />
         <ClientProviders>
-          <div className="flex-grow flex flex-col">
-            {children}
-          </div>
+          <div className="flex-grow flex flex-col">{children}</div>
         </ClientProviders>
       </body>
     </html>

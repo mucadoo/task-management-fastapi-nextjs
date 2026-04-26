@@ -1,8 +1,7 @@
-"use client";
-import { useEffect } from "react";
-import ErrorMessage from "../components/ui/ErrorMessage";
-import { useTranslation } from "react-i18next";
-
+'use client';
+import { useEffect } from 'react';
+import ErrorMessage from '../components/ui/ErrorMessage';
+import { useTranslation } from 'react-i18next';
 export default function Error({
   error,
   reset,

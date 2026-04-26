@@ -4,7 +4,6 @@ export interface User {
   username?: string;
   name?: string;
 }
-
 export interface TokenResponse {
   access_token: string;
   refresh_token: string;

@@ -3,27 +3,54 @@ from sqlalchemy.orm import Session
 from ..models.user import User
 from typing import Optional
 
+
 def get_by_id(db: Session, user_id: uuid.UUID) -> Optional[User]:
     return db.query(User).filter(User.id == user_id).first()
+
 
 def get_by_email(db: Session, email: str) -> Optional[User]:
     return db.query(User).filter(User.email == email).first()
 
+
 def get_by_username(db: Session, username: str) -> Optional[User]:
     return db.query(User).filter(User.username == username).first()
 
+
 def get_by_email_or_username(db: Session, identifier: str) -> Optional[User]:
     from sqlalchemy import or_
-    identifier_lower = identifier.lower()
-    return db.query(User).filter(or_(User.email == identifier_lower, User.username == identifier_lower)).first()
 
-def create(db: Session, email: str, hashed_password: str, name: Optional[str] = None, username: Optional[str] = None) -> User:
-    db_user = User(email=email, hashed_password=hashed_password, name=name, username=username)
+    identifier_lower = identifier.lower()
+    return (
+        db.query(User)
+        .filter(or_(User.email == identifier_lower, User.username == identifier_lower))
+        .first()
+    )
+
+
+def create(
+    db: Session,
+    email: str,
+    hashed_password: str,
+    name: Optional[str] = None,
+    username: Optional[str] = None,
+) -> User:
+    db_user = User(
+        email=email, hashed_password=hashed_password, name=name, username=username
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
-def update(db: Session, user: User, name: Optional[str] = None, email: Optional[str] = None, hashed_password: Optional[str] = None, username: Optional[str] = None) -> User:
+
+
+def update(
+    db: Session,
+    user: User,
+    name: Optional[str] = None,
+    email: Optional[str] = None,
+    hashed_password: Optional[str] = None,
+    username: Optional[str] = None,
+) -> User:
     if name is not None:
         user.name = name
     if email is not None:

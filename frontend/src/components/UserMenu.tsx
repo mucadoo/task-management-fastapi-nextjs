@@ -1,10 +1,9 @@
 'use client';
-
-import { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import { User as UserIcon, LogOut, Settings, ChevronDown } from "lucide-react";
-import { api } from "../lib/api";
-import { User } from "../types/auth";
+import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { User as UserIcon, LogOut, Settings, ChevronDown } from 'lucide-react';
+import { api } from '../lib/api';
+import { User } from '../types/auth';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,27 +11,22 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/DropdownMenu";
-
+} from './ui/DropdownMenu';
 interface UserMenuProps {
   onProfileOpen: (tab: 'personal' | 'security') => void;
   onLogout: () => void;
 }
-
 export default function UserMenu({ onProfileOpen, onLogout }: UserMenuProps) {
   const { t } = useTranslation();
   const [user, setUser] = useState<User | null>(null);
-
   useEffect(() => {
-    api.getMe()
+    api
+      .getMe()
       .then(setUser)
-      .catch(() => {
-        // Fallback or handle error silently as it's just for the UI decoration
-      });
+      .catch(() => {});
   }, []);
-
-  const userInitial = user?.name?.charAt(0) || user?.email?.charAt(0) || "U";
-
+  const userInitial =
+    user?.name?.charAt(0) || user?.username?.charAt(0) || user?.email?.charAt(0) || 'U';
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -45,7 +39,7 @@ export default function UserMenu({ onProfileOpen, onLogout }: UserMenuProps) {
               {user?.name || t('common.user')}
             </span>
             <span className="text-[10px] text-warm-500 dark:text-gray-500 leading-tight">
-              {user?.email || t('common.account')}
+              {user?.username ? `@${user.username}` : user?.email || t('common.account')}
             </span>
           </div>
           <ChevronDown className="h-4 w-4 text-warm-400 group-hover:text-warm-600 transition-colors" />
@@ -54,8 +48,12 @@ export default function UserMenu({ onProfileOpen, onLogout }: UserMenuProps) {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none text-warm-900 dark:text-gray-100">{user?.name}</p>
-            <p className="text-xs leading-none text-warm-500">{user?.email}</p>
+            <p className="text-sm font-medium leading-none text-warm-900 dark:text-gray-100">
+              {user?.name}
+            </p>
+            <p className="text-xs leading-none text-warm-500">
+              {user?.username ? `@${user.username}` : user?.email}
+            </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -68,8 +66,8 @@ export default function UserMenu({ onProfileOpen, onLogout }: UserMenuProps) {
           <span>{t('profile.security')}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
-          onClick={onLogout} 
+        <DropdownMenuItem
+          onClick={onLogout}
           className="gap-2 text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/10"
         >
           <LogOut className="h-4 w-4" />

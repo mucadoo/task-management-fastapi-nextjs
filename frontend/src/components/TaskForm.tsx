@@ -1,24 +1,22 @@
-"use client";
-import { useEffect, useState } from "react";
-import { Task, TaskCreate } from "../types/task";
-import { useTranslation } from "react-i18next";
-import { X, ChevronDown, Save } from "lucide-react";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import ErrorMessage from "./ui/ErrorMessage";
-import LoadingSpinner from "./ui/LoadingSpinner";
-import { DateTimePicker } from "./ui/DateTimePicker";
-
+'use client';
+import { useEffect, useState } from 'react';
+import { Task, TaskCreate } from '../types/task';
+import { useTranslation } from 'react-i18next';
+import { X, ChevronDown, Save } from 'lucide-react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import ErrorMessage from './ui/ErrorMessage';
+import LoadingSpinner from './ui/LoadingSpinner';
+import { DateTimePicker } from './ui/DateTimePicker';
 const taskSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+  title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
-  status: z.enum(["pending", "in_progress", "completed"]),
-  priority: z.enum(["low", "medium", "high"]),
+  status: z.enum(['pending', 'in_progress', 'completed']),
+  priority: z.enum(['low', 'medium', 'high']),
   due_date: z.date().optional().nullable(),
   due_date_has_time: z.boolean().default(false),
 });
-
 interface TaskFormProps {
   isOpen: boolean;
   onClose: () => void;
@@ -26,7 +24,6 @@ interface TaskFormProps {
   editingTask: Task | null;
   onSubmit: (data: TaskCreate) => Promise<void>;
 }
-
 export default function TaskForm({
   isOpen,
   onClose,
@@ -37,7 +34,6 @@ export default function TaskForm({
   const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -49,23 +45,21 @@ export default function TaskForm({
   } = useForm<TaskCreate & { due_date: Date | null }>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      status: "pending",
-      priority: "medium",
+      title: '',
+      description: '',
+      status: 'pending',
+      priority: 'medium',
       due_date: null,
       due_date_has_time: false,
     },
   });
-
-
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       if (editingTask) {
         reset({
           title: editingTask.title,
-          description: editingTask.description || "",
+          description: editingTask.description || '',
           status: editingTask.status,
           priority: editingTask.priority,
           due_date: editingTask.due_date ? new Date(editingTask.due_date) : null,
@@ -73,10 +67,10 @@ export default function TaskForm({
         });
       } else {
         reset({
-          title: "",
-          description: "",
-          status: "pending",
-          priority: "medium",
+          title: '',
+          description: '',
+          status: 'pending',
+          priority: 'medium',
           due_date: null,
           due_date_has_time: false,
         });
@@ -86,9 +80,7 @@ export default function TaskForm({
     }
     setError(null);
   }, [editingTask, isOpen, reset]);
-
   if (!isOpen) return null;
-
   const onFormSubmit = async (data: any) => {
     setIsSubmitting(true);
     setError(null);
@@ -97,7 +89,6 @@ export default function TaskForm({
       if (finalDueDate) {
         finalDueDate = finalDueDate.toISOString();
       }
-
       await onSubmit({
         ...data,
         title: data.title.trim(),
@@ -112,10 +103,9 @@ export default function TaskForm({
       setIsSubmitting(false);
     }
   };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
-      <div className="card-surface w-full max-w-md p-6 space-y-5" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="card-surface w-full max-w-md p-6 space-y-5">
         <div className="flex justify-between items-center">
           <div className="space-y-1">
             <h2 className="text-lg font-bold text-warm-900 dark:text-white">
@@ -123,14 +113,15 @@ export default function TaskForm({
             </h2>
             <div className="rule-brand" />
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-warm-100 dark:hover:bg-warm-900 rounded-lg transition-colors cursor-pointer">
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-warm-100 dark:hover:bg-warm-900 rounded-lg transition-colors cursor-pointer"
+          >
             <X className="h-5 w-5 text-warm-500" />
           </button>
         </div>
-
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
           {error && <ErrorMessage message={error} />}
-
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold text-warm-600 dark:text-warm-400 ml-0.5">
               {t('common.title')} <span className="text-red-500">*</span>
@@ -142,9 +133,10 @@ export default function TaskForm({
               placeholder={t('tasks.placeholder_title')}
               disabled={isSubmitting}
             />
-            {errors.title && <p className="text-[10px] text-red-500 ml-1">{errors.title.message as string}</p>}
+            {errors.title && (
+              <p className="text-[10px] text-red-500 ml-1">{errors.title.message as string}</p>
+            )}
           </div>
-
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold text-warm-600 dark:text-warm-400 ml-0.5">
               {t('tasks.description')}
@@ -157,7 +149,6 @@ export default function TaskForm({
               disabled={isSubmitting}
             />
           </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold text-warm-600 dark:text-warm-400 ml-0.5">
@@ -176,7 +167,6 @@ export default function TaskForm({
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
               </div>
             </div>
-
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold text-warm-600 dark:text-warm-400 ml-0.5">
                 {t('tasks.priority')}
@@ -195,7 +185,6 @@ export default function TaskForm({
               </div>
             </div>
           </div>
-
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold text-warm-600 dark:text-warm-400 ml-0.5">
               {t('tasks.due_date')}
@@ -207,13 +196,12 @@ export default function TaskForm({
                 <DateTimePicker
                   date={field.value}
                   setDate={field.onChange}
-                  hasTime={watch("due_date_has_time")}
-                  setHasTime={(val) => setValue("due_date_has_time", val)}
+                  hasTime={watch('due_date_has_time')}
+                  setHasTime={(val) => setValue('due_date_has_time', val)}
                 />
               )}
             />
           </div>
-
           <div className="flex gap-3 pt-3">
             <button
               type="button"
@@ -230,7 +218,9 @@ export default function TaskForm({
             >
               {isSubmitting ? (
                 <LoadingSpinner size="sm" color="white" />
-              ) : <Save className="h-4 w-4" />}
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
               {editingTask ? t('tasks.edit_task') : t('tasks.create_task')}
             </button>
           </div>
