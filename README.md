@@ -14,12 +14,12 @@ API REST de gerenciamento de tarefas com autenticação JWT, frontend em Next.js
 | Containerização| Docker, Docker Compose                          |
 | Proxy reverso  | Nginx 1.27                                      |
 | CI/CD          | GitHub Actions                                  |
-| Infraestrutura | AWS EC2 (app) + AWS RDS (banco)                 |
+| Infraestrutura | AWS EC2 (app)                                   |
 
 ## Pré-requisitos
 
 - Docker e Docker Compose instalados
-- (Para produção) Conta AWS com EC2 e RDS provisionados
+- (Para produção) Conta AWS com EC2 provisionada
 
 ---
 
@@ -231,15 +231,15 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 ### Deploy (AWS)
 
 A arquitetura de produção utiliza:
-- **RDS PostgreSQL 16:** Banco de dados gerenciado para alta disponibilidade.
-- **EC2 Ubuntu 22.04:** Servidor de aplicação rodando Docker Compose.
+- **EC2 Ubuntu 22.04:** Servidor de aplicação rodando Docker Compose, com PostgreSQL em container.
 - **GitHub Actions:** Pipeline automatizado que executa testes, gera imagens Docker, faz o push para o Docker Hub e atualiza a aplicação via SSH.
 
 **Passos para o primeiro deploy:**
-1. Provisionar RDS e EC2 na mesma VPC.
-2. Configurar Security Groups (EC2: porta 80 aberta; RDS: aceitar conexões apenas do IP da EC2).
-3. Adicionar os **GitHub Secrets** listados acima no repositório.
+1. Provisionar as credenciais da AWS (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`) com permissões para criar EC2 e Security Groups.
+2. Criar um par de chaves SSH na AWS e salvar o nome da chave.
+3. Adicionar os **GitHub Secrets** listados abaixo no repositório.
+4. Após o commit e push do código para a branch `main`, o pipeline de CI/CD (GitHub Actions) irá automaticamente:
+   - Provisionar a infraestrutura (EC2 e Security Groups) via Terraform.
+   - Construir e enviar as imagens Docker.
+   - Implantar a aplicação na EC2.
 
-## Autor
-
-Samuel | mucadoo.dev

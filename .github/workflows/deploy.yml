@@ -23,7 +23,12 @@ jobs:
       - name: Install backend dependencies
         run: |
           pip install -r backend/requirements.txt
-          pip install pytest pytest-cov faker httpx
+          pip install pytest pytest-cov faker httpx ruff
+
+      - name: Run backend linting
+        run: |
+          cd backend
+          ruff check .
 
       - name: Run backend tests
         run: |
@@ -43,11 +48,38 @@ jobs:
           cd frontend
           npm ci
 
+      - name: Run frontend linting
+        run: |
+          cd frontend
+          npm run lint
+
       - name: Next.js type-check and build
         run: |
           cd frontend
           export NEXT_PUBLIC_API_URL=http://localhost:8000/api
           npm run build
+
+  terraform:
+    name: Infrastructure Provisioning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.0"
+
+      - name: Terraform Init
+        run: cd terraform && terraform init
+
+      - name: Terraform Apply
+        run: cd terraform && terraform apply -auto-approve -var="key_name=${{ secrets.EC2_KEY_NAME }}"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "us-east-1"
 
   build-and-push:
     name: Build & Push Docker Images
@@ -91,7 +123,7 @@ jobs:
 
   deploy:
     name: Deploy to EC2
-    needs: build-and-push
+    needs: [build-and-push, terraform]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
