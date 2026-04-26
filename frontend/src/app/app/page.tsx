@@ -1,37 +1,38 @@
-import { api } from '../../lib/api';
+"use client";
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import TaskBoard from '../../components/TaskBoard';
-import ErrorMessage from '../../components/ui/ErrorMessage';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-export const dynamic = 'force-dynamic';
-export default async function AppDashboardPage() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
-  if (!token) {
-    redirect('/login');
-  }
-  try {
-    const initialData = await api.getTasks({ page: 1, page_size: 12, token });
-    return (
-      <main className="min-h-screen">
-        <TaskBoard initialData={initialData} />
-      </main>
-    );
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes('401') || error.message.includes('token'))
-    ) {
-      redirect('/login');
+import { useAuthStore } from '../../store/useAuthStore';
+
+export default function AppDashboardPage() {
+  const router = useRouter();
+  const { isAuthenticated, fetchMe, isLoading: authLoading } = useAuthStore();
+
+  useEffect(() => {
+    fetchMe();
+  }, [fetchMe]);
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login');
     }
-    const message =
-      error instanceof Error ? error.message : 'Failed to load tasks. Please try again later.';
+  }, [isAuthenticated, authLoading, router]);
+
+  if (authLoading || !isAuthenticated) {
     return (
       <main className="min-h-screen flex items-center justify-center p-4">
-        <div className="max-w-md w-full">
-          <ErrorMessage message={message} />
+        <div className="animate-pulse flex flex-col items-center gap-2">
+          <div className="w-10 h-10 bg-primary/20 rounded-full" />
+          <p className="text-sm text-muted-foreground font-medium">Authenticating...</p>
         </div>
       </main>
     );
   }
+
+  return (
+    <main className="min-h-screen">
+      <TaskBoard />
+    </main>
+  );
 }

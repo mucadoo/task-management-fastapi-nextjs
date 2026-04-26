@@ -1,7 +1,6 @@
 'use client';
-import { useState, useCallback, useEffect } from 'react';
-import { PaginatedResponse, Task, TaskCreate, TaskStatus, TaskPriority } from '../types/task';
-import { api } from '../lib/api';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { Task, TaskStatus, TaskPriority } from '../types/task';
 import { useRouter } from 'next/navigation';
 import { useDebounce } from 'use-debounce';
 import TaskCard from './TaskCard';
@@ -16,181 +15,110 @@ import ProfileModal from './ProfileModal';
 import UserMenu from './UserMenu';
 import SearchInput from './ui/SearchInput';
 import { useTranslation } from 'react-i18next';
+import { useTaskStore } from '../store/useTaskStore';
+import { useAuthStore } from '../store/useAuthStore';
+import { useTasks, useDeleteTask } from '../hooks/useTasks';
 import {
   Plus,
-  Search,
   LayoutGrid,
   List,
   Clock,
   AlertCircle,
   CheckSquare as CheckSquareIcon,
-  ChevronDown,
 } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipSimple } from './ui/Tooltip';
-interface TaskBoardProps {
-  initialData: PaginatedResponse<Task>;
-}
-export default function TaskBoard({ initialData }: TaskBoardProps) {
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from './ui/Tooltip';
+import { Button } from './ui/Button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/Select';
+import { cn } from '../lib/utils';
+
+export default function TaskBoard() {
   const { t } = useTranslation();
-  const [data, setData] = useState(initialData);
-  const [statusFilter, setStatusFilter] = useState<TaskStatus | undefined>(undefined);
-  const [priorityFilter, setPriorityFilter] = useState<TaskPriority | undefined>(undefined);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [viewMode, setViewMode] = useState<'gallery' | 'list'>('gallery');
-  const [sortBy, setSortBy] = useState('due_date');
-  const [sortDir, setSortDir] = useState('asc');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const {
+    viewMode,
+    setViewMode,
+    filters,
+    setFilters,
+  } = useTaskStore();
+
+  const { logout } = useAuthStore();
+  
+  const [searchTerm, setSearchTerm] = useState(filters.q || '');
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
+
+  // React Query Hooks
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    error,
+  } = useTasks(filters);
+
+  const deleteMutation = useDeleteTask();
+
+  const tasks = useMemo(() => {
+    return data?.pages.flatMap((page) => page.items) || [];
+  }, [data]);
+
+  const total = data?.pages[0]?.total || 0;
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [profileTab, setProfileTab] = useState<'personal' | 'security'>('personal');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [togglingId, setTogglingId] = useState<string | null>(null);
-  const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
-  const router = useRouter();
-  const handleLogout = () => {
-    api.logout();
-    router.push('/login');
-    router.refresh();
-  };
-  const refetch = useCallback(
-    async (
-      page = 1,
-      status = statusFilter,
-      priority = priorityFilter,
-      q = debouncedSearchTerm,
-      sort_by = sortBy,
-      sort_dir = sortDir,
-      append = false,
-    ) => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const newData = await api.getTasks({
-          page,
-          page_size: data.page_size,
-          status,
-          priority,
-          q: q || undefined,
-          sort_by,
-          sort_dir,
-        });
-        if (append) {
-          setData((prev) => ({
-            ...newData,
-            items: [...prev.items, ...newData.items],
-          }));
-        } else {
-          setData(newData);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : t('common.error'));
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [data.page_size, statusFilter, priorityFilter, debouncedSearchTerm, sortBy, sortDir, t],
-  );
+
   useEffect(() => {
-    refetch(1);
-  }, [debouncedSearchTerm, statusFilter, priorityFilter, sortBy, sortDir]);
-  const handlePriorityChange = (priority: TaskPriority | 'all') => {
-    const val = priority === 'all' ? undefined : priority;
-    setPriorityFilter(val);
-  };
-  const handleStatusChange = (status: TaskStatus | undefined) => {
-    setStatusFilter(status);
-  };
-  const handleLoadMore = () => {
-    const totalPages = Math.ceil(data.total / data.page_size);
-    if (data.page < totalPages && !isLoading) {
-      refetch(
-        data.page + 1,
-        statusFilter,
-        priorityFilter,
-        debouncedSearchTerm,
-        sortBy,
-        sortDir,
-        true,
-      );
+    if (debouncedSearchTerm !== filters.q) {
+      setFilters({ q: debouncedSearchTerm });
     }
+  }, [debouncedSearchTerm, filters.q, setFilters]);
+
+  const handlePriorityChange = (value: string) => {
+    setFilters({ priority: value === 'all' ? undefined : (value as TaskPriority) });
   };
-  const handleCreateTask = async (taskData: TaskCreate) => {
-    await api.createTask(taskData);
+
+  const handleStatusChange = (value: string) => {
+    setFilters({ status: value === 'all' ? undefined : (value as TaskStatus) });
   };
-  const handleUpdateTask = async (taskData: TaskCreate) => {
-    if (editingTask) {
-      await api.updateTask(editingTask.id, taskData);
-    }
+
+  const handleSortChange = (value: string) => {
+    const [sortBy, sortDir] = value.split('-');
+    setFilters({ sort_by: sortBy, sort_dir: sortDir });
   };
+
   const handleDeleteConfirm = async () => {
     if (deletingId) {
-      const idToDelete = deletingId;
-      const originalData = { ...data };
-      setData((prev) => ({
-        ...prev,
-        items: prev.items.filter((t) => t.id !== idToDelete),
-        total: prev.total - 1,
-      }));
+      await deleteMutation.mutateAsync(deletingId);
       setDeletingId(null);
-      try {
-        await api.deleteTask(idToDelete);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : t('common.error'));
-        setData(originalData);
-      }
     }
   };
+
   const handleEdit = useCallback((t: Task) => {
     setEditingTask(t);
     setIsFormOpen(true);
   }, []);
+
   const handleDelete = useCallback((id: string) => {
     setDeletingId(id);
   }, []);
-  const handleStatusUpdate = useCallback(
-    async (id: string, newStatus: TaskStatus) => {
-      const originalItems = [...data.items];
-      const taskToUpdate = originalItems.find((t) => t.id === id);
-      if (!taskToUpdate) return;
-      setTogglingId(id);
-      setData((prev) => ({
-        ...prev,
-        items: prev.items.map((t) => (t.id === id ? { ...t, status: newStatus } : t)),
-      }));
-      try {
-        const updated = await api.updateTask(id, {
-          title: taskToUpdate.title,
-          description: taskToUpdate.description || undefined,
-          status: newStatus,
-          priority: taskToUpdate.priority,
-          due_date: taskToUpdate.due_date || undefined,
-          due_date_has_time: taskToUpdate.due_date_has_time,
-        });
-        setData((prev) => ({
-          ...prev,
-          items: prev.items.map((t) => (t.id === id ? updated : t)),
-        }));
-      } catch (err) {
-        setError(err instanceof Error ? err.message : t('common.error'));
-        setData((prev) => ({
-          ...prev,
-          items: originalItems,
-        }));
-      } finally {
-        setTogglingId(null);
-      }
-    },
-    [data.items, t],
-  );
+
   const tabs: {
     label: string;
-    value: TaskStatus | undefined;
+    value: string;
     translationKey: string;
     icon: any;
   }[] = [
-    { label: 'All', value: undefined, translationKey: 'tasks.status_all', icon: LayoutGrid },
+    { label: 'All', value: 'all', translationKey: 'tasks.status_all', icon: LayoutGrid },
     { label: 'Pending', value: 'pending', translationKey: 'tasks.pending', icon: Clock },
     {
       label: 'In Progress',
@@ -205,60 +133,77 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
       icon: CheckSquareIcon,
     },
   ];
+
   return (
-    <div className="min-h-screen bg-warm-50 dark:bg-[#0a0a0a]">
-      <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-warm-200 dark:border-white/5 h-14 flex items-center px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b h-14 flex items-center px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2 mr-6">
-          <div className="p-1.5 bg-brand-500 rounded">
-            <CheckSquareIcon className="h-4 w-4 text-white" />
+          <div className="p-1.5 bg-primary rounded">
+            <CheckSquareIcon className="h-4 w-4 text-primary-foreground" />
           </div>
-          <span className="font-semibold text-sm text-warm-900 dark:text-gray-100">TaskFlow</span>
-          <span className="mx-2 text-warm-300">·</span>
-          <span className="text-xs text-warm-600 dark:text-gray-500">
-            {t('tasks.tasks_count', { count: data.total })}
+          <span className="font-semibold text-sm">TaskFlow</span>
+          <span className="mx-2 text-muted-foreground/30">·</span>
+          <span className="text-xs text-muted-foreground">
+            {t('tasks.tasks_count', { count: total })}
           </span>
         </div>
         <div className="flex-grow" />
         <div className="flex items-center gap-2">
           <LanguageSelector />
           <ThemeToggle />
-          <div className="w-px h-4 bg-warm-200 dark:bg-white/10 mx-1" />
+          <div className="w-px h-4 bg-border mx-1" />
           <UserMenu
             onProfileOpen={(tab) => {
               setProfileTab(tab);
               setIsProfileOpen(true);
             }}
-            onLogout={handleLogout}
           />
         </div>
       </div>
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <div className="rule-brand mb-4 w-8" />
-            <h1 className="text-2xl font-bold text-warm-900 dark:text-gray-100 tracking-tight">
+            <div className="rule-brand mb-4 w-8 h-1" />
+            <h1 className="text-2xl font-bold tracking-tight">
               {t('tasks.title')}
             </h1>
           </div>
-          <div className="flex gap-1 p-1 bg-warm-100 dark:bg-white/5 rounded-lg border border-warm-200 dark:border-white/5">
-            <TooltipSimple content={t('tasks.view_gallery')} side="bottom">
-              <button
-                onClick={() => setViewMode('gallery')}
-                className={`p-1.5 rounded-md transition-all cursor-pointer ${viewMode === 'gallery' ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm' : 'text-warm-500 hover:text-warm-900'}`}
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </button>
-            </TooltipSimple>
-            <TooltipSimple content={t('tasks.view_list')} side="bottom">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-md transition-all cursor-pointer ${viewMode === 'list' ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm' : 'text-warm-500 hover:text-warm-900'}`}
-              >
-                <List className="h-4 w-4" />
-              </button>
-            </TooltipSimple>
+          
+          <div className="flex gap-1 p-1 bg-muted rounded-lg border border-border/50">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={viewMode === 'gallery' ? 'secondary' : 'ghost'}
+                    size="icon"
+                    onClick={() => setViewMode('gallery')}
+                    className={cn("h-8 w-8 rounded-md transition-all", viewMode === 'gallery' && "bg-background shadow-sm")}
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{t('tasks.view_gallery')}</TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                    size="icon"
+                    onClick={() => setViewMode('list')}
+                    className={cn("h-8 w-8 rounded-md transition-all", viewMode === 'list' && "bg-background shadow-sm")}
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{t('tasks.view_list')}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
+
         <div className="flex flex-col md:flex-row md:items-center gap-3 mb-8">
           <SearchInput
             placeholder={t('tasks.search')}
@@ -267,147 +212,152 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
             className="flex-[2]"
           />
           <div className="flex flex-1 items-center gap-3">
-            <div className="relative flex-1">
-              <select
-                value={statusFilter || 'all'}
-                onChange={(e) =>
-                  handleStatusChange(
-                    e.target.value === 'all' ? undefined : (e.target.value as TaskStatus),
-                  )
-                }
-                className="h-10 w-full pl-3 pr-10 bg-white dark:bg-[#141414] border border-warm-200 dark:border-white/10 rounded-lg text-sm text-warm-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/5 focus:border-brand-500 transition-all cursor-pointer appearance-none"
-              >
+            <Select value={filters.status || 'all'} onValueChange={handleStatusChange}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder={t('tasks.status')} />
+              </SelectTrigger>
+              <SelectContent>
                 {tabs.map((tab) => (
-                  <option key={tab.translationKey} value={tab.value || 'all'}>
+                  <SelectItem key={tab.value} value={tab.value}>
                     {t(tab.translationKey)}
-                  </option>
+                  </SelectItem>
                 ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
-            </div>
-            <div className="relative flex-1">
-              <select
-                value={priorityFilter || 'all'}
-                onChange={(e) => handlePriorityChange(e.target.value as any)}
-                className="h-10 w-full pl-3 pr-10 bg-white dark:bg-[#141414] border border-warm-200 dark:border-white/10 rounded-lg text-sm text-warm-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/5 focus:border-brand-500 transition-all cursor-pointer appearance-none"
-              >
-                <option value="all">{t('tasks.all_priorities')}</option>
-                <option value="low">{t('tasks.low_priority')}</option>
-                <option value="medium">{t('tasks.medium_priority')}</option>
-                <option value="high">{t('tasks.high_priority')}</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
-            </div>
+              </SelectContent>
+            </Select>
+
+            <Select value={filters.priority || 'all'} onValueChange={handlePriorityChange}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder={t('tasks.priority')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('tasks.all_priorities')}</SelectItem>
+                <SelectItem value="low">{t('tasks.low_priority')}</SelectItem>
+                <SelectItem value="medium">{t('tasks.medium_priority')}</SelectItem>
+                <SelectItem value="high">{t('tasks.high_priority')}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+
           <div className="flex-shrink-0 flex items-center gap-2">
-            <span className="text-[10px] font-bold text-warm-400 uppercase tracking-widest ml-1 hidden lg:block">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1 hidden lg:block">
               {t('tasks.sort_by')}
             </span>
-            <div className="relative">
-              <select
-                value={`${sortBy}-${sortDir}`}
-                onChange={(e) => {
-                  const [field, dir] = e.target.value.split('-');
-                  setSortBy(field);
-                  setSortDir(dir);
-                }}
-                className="h-10 min-w-[160px] pl-3 pr-10 bg-white dark:bg-[#141414] border border-warm-200 dark:border-white/10 rounded-lg text-sm text-warm-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/5 focus:border-brand-500 transition-all cursor-pointer appearance-none"
-              >
-                <option value="due_date-asc">{t('tasks.sort_due')} (↑)</option>
-                <option value="due_date-desc">{t('tasks.sort_due')} (↓)</option>
-                <option value="created_at-desc">{t('tasks.sort_created')} (↓)</option>
-                <option value="created_at-asc">{t('tasks.sort_created')} (↑)</option>
-                <option value="priority-desc">{t('tasks.sort_priority')} (↓)</option>
-                <option value="priority-asc">{t('tasks.sort_priority')} (↑)</option>
-                <option value="title-asc">{t('tasks.sort_title')} (A-Z)</option>
-                <option value="title-desc">{t('tasks.sort_title')} (Z-A)</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
-            </div>
-          </div>
-          <TooltipSimple content={t('tasks.new_task')} side="left">
-            <button
-              onClick={() => {
-                setEditingTask(null);
-                setIsFormOpen(true);
-              }}
-              className="h-10 w-10 bg-brand-500 hover:bg-brand-600 text-white rounded-lg flex items-center justify-center transition-all active:scale-[0.98] shadow-sm shadow-brand-500/10 cursor-pointer"
+            <Select 
+              value={`${filters.sort_by || 'due_date'}-${filters.sort_dir || 'asc'}`} 
+              onValueChange={handleSortChange}
             >
-              <Plus className="h-5 w-5" />
-            </button>
-          </TooltipSimple>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder={t('tasks.sort_by')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="due_date-asc">{t('tasks.sort_due')} (↑)</SelectItem>
+                <SelectItem value="due_date-desc">{t('tasks.sort_due')} (↓)</SelectItem>
+                <SelectItem value="created_at-desc">{t('tasks.sort_created')} (↓)</SelectItem>
+                <SelectItem value="created_at-asc">{t('tasks.sort_created')} (↑)</SelectItem>
+                <SelectItem value="priority-desc">{t('tasks.sort_priority')} (↓)</SelectItem>
+                <SelectItem value="priority-asc">{t('tasks.sort_priority')} (↑)</SelectItem>
+                <SelectItem value="title-asc">{t('tasks.sort_title')} (A-Z)</SelectItem>
+                <SelectItem value="title-desc">{t('tasks.sort_title')} (Z-A)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={() => {
+                    setEditingTask(null);
+                    setIsFormOpen(true);
+                  }}
+                  size="icon"
+                  className="h-10 w-10 shrink-0"
+                >
+                  <Plus className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="left">{t('tasks.new_task')}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
+
         {error && (
           <div className="mb-6">
-            <ErrorMessage message={error} />
+            <ErrorMessage message={(error as any).message || t('common.error')} />
           </div>
         )}
-        {isLoading && data.items.length === 0 ? (
+
+        {isLoading && tasks.length === 0 ? (
           <div
-            className={
+            className={cn(
               viewMode === 'gallery'
                 ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3'
                 : 'space-y-3'
-            }
+            )}
           >
             {[...Array(6)].map((_, i) => (
               <TaskSkeleton key={i} />
             ))}
           </div>
-        ) : data.items.length > 0 ? (
+        ) : tasks.length > 0 ? (
           <>
             <div
-              className={
+              className={cn(
                 viewMode === 'gallery'
                   ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 animate-in fade-in duration-500'
                   : 'flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-500'
-              }
+              )}
             >
-              {data.items.map((task) => (
+              {tasks.map((task) => (
                 <TaskCard
                   key={task.id}
                   task={task}
                   viewMode={viewMode}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
-                  onStatusChange={handleStatusUpdate}
                   isDeleting={deletingId === task.id}
-                  isToggling={togglingId === task.id}
                 />
               ))}
+              {isFetchingNextPage && (
+                <>
+                  {[...Array(3)].map((_, i) => (
+                    <TaskSkeleton key={`more-${i}`} />
+                  ))}
+                </>
+              )}
             </div>
             <InfiniteScrollTrigger
-              onIntersect={handleLoadMore}
-              isLoading={isLoading}
-              hasMore={data.page < Math.ceil(data.total / data.page_size)}
+              onIntersect={() => fetchNextPage()}
+              isLoading={isFetchingNextPage}
+              hasMore={!!hasNextPage}
             />
           </>
         ) : (
-          <div className="text-center py-20 border border-dashed border-warm-300 dark:border-white/5 rounded-xl text-warm-600 dark:text-gray-500">
+          <div className="text-center py-20 border border-dashed rounded-xl text-muted-foreground">
             {t('tasks.no_tasks')}
           </div>
         )}
+
         <TaskForm
           isOpen={isFormOpen}
           onClose={() => {
             setIsFormOpen(false);
             setEditingTask(null);
           }}
-          onSuccess={refetch}
           editingTask={editingTask}
-          onSubmit={editingTask ? handleUpdateTask : handleCreateTask}
         />
+
         <ConfirmDialog
           isOpen={deletingId !== null}
           message={t('tasks.confirm_delete')}
           onConfirm={handleDeleteConfirm}
           onCancel={() => setDeletingId(null)}
-          isLoading={isLoading}
+          isLoading={deleteMutation.isPending}
         />
+
         <ProfileModal
           isOpen={isProfileOpen}
           onClose={() => setIsProfileOpen(false)}
-          onLogout={handleLogout}
           initialTab={profileTab}
         />
       </main>

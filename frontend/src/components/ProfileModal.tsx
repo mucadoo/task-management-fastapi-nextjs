@@ -3,34 +3,41 @@ import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { api } from '../lib/api';
-import ErrorMessage from './ui/ErrorMessage';
 import LoadingSpinner from './ui/LoadingSpinner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useDebounce } from 'use-debounce';
-import { User } from '../types/auth';
+import { useAuthStore } from '../store/useAuthStore';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from './ui/Dialog';
+import { Button } from './ui/Button';
+import { Input } from './ui/Input';
+import { Label } from './ui/Label';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/Tabs';
 
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogout: () => void;
   initialTab?: 'personal' | 'security';
 }
 
 export default function ProfileModal({
   isOpen,
   onClose,
-  onLogout,
   initialTab = 'personal',
 }: ProfileModalProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'personal' | 'security'>(initialTab);
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  
+  const { user, updateMe } = useAuthStore();
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [usernameStatus, setUsernameStatus] = useState<
     'idle' | 'checking' | 'available' | 'taken' | 'invalid'
   >('idle');
@@ -77,9 +84,9 @@ export default function ProfileModal({
   } = useForm({
     resolver: zodResolver(activeTab === 'personal' ? personalSchema : securitySchema),
     defaultValues: {
-      name: '',
-      email: '',
-      username: '',
+      name: user?.name || '',
+      email: user?.email || '',
+      username: user?.username || '',
       current_password: '',
       password: '',
       confirmPassword: '',
@@ -93,41 +100,19 @@ export default function ProfileModal({
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      setError(null);
-      setSuccess(null);
       clearErrors();
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen, clearErrors]);
-
-  useEffect(() => {
-    if (isOpen) {
       setActiveTab(initialTab);
-      setIsLoading(true);
-      setError(null);
-      setSuccess(null);
-      api
-        .getMe()
-        .then((data) => {
-          setUser(data);
-          reset({
-            name: data.name || '',
-            email: data.email,
-            username: data.username || '',
-            current_password: '',
-            password: '',
-            confirmPassword: '',
-          });
-        })
-        .catch(() => setError(t('profile.error_load')))
-        .finally(() => setIsLoading(false));
+      
+      reset({
+        name: user?.name || '',
+        email: user?.email || '',
+        username: user?.username || '',
+        current_password: '',
+        password: '',
+        confirmPassword: '',
+      });
     }
-  }, [isOpen, initialTab, reset, t]);
+  }, [isOpen, initialTab, reset, user, clearErrors]);
 
   useEffect(() => {
     const checkUsernameAvailability = async () => {
@@ -177,8 +162,6 @@ export default function ProfileModal({
 
   const onTabChange = (tab: 'personal' | 'security') => {
     setActiveTab(tab);
-    setError(null);
-    setSuccess(null);
     setUsernameStatus('idle');
     setEmailStatus('idle');
     clearErrors();
@@ -195,269 +178,229 @@ export default function ProfileModal({
   const onSaveProfile = async (data: any) => {
     if (activeTab === 'personal' && (usernameStatus === 'taken' || emailStatus === 'taken')) return;
     setIsSubmitting(true);
-    setError(null);
-    setSuccess(null);
     try {
       const payload =
         activeTab === 'personal'
           ? { name: data.name, email: data.email, username: data.username }
           : { current_password: data.current_password, password: data.password };
-      const updatedUser = await api.updateMe(payload);
-      setUser(updatedUser);
-      setSuccess(
-        activeTab === 'personal' ? t('profile.update_success') : t('profile.password_success'),
-      );
+      
+      await updateMe(payload);
+      
       if (activeTab === 'security') {
         reset({
-          name: updatedUser.name || '',
-          email: updatedUser.email,
-          username: updatedUser.username || '',
+          name: user?.name || '',
+          email: user?.email || '',
+          username: user?.username || '',
           current_password: '',
           password: '',
           confirmPassword: '',
         });
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'));
+    } catch (err: any) {
+      // Error handled by store via toasts
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="card-surface w-full max-w-md p-6 space-y-6">
-        <div className="flex justify-between items-center">
-          <div className="space-y-1">
-            <h2 className="text-xl font-bold text-warm-900 dark:text-white">
-              {t('profile.title')}
-            </h2>
-            <div className="rule-brand" />
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-warm-100 dark:hover:bg-warm-900 rounded-lg transition-colors cursor-pointer"
-          >
-            <X className="h-5 w-5 text-warm-500" />
-          </button>
-        </div>
-        {isLoading ? (
-          <div className="flex justify-center p-8">
-            <LoadingSpinner />
-          </div>
-        ) : (
-          <>
-            <div className="flex gap-1 p-1 bg-warm-100 dark:bg-white/5 rounded-lg">
-              <button
-                onClick={() => onTabChange('personal')}
-                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${activeTab === 'personal' ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm' : 'text-warm-600 dark:text-gray-500 hover:text-warm-900 dark:hover:text-gray-300'}`}
-              >
-                {t('profile.personal_info')}
-              </button>
-              <button
-                onClick={() => onTabChange('security')}
-                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${activeTab === 'security' ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm' : 'text-warm-600 dark:text-gray-500 hover:text-warm-900 dark:hover:text-gray-300'}`}
-              >
-                {t('profile.security')}
-              </button>
-            </div>
-            {error && <ErrorMessage message={error} />}
-            {success && (
-              <div className="flex items-center gap-2 text-emerald-600 text-xs font-bold">
-                <CheckCircle2 className="h-4 w-4" /> {success}
-              </div>
-            )}
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>{t('profile.title')}</DialogTitle>
+          <div className="rule-brand w-8 h-1" />
+        </DialogHeader>
+        
+        <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as 'personal' | 'security')} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="personal">{t('profile.personal_info')}</TabsTrigger>
+            <TabsTrigger value="security">{t('profile.security')}</TabsTrigger>
+          </TabsList>
+          <TabsContent value="personal" className="mt-4">
             <form onSubmit={handleSubmit(onSaveProfile)} className="space-y-4">
-              <div className="space-y-3">
-                {activeTab === 'personal' ? (
-                  <>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                        {t('common.name')}
-                      </label>
-                      <input
-                        {...register('name')}
-                        type="text"
-                        className={`input-base ${errors.name && touchedFields.name ? 'border-red-500 focus:border-red-500' : ''}`}
-                        placeholder={t('common.name')}
-                      />
-                      {errors.name && touchedFields.name && (
-                        <p className="text-xs text-red-500 ml-1 mt-1">
-                          {errors.name.message as string}
-                        </p>
-                      )}
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                        {t('common.email')}
-                      </label>
-                      <div className="relative">
-                        <input
-                          {...register('email')}
-                          type="email"
-                          className={`input-base pr-10 ${emailStatus === 'taken' ? 'border-red-500 focus:border-red-500' : emailStatus === 'available' ? 'border-emerald-500 focus:border-emerald-500' : (errors.email && touchedFields.email ? 'border-red-500 focus:border-red-500' : '')}`}
-                          placeholder={t('common.email')}
-                        />
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                          {emailStatus === 'checking' && (
-                            <Loader2 className="h-4 w-4 text-warm-400 animate-spin" />
-                          )}
-                          {emailStatus === 'available' && (
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                          )}
-                          {emailStatus === 'taken' && (
-                            <AlertCircle className="h-4 w-4 text-red-500" />
-                          )}
-                        </div>
-                      </div>
-                      {emailStatus === 'checking' && (
-                        <p className="text-xs text-warm-500 ml-1 mt-1">
-                          {t('profile.email_checking')}
-                        </p>
-                      )}
-                      {emailStatus === 'available' && (
-                        <p className="text-xs text-emerald-500 ml-1 mt-1">
-                          {t('profile.email_available')}
-                        </p>
-                      )}
-                      {emailStatus === 'taken' && (
-                        <p className="text-xs text-red-500 ml-1 mt-1">
-                          {t('profile.email_taken')}
-                        </p>
-                      )}
-                      {errors.email && touchedFields.email && (
-                        <p className="text-xs text-red-500 ml-1 mt-1">
-                          {errors.email.message as string}
-                        </p>
-                      )}
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                        {t('common.username')}
-                      </label>
-                      <div className="relative">
-                        <input
-                          {...register('username')}
-                          type="text"
-                          className={`input-base pr-10 ${usernameStatus === 'taken' ? 'border-red-500 focus:border-red-500' : usernameStatus === 'available' ? 'border-emerald-500 focus:border-emerald-500' : (errors.username && touchedFields.username ? 'border-red-500 focus:border-red-500' : '')}`}
-                          placeholder={t('common.username')}
-                        />
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                          {usernameStatus === 'checking' && (
-                            <Loader2 className="h-4 w-4 text-warm-400 animate-spin" />
-                          )}
-                          {usernameStatus === 'available' && (
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                          )}
-                          {usernameStatus === 'taken' && (
-                            <AlertCircle className="h-4 w-4 text-red-500" />
-                          )}
-                        </div>
-                      </div>
-                      {usernameStatus === 'checking' && (
-                        <p className="text-xs text-warm-500 ml-1 mt-1">
-                          {t('profile.username_checking')}
-                        </p>
-                      )}
-                      {usernameStatus === 'available' && (
-                        <p className="text-xs text-emerald-500 ml-1 mt-1">
-                          {t('profile.username_available')}
-                        </p>
-                      )}
-                      {usernameStatus === 'taken' && (
-                        <p className="text-xs text-red-500 ml-1 mt-1">
-                          {t('profile.username_taken')}
-                        </p>
-                      )}
-                      {usernameStatus === 'invalid' && (
-                        <p className="text-xs text-red-500 ml-1 mt-1">
-                          {t('profile.username_invalid')}
-                        </p>
-                      )}
-                      {errors.username && touchedFields.username && (
-                        <p className="text-xs text-red-500 ml-1 mt-1">
-                          {errors.username.message as string}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                        {t('profile.current_password')}
-                      </label>
-                      <input
-                        {...register('current_password')}
-                        type="password"
-                        className={`input-base ${errors.current_password && touchedFields.current_password ? 'border-red-500 focus:border-red-500' : ''}`}
-                        placeholder={t('profile.current_password')}
-                      />
-                      {errors.current_password && touchedFields.current_password && (
-                        <p className="text-xs text-red-500 ml-1 mt-1">
-                          {errors.current_password.message as string}
-                        </p>
-                      )}
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                        {t('profile.new_password')}
-                      </label>
-                      <input
-                        {...register('password')}
-                        type="password"
-                        className={`input-base ${errors.password && touchedFields.password ? 'border-red-500 focus:border-red-500' : ''}`}
-                        placeholder={t('profile.new_password')}
-                      />
-                      {errors.password && touchedFields.password && (
-                        <p className="text-xs text-red-500 ml-1 mt-1">
-                          {errors.password.message as string}
-                        </p>
-                      )}
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                        {t('profile.confirm_new_password')}
-                      </label>
-                      <input
-                        {...register('confirmPassword')}
-                        type="password"
-                        className={`input-base ${errors.confirmPassword && touchedFields.confirmPassword ? 'border-red-500 focus:border-red-500' : ''}`}
-                        placeholder={t('profile.confirm_new_password')}
-                      />
-                      {errors.confirmPassword && touchedFields.confirmPassword && (
-                        <p className="text-xs text-red-500 ml-1 mt-1">
-                          {errors.confirmPassword.message as string}
-                        </p>
-                      )}
-                    </div>
-                  </>
+              <div className="space-y-2">
+                <Label htmlFor="name">{t('common.name')}</Label>
+                <Input
+                  id="name"
+                  {...register('name')}
+                  type="text"
+                  placeholder={t('common.name')}
+                  className={errors.name && touchedFields.name ? 'border-destructive focus-visible:ring-destructive' : ''}
+                />
+                {errors.name && touchedFields.name && (
+                  <p className="text-xs text-destructive font-medium">
+                    {errors.name.message as string}
+                  </p>
                 )}
               </div>
-              <div className="flex gap-3 pt-2">
-                <button type="button" onClick={onClose} className="flex-1 btn-ghost cursor-pointer">
-                  {t('common.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  disabled={
-                    isSubmitting ||
-                    (activeTab === 'personal' && (usernameStatus === 'taken' || emailStatus === 'taken'))
-                  }
-                  className="flex-[1.5] btn-primary cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {isSubmitting && <LoadingSpinner size="sm" color="white" />}
-                  {activeTab === 'personal'
-                    ? t('common.save_changes')
-                    : t('profile.change_password')}
-                </button>
+              <div className="space-y-2">
+                <Label htmlFor="email">{t('common.email')}</Label>
+                <div className="relative">
+                  <Input
+                    id="email"
+                    {...register('email')}
+                    type="email"
+                    placeholder={t('common.email')}
+                    className={`pr-10 ${emailStatus === 'taken' ? 'border-destructive focus-visible:ring-destructive' : emailStatus === 'available' ? 'border-emerald-500 focus-visible:ring-emerald-500' : (errors.email && touchedFields.email ? 'border-destructive focus-visible:ring-destructive' : '')}`}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {emailStatus === 'checking' && (
+                      <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
+                    )}
+                    {emailStatus === 'available' && (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                    )}
+                    {emailStatus === 'taken' && (
+                      <AlertCircle className="h-4 w-4 text-destructive" />
+                    )}
+                  </div>
+                </div>
+                {emailStatus === 'checking' && (
+                  <p className="text-xs text-muted-foreground">
+                    {t('profile.email_checking')}
+                  </p>
+                )}
+                {emailStatus === 'available' && (
+                  <p className="text-xs text-emerald-500">
+                    {t('profile.email_available')}
+                  </p>
+                )}
+                {emailStatus === 'taken' && (
+                  <p className="text-xs text-destructive font-medium">
+                    {t('profile.email_taken')}
+                  </p>
+                )}
+                {errors.email && touchedFields.email && (
+                  <p className="text-xs text-destructive font-medium">
+                    {errors.email.message as string}
+                  </p>
+                )}
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="username">{t('common.username')}</Label>
+                <div className="relative">
+                  <Input
+                    id="username"
+                    {...register('username')}
+                    type="text"
+                    placeholder={t('common.username')}
+                    className={`pr-10 ${usernameStatus === 'taken' ? 'border-destructive focus-visible:ring-destructive' : usernameStatus === 'available' ? 'border-emerald-500 focus-visible:ring-emerald-500' : (errors.username && touchedFields.username ? 'border-destructive focus-visible:ring-destructive' : '')}`}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {usernameStatus === 'checking' && (
+                      <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
+                    )}
+                    {usernameStatus === 'available' && (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                    )}
+                    {usernameStatus === 'taken' && (
+                      <AlertCircle className="h-4 w-4 text-destructive" />
+                    )}
+                  </div>
+                </div>
+                {usernameStatus === 'checking' && (
+                  <p className="text-xs text-muted-foreground">
+                    {t('profile.username_checking')}
+                  </p>
+                )}
+                {usernameStatus === 'available' && (
+                  <p className="text-xs text-emerald-500">
+                    {t('profile.username_available')}
+                  </p>
+                )}
+                {usernameStatus === 'taken' && (
+                  <p className="text-xs text-destructive font-medium">
+                    {t('profile.username_taken')}
+                  </p>
+                )}
+                {usernameStatus === 'invalid' && (
+                  <p className="text-xs text-destructive font-medium">
+                    {t('profile.username_invalid')}
+                  </p>
+                )}
+                {errors.username && touchedFields.username && (
+                  <p className="text-xs text-destructive font-medium">
+                    {errors.username.message as string}
+                  </p>
+                )}
+              </div>
+              <DialogFooter className="pt-4">
+                <Button type="button" variant="outline" onClick={onClose}>
+                  {t('common.cancel')}
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <LoadingSpinner size="sm" className="text-primary-foreground" />
+                  ) : (
+                    t('common.save_changes')
+                  )}
+                </Button>
+              </DialogFooter>
             </form>
-          </>
-        )}
-      </div>
-    </div>
+          </TabsContent>
+          <TabsContent value="security" className="mt-4">
+            <form onSubmit={handleSubmit(onSaveProfile)} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="current_password">{t('profile.current_password')}</Label>
+                <Input
+                  id="current_password"
+                  {...register('current_password')}
+                  type="password"
+                  placeholder={t('profile.current_password')}
+                  className={errors.current_password && touchedFields.current_password ? 'border-destructive focus-visible:ring-destructive' : ''}
+                />
+                {errors.current_password && touchedFields.current_password && (
+                  <p className="text-xs text-destructive font-medium">
+                    {errors.current_password.message as string}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">{t('profile.new_password')}</Label>
+                <Input
+                  id="password"
+                  {...register('password')}
+                  type="password"
+                  placeholder={t('profile.new_password')}
+                  className={errors.password && touchedFields.password ? 'border-destructive focus-visible:ring-destructive' : ''}
+                />
+                {errors.password && touchedFields.password && (
+                  <p className="text-xs text-destructive font-medium">
+                    {errors.password.message as string}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">{t('profile.confirm_new_password')}</Label>
+                <Input
+                  id="confirmPassword"
+                  {...register('confirmPassword')}
+                  type="password"
+                  placeholder={t('profile.confirm_new_password')}
+                  className={errors.confirmPassword && touchedFields.confirmPassword ? 'border-destructive focus-visible:ring-destructive' : ''}
+                />
+                {errors.confirmPassword && touchedFields.confirmPassword && (
+                  <p className="text-xs text-destructive font-medium">
+                    {errors.confirmPassword.message as string}
+                  </p>
+                )}
+              </div>
+              <DialogFooter className="pt-4">
+                <Button type="button" variant="outline" onClick={onClose}>
+                  {t('common.cancel')}
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <LoadingSpinner size="sm" className="text-primary-foreground" />
+                  ) : (
+                    t('profile.change_password')
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
   );
 }

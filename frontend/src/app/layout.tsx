@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import NextTopLoader from 'nextjs-toploader';
 import './globals.css';
 import ClientProviders from '../components/ClientProviders';
+import ToastContainer from '../components/ui/ToastContainer'; // Import ToastContainer
+
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -11,10 +13,12 @@ const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
 });
+
 export const metadata: Metadata = {
   title: 'TaskFlow | Modern Task Management',
   description: 'Manage your tasks efficiently with a beautiful interface.',
 };
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,6 +32,7 @@ export default function RootLayout({
         <NextTopLoader color="#3a5fa3" height={3} showSpinner={false} />
         <ClientProviders>
           <div className="flex-grow flex flex-col">{children}</div>
+          <ToastContainer /> {/* Add ToastContainer here */}
         </ClientProviders>
       </body>
     </html>

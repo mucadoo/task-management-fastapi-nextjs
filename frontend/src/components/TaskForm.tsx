@@ -1,33 +1,50 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Task, TaskCreate } from '../types/task';
 import { useTranslation } from 'react-i18next';
-import { X, ChevronDown, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import ErrorMessage from './ui/ErrorMessage';
 import LoadingSpinner from './ui/LoadingSpinner';
 import { DateTimePicker } from './ui/DateTimePicker';
+import { useCreateTask, useUpdateTask } from '../hooks/useTasks';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from './ui/Dialog';
+import { Button } from './ui/Button';
+import { Input } from './ui/Input';
+import { Textarea } from './ui/Textarea';
+import { Label } from './ui/Label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/Select';
 
 interface TaskFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
   editingTask: Task | null;
-  onSubmit: (data: TaskCreate) => Promise<void>;
 }
 
 export default function TaskForm({
   isOpen,
   onClose,
-  onSuccess,
   editingTask,
-  onSubmit,
 }: TaskFormProps) {
   const { t } = useTranslation();
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const createTaskMutation = useCreateTask();
+  const updateTaskMutation = useUpdateTask();
+  
+  const isSubmitting = createTaskMutation.isPending || updateTaskMutation.isPending;
 
   const taskSchema = z.object({
     title: z.string().min(1, t('common.error_required', { field: t('common.title') })),
@@ -45,7 +62,7 @@ export default function TaskForm({
     watch,
     setValue,
     clearErrors,
-    formState: { errors, touchedFields },
+    formState: { errors },
     control,
   } = useForm<TaskCreate & { due_date: Date | null }>({
     resolver: zodResolver(taskSchema),
@@ -61,8 +78,6 @@ export default function TaskForm({
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      setError(null);
       clearErrors();
       if (editingTask) {
         reset({
@@ -83,122 +98,120 @@ export default function TaskForm({
           due_date_has_time: false,
         });
       }
-    } else {
-      document.body.style.overflow = 'unset';
     }
   }, [editingTask, isOpen, reset, clearErrors]);
 
-  if (!isOpen) return null;
-
   const onFormSubmit = async (data: any) => {
-    setIsSubmitting(true);
-    setError(null);
     try {
       let finalDueDate = data.due_date;
       if (finalDueDate) {
         finalDueDate = finalDueDate.toISOString();
       }
-      await onSubmit({
+      
+      const taskData = {
         ...data,
         title: data.title.trim(),
         description: data.description?.trim() || undefined,
         due_date: finalDueDate || undefined,
-      });
-      onSuccess();
+      };
+
+      if (editingTask) {
+        await updateTaskMutation.mutateAsync({ id: editingTask.id, data: taskData });
+      } else {
+        await createTaskMutation.mutateAsync(taskData);
+      }
       onClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'));
-    } finally {
-      setIsSubmitting(false);
+    } catch (err: any) {
+      // Error handled by the hooks via toasts
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="card-surface w-full max-w-md p-6 space-y-5">
-        <div className="flex justify-between items-center">
-          <div className="space-y-1">
-            <h2 className="text-lg font-bold text-warm-900 dark:text-white">
-              {editingTask ? t('tasks.edit_task') : t('tasks.new_task')}
-            </h2>
-            <div className="rule-brand" />
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-warm-100 dark:hover:bg-warm-900 rounded-lg transition-colors cursor-pointer"
-          >
-            <X className="h-5 w-5 text-warm-500" />
-          </button>
-        </div>
-        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
-          {error && <ErrorMessage message={error} />}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-              {t('common.title')} <span className="text-red-500">*</span>
-            </label>
-            <input
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            {editingTask ? t('tasks.edit_task') : t('tasks.new_task')}
+          </DialogTitle>
+          <div className="rule-brand w-8 h-1" />
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">
+              {t('common.title')} <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="title"
               {...register('title')}
-              type="text"
-              className={`input-base ${errors.title && touchedFields.title ? 'border-red-500 focus:border-red-500' : ''}`}
               placeholder={t('tasks.placeholder_title')}
               disabled={isSubmitting}
+              className={errors.title ? 'border-destructive focus-visible:ring-destructive' : ''}
             />
-            {errors.title && touchedFields.title && (
-              <p className="text-xs text-red-500 ml-1 mt-1">{errors.title.message as string}</p>
+            {errors.title && (
+              <p className="text-xs text-destructive font-medium">{errors.title.message as string}</p>
             )}
           </div>
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-              {t('tasks.description')}
-            </label>
-            <textarea
+          <div className="space-y-2">
+            <Label htmlFor="description">{t('tasks.description')}</Label>
+            <Textarea
+              id="description"
               {...register('description')}
               rows={3}
-              className="input-base py-2.5 resize-none"
+              className="resize-none"
               placeholder={t('tasks.placeholder_description')}
               disabled={isSubmitting}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                {t('tasks.status')}
-              </label>
-              <div className="relative">
-                <select
-                  {...register('status')}
-                  className="input-base appearance-none pr-10 cursor-pointer"
-                  disabled={isSubmitting}
-                >
-                  <option value="pending">{t('tasks.pending')}</option>
-                  <option value="in_progress">{t('tasks.in_progress')}</option>
-                  <option value="completed">{t('tasks.completed')}</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="status">{t('tasks.status')}</Label>
+              <Controller
+                control={control}
+                name="status"
+                render={({ field }) => (
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    disabled={isSubmitting}
+                  >
+                    <SelectTrigger id="status">
+                      <SelectValue placeholder={t('tasks.status')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">{t('tasks.pending')}</SelectItem>
+                      <SelectItem value="in_progress">{t('tasks.in_progress')}</SelectItem>
+                      <SelectItem value="completed">{t('tasks.completed')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-                {t('tasks.priority')}
-              </label>
-              <div className="relative">
-                <select
-                  {...register('priority')}
-                  className="input-base appearance-none pr-10 cursor-pointer"
-                  disabled={isSubmitting}
-                >
-                  <option value="low">{t('tasks.low')}</option>
-                  <option value="medium">{t('tasks.medium')}</option>
-                  <option value="high">{t('tasks.high')}</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="priority">{t('tasks.priority')}</Label>
+              <Controller
+                control={control}
+                name="priority"
+                render={({ field }) => (
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    disabled={isSubmitting}
+                  >
+                    <SelectTrigger id="priority">
+                      <SelectValue placeholder={t('tasks.priority')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">{t('tasks.low')}</SelectItem>
+                      <SelectItem value="medium">{t('tasks.medium')}</SelectItem>
+                      <SelectItem value="high">{t('tasks.high')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
           </div>
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-warm-500 ml-1">
-              {t('tasks.due_date')}
-            </label>
+          <div className="space-y-2">
+            <Label>{t('tasks.due_date')}</Label>
             <Controller
               control={control}
               name="due_date"
@@ -212,30 +225,32 @@ export default function TaskForm({
               )}
             />
           </div>
-          <div className="flex gap-3 pt-3">
-            <button
+          <DialogFooter className="pt-4">
+            <Button
               type="button"
+              variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 btn-ghost cursor-pointer"
             >
               {t('common.cancel')}
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={isSubmitting}
-              className="flex-[1.5] btn-primary cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="min-w-[120px]"
             >
               {isSubmitting ? (
-                <LoadingSpinner size="sm" color="white" />
+                <LoadingSpinner size="sm" className="text-primary-foreground" />
               ) : (
-                <Save className="h-4 w-4" />
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  {editingTask ? t('tasks.edit_task') : t('tasks.create_task')}
+                </>
               )}
-              {editingTask ? t('tasks.edit_task') : t('tasks.create_task')}
-            </button>
-          </div>
+            </Button>
+          </DialogFooter>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
