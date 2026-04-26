@@ -2,6 +2,7 @@
 import { useTranslation } from 'react-i18next';
 import { User as UserIcon, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
+import { Avatar } from './ui/Avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,16 +24,16 @@ export default function UserMenu({ onProfileOpen }: UserMenuProps) {
     logout();
   };
 
-  const userInitial =
-    user?.name?.charAt(0) || user?.username?.charAt(0) || user?.email?.charAt(0) || 'U';
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-warm-100 dark:hover:bg-white/5 transition-colors group">
-          <div className="w-8 h-8 flex items-center justify-center bg-brand-500 text-white font-bold rounded-lg shadow-sm group-hover:scale-105 transition-transform">
-            {userInitial.toUpperCase()}
-          </div>
+          <Avatar 
+            name={user?.name} 
+            username={user?.username} 
+            email={user?.email} 
+            className="group-hover:scale-105 transition-transform" 
+          />
           <div className="hidden sm:flex flex-col items-start text-left">
             <span className="text-xs font-bold text-warm-900 dark:text-gray-100 leading-none">
               {user?.name || t('common.user')}
