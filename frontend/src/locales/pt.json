@@ -11,6 +11,8 @@
     "edit": "Editar",
     "logout": "Sair",
     "profile": "Perfil",
+    "user": "Usuário",
+    "account": "Conta",
     "back": "Voltar",
     "title": "Título",
     "name": "Nome",
@@ -21,7 +23,10 @@
     "light_mode": "Modo Claro",
     "dark_mode": "Modo Escuro",
     "switch_portuguese": "Mudar para Português",
-    "switch_english": "Mudar para Inglês"
+    "switch_english": "Mudar para Inglês",
+    "select_language": "Selecionar Idioma",
+    "english": "Inglês",
+    "portuguese": "Português"
   },
   "auth": {
     "login": "Entrar",

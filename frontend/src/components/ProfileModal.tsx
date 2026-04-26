@@ -11,11 +11,12 @@ interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLogout: () => void;
+  initialTab?: 'personal' | 'security';
 }
 
-export default function ProfileModal({ isOpen, onClose, onLogout }: ProfileModalProps) {
+export default function ProfileModal({ isOpen, onClose, onLogout, initialTab = 'personal' }: ProfileModalProps) {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<'personal' | 'security'>('personal');
+  const [activeTab, setActiveTab] = useState<'personal' | 'security'>(initialTab);
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +35,7 @@ export default function ProfileModal({ isOpen, onClose, onLogout }: ProfileModal
 
   useEffect(() => {
     if (isOpen) {
+      setActiveTab(initialTab);
       setIsLoading(true);
       api.getMe()
         .then(setUser)

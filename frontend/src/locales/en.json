@@ -11,6 +11,8 @@
     "edit": "Edit",
     "logout": "Logout",
     "profile": "Profile",
+    "user": "User",
+    "account": "Account",
     "back": "Back",
     "title": "Title",
     "name": "Name",
@@ -21,7 +23,10 @@
     "light_mode": "Light Mode",
     "dark_mode": "Dark Mode",
     "switch_portuguese": "Switch to Portuguese",
-    "switch_english": "Switch to English"
+    "switch_english": "Switch to English",
+    "select_language": "Select Language",
+    "english": "English",
+    "portuguese": "Portuguese"
   },
   "auth": {
     "login": "Login",

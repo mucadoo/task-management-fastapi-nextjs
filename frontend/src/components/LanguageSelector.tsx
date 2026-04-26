@@ -1,30 +1,49 @@
 'use client';
 
 import { useTranslation } from 'react-i18next';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/Tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/DropdownMenu';
+import { Languages } from 'lucide-react';
+import { TooltipSimple } from './ui/Tooltip';
 
 export default function LanguageSelector() {
   const { i18n, t } = useTranslation();
 
-  const toggleLanguage = () => {
-    const newLang = i18n.language.startsWith('en') ? 'pt' : 'en';
-    i18n.changeLanguage(newLang);
-  };
+  const languages = [
+    { code: 'en', name: t('common.english'), label: 'EN' },
+    { code: 'pt', name: t('common.portuguese'), label: 'PT' },
+  ];
+
+  const currentLanguage = languages.find(lang => i18n.language.startsWith(lang.code)) || languages[0];
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          onClick={toggleLanguage}
-          className="h-9 px-2.5 rounded-lg border border-warm-200 dark:border-warm-700 hover:bg-warm-100 dark:hover:bg-warm-900 text-xs font-bold tracking-widest uppercase text-warm-700 dark:text-warm-300 focus:outline-none focus:ring-2 focus:ring-brand-700/20 transition-all duration-150 shadow-sm cursor-pointer"
-          aria-label="Toggle language"
-        >
-          {i18n.language.startsWith('en') ? 'PT' : 'EN'}
-        </button>
-      </TooltipTrigger>
-      <TooltipContent side="bottom">
-        {i18n.language.startsWith('en') ? t('common.switch_portuguese') : t('common.switch_english')}
-      </TooltipContent>
-    </Tooltip>
+    <DropdownMenu>
+      <TooltipSimple content={t('common.select_language')} side="bottom">
+        <DropdownMenuTrigger asChild>
+          <button
+            className="h-9 px-2.5 flex items-center gap-2 rounded-lg border border-warm-200 dark:border-white/10 hover:bg-warm-100 dark:hover:bg-white/5 text-xs font-bold tracking-widest uppercase text-warm-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all duration-150 shadow-sm cursor-pointer"
+            aria-label={t('common.select_language')}
+          >
+            <Languages className="h-4 w-4" />
+            <span>{currentLanguage.label}</span>
+          </button>
+        </DropdownMenuTrigger>
+      </TooltipSimple>
+      <DropdownMenuContent align="end">
+        {languages.map((lang) => (
+          <DropdownMenuItem
+            key={lang.code}
+            onClick={() => i18n.changeLanguage(lang.code)}
+            className={i18n.language.startsWith(lang.code) ? 'bg-warm-50 dark:bg-white/5 font-semibold' : ''}
+          >
+            {lang.name}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

@@ -11,7 +11,7 @@ export default async function TasksPage() {
     redirect("/login");
   }
   try {
-    const initialData = await api.getTasks({ page: 1, page_size: 10, token });
+    const initialData = await api.getTasks({ page: 1, page_size: 24, token });
     return (
       <main className="min-h-screen">
         <TaskBoard initialData={initialData} />

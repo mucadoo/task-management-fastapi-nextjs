@@ -13,8 +13,9 @@ import ConfirmDialog from "./ui/ConfirmDialog";
 import LanguageSelector from "./LanguageSelector";
 import ThemeToggle from "./ThemeToggle";
 import ProfileModal from "./ProfileModal";
+import UserMenu from "./UserMenu";
 import { useTranslation } from "react-i18next";
-import { Plus, Search, LayoutGrid, List, Clock, AlertCircle, CheckSquare as CheckSquareIcon, ChevronDown, LogOut } from "lucide-react";
+import { Plus, Search, LayoutGrid, List, Clock, AlertCircle, CheckSquare as CheckSquareIcon, ChevronDown } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipSimple } from "./ui/Tooltip";
 
 interface TaskBoardProps {
@@ -32,6 +33,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
   const [error, setError] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [profileTab, setProfileTab] = useState<'personal' | 'security'>('personal');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
@@ -166,25 +168,13 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
         </div>
         <div className="flex-grow" />
         <div className="flex items-center gap-2">
-          <button onClick={() => setIsProfileOpen(true)} className="h-9 px-3 text-xs font-semibold text-warm-700 dark:text-gray-300 border border-warm-200 dark:border-white/10 rounded-lg hover:bg-warm-100 dark:hover:bg-white/5 transition-colors cursor-pointer">
-            {t('common.profile')}
-          </button>
           <LanguageSelector />
           <ThemeToggle />
           <div className="w-px h-4 bg-warm-200 dark:bg-white/10 mx-1" />
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button 
-                onClick={handleLogout}
-                className="p-2 text-warm-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all active:scale-95 cursor-pointer"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              {t('common.logout')}
-            </TooltipContent>
-          </Tooltip>
+          <UserMenu 
+            onProfileOpen={(tab) => { setProfileTab(tab); setIsProfileOpen(true); }} 
+            onLogout={handleLogout} 
+          />
         </div>
       </div>
 
@@ -301,7 +291,12 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
 
         <TaskForm isOpen={isFormOpen} onClose={() => { setIsFormOpen(false); setEditingTask(null); }} onSuccess={refetch} editingTask={editingTask} onSubmit={editingTask ? handleUpdateTask : handleCreateTask} />
         <ConfirmDialog isOpen={deletingId !== null} message={t('tasks.confirm_delete')} onConfirm={handleDeleteConfirm} onCancel={() => setDeletingId(null)} isLoading={isLoading} />
-        <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} onLogout={handleLogout} />
+        <ProfileModal 
+          isOpen={isProfileOpen} 
+          onClose={() => setIsProfileOpen(false)} 
+          onLogout={handleLogout} 
+          initialTab={profileTab}
+        />
       </main>
     </div>
   );
