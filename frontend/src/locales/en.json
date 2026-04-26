@@ -18,6 +18,7 @@
     "name": "Name",
     "email": "Email",
     "save_changes": "Save Changes",
+    "username": "Username",
     "copyright": "TaskFlow Scholarly",
     "confirm_action": "Confirm Action",
     "light_mode": "Light Mode",
@@ -88,6 +89,10 @@
     "confirm_new_password": "Confirm New Password",
     "update_info": "Update Information",
     "change_password": "Change Password",
+    "username_available": "Username is available",
+    "username_taken": "Username is already taken",
+    "username_checking": "Checking availability...",
+    "username_invalid": "Username must be at least 3 characters and contain only letters and underscores",
     "update_success": "Profile information updated successfully!",
     "password_success": "Password updated successfully!"
   }

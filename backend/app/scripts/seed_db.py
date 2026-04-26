@@ -10,7 +10,7 @@ from app.models.user import User
 from app.models.task import Task, TaskStatus, TaskPriority
 from app.services import auth_service
 
-fake = Faker()
+fake = Faker('pt_BR')
 
 def seed_db():
     print(f"Using database: {engine.url}")
@@ -18,27 +18,18 @@ def seed_db():
     try:
         print("Seeding users...")
         default_users = [
-            ("Developer", "dev@example.com", "password123"),
-            ("Tester", "tester@example.com", "password123"),
-            ("Manager", "manager@example.com", "password123"),
+            ("Desenvolvedor", "dev@exemplo.com", "dev", "senha123"),
+            ("Testador", "tester@exemplo.com", "tester", "senha123"),
+            ("Gerente", "gerente@exemplo.com", "gerente", "senha123"),
         ]
         
-        for name, email, password in default_users:
+        for name, email, username, password in default_users:
             if not db.query(User).filter(User.email == email).first():
                 user = User(
                     name=name,
                     email=email,
+                    username=username,
                     hashed_password=auth_service.hash_password(password)
-                )
-                db.add(user)
-        
-        for _ in range(2):
-            email = fake.email()
-            if not db.query(User).filter(User.email == email).first():
-                user = User(
-                    name=fake.name(),
-                    email=email,
-                    hashed_password=auth_service.hash_password("password123")
                 )
                 db.add(user)
         
@@ -47,13 +38,20 @@ def seed_db():
         print(f"Total users: {db.query(User).count()}")
         
         print("Seeding tasks...")
+        pt_task_words = [
+            "Implementar", "Corrigir", "Revisar", "Testar", "Documentar", "Refatorar", "Otimizar", "Atualizar", 
+            "Configurar", "Lançar", "funcionalidade", "bug", "erro", "interface", "banco de dados", "API", 
+            "frontend", "backend", "sistema", "usuário", "segurança", "performance", "componente", "módulo", 
+            "script", "design", "layout", "estilo", "código", "requisito", "projeto", "tarefa", "ajuste", "melhoria"
+        ]
+        
         all_users = db.query(User).all()
         for user in all_users:
-            num_tasks = random.randint(10, 15)
+            num_tasks = random.randint(20, 30)
             for _ in range(num_tasks):
                 task = Task(
-                    title=fake.sentence(nb_words=4),
-                    description=fake.paragraph(nb_sentences=2),
+                    title=fake.sentence(nb_words=random.randint(3, 5), ext_word_list=pt_task_words).rstrip('.'),
+                    description=fake.paragraph(nb_sentences=2, ext_word_list=pt_task_words) if random.random() > 0.2 else None,
                     status=random.choice(list(TaskStatus)),
                     priority=random.choice(list(TaskPriority)),
                     owner_id=user.id,

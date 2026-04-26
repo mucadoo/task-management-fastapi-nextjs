@@ -59,13 +59,26 @@ def update_me(
     hashed_password = None
     if user_update.password:
         hashed_password = auth_service.hash_password(user_update.password)
+    
     if user_update.email and user_update.email != current_user.email:
         if user_repository.get_by_email(db, user_update.email):
             raise HTTPException(status_code=409, detail="Email already registered")
+            
+    if user_update.username and user_update.username != current_user.username:
+        if user_repository.get_by_username(db, user_update.username):
+            raise HTTPException(status_code=409, detail="Username already taken")
+            
     return user_repository.update(
         db,
         current_user,
         name=user_update.name,
         email=user_update.email,
+        username=user_update.username,
         hashed_password=hashed_password
     )
+
+@router.get("/check-username")
+def check_username(username: str, db: Session = Depends(get_db)):
+    username = username.lower()
+    user = user_repository.get_by_username(db, username)
+    return {"available": user is None}

@@ -3,7 +3,7 @@ import { useState, useCallback, useEffect } from "react";
 import { PaginatedResponse, Task, TaskCreate, TaskStatus, TaskPriority } from "../types/task";
 import { api } from "../lib/api";
 import { useRouter } from "next/navigation";
-import { useDebounce } from "../hooks/useDebounce";
+import { useDebounce } from "use-debounce";
 import TaskCard from "./TaskCard";
 import TaskForm from "./TaskForm";
 import TaskSkeleton from "./ui/TaskSkeleton";
@@ -37,7 +37,7 @@ export default function TaskBoard({ initialData }: TaskBoardProps) {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
   const router = useRouter();
 
   const handleLogout = () => {

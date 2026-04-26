@@ -13,12 +13,14 @@ def upgrade() -> None:
         'users',
         sa.Column('id', sa.UUID(), nullable=False),
         sa.Column('email', sa.String(length=255), nullable=False),
+        sa.Column('username', sa.String(length=255), nullable=True),
         sa.Column('name', sa.String(length=255), nullable=True),
         sa.Column('hashed_password', sa.String(length=255), nullable=False),
         sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
+    op.create_index(op.f('ix_users_username'), 'users', ['username'], unique=True)
     
     op.create_table(
         'tasks',
@@ -55,4 +57,5 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_tasks_id'), table_name='tasks')
     op.drop_table('tasks')
     op.drop_index(op.f('ix_users_email'), table_name='users')
+    op.drop_index(op.f('ix_users_username'), table_name='users')
     op.drop_table('users')

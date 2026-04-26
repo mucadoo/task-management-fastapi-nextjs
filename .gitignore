@@ -30,3 +30,20 @@ build/
 Thumbs.db
 *.db
 /.junie/
+
+# Testing and coverage
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+.tox/
+.nox/
+.hypothesis/
+
+# Linting and Type Checking
+.mypy_cache/
+.ruff_cache/
+.pyre/

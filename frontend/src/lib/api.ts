@@ -161,11 +161,15 @@ export const api = {
     return request<User>("/auth/me", { token });
   },
 
-  async updateMe(data: { email?: string; name?: string; password?: string }): Promise<User> {
+  async updateMe(data: { email?: string; name?: string; username?: string; password?: string }): Promise<User> {
     return request<User>("/auth/me", {
       method: "PATCH",
       body: JSON.stringify(data),
     });
+  },
+
+  async checkUsername(username: string): Promise<{ available: boolean }> {
+    return request<{ available: boolean }>(`/auth/check-username?username=${encodeURIComponent(username)}`);
   },
 
   logout() {

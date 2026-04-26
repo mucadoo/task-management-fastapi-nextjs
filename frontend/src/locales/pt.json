@@ -18,6 +18,7 @@
     "name": "Nome",
     "email": "E-mail",
     "save_changes": "Salvar Alterações",
+    "username": "Nome de usuário",
     "copyright": "TaskFlow Scholarly",
     "confirm_action": "Confirmar Ação",
     "light_mode": "Modo Claro",
@@ -88,6 +89,10 @@
     "confirm_new_password": "Confirmar Nova Senha",
     "update_info": "Atualizar Informações",
     "change_password": "Alterar Senha",
+    "username_available": "Nome de usuário disponível",
+    "username_taken": "Nome de usuário já está em uso",
+    "username_checking": "Verificando disponibilidade...",
+    "username_invalid": "O nome de usuário deve ter pelo menos 3 caracteres e conter apenas letras e sublinhados",
     "update_success": "Informações do perfil atualizadas com sucesso!",
     "password_success": "Senha atualizada com sucesso!"
   }

@@ -15,7 +15,7 @@ export default function LoadingSpinner({ size = 'md', className }: LoadingSpinne
   const colorClass = className || 'text-blue-600 dark:text-blue-400';
 
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex justify-center items-center" data-testid="loading-spinner">
       <svg
         className={`animate-spin ${sizeClasses[size]} ${colorClass}`}
         xmlns="http://www.w3.org/2000/svg"

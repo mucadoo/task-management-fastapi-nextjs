@@ -1,9 +1,20 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Task, TaskCreate, TaskStatus, TaskPriority } from "../types/task";
 import { useTranslation } from "react-i18next";
-import { X, Save, AlertCircle, ChevronDown } from "lucide-react";
+import { X, Save, ChevronDown } from "lucide-react";
 import LoadingSpinner from "./ui/LoadingSpinner";
+import ErrorMessage from "./ui/ErrorMessage";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const taskSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  status: z.enum(["pending", "in_progress", "completed"]),
+  priority: z.enum(["low", "medium", "high"]),
+});
 
 interface TaskFormProps {
   isOpen: boolean;
@@ -21,55 +32,58 @@ export default function TaskForm({
   onSubmit,
 }: TaskFormProps) {
   const { t } = useTranslation();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [status, setStatus] = useState<TaskStatus>("pending");
-  const [priority, setPriority] = useState<TaskPriority>("medium");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<TaskCreate>({
+    resolver: zodResolver(taskSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      status: "pending",
+      priority: "medium",
+    },
+  });
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      if (editingTask) {
+        reset({
+          title: editingTask.title,
+          description: editingTask.description || "",
+          status: editingTask.status,
+          priority: editingTask.priority,
+        });
+      } else {
+        reset({
+          title: "",
+          description: "",
+          status: "pending",
+          priority: "medium",
+        });
+      }
     } else {
       document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (editingTask) {
-      setTitle(editingTask.title);
-      setDescription(editingTask.description || "");
-      setStatus(editingTask.status);
-      setPriority(editingTask.priority);
-    } else {
-      setTitle("");
-      setDescription("");
-      setStatus("pending");
-      setPriority("medium");
     }
     setError(null);
-  }, [editingTask, isOpen]);
+  }, [editingTask, isOpen, reset]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim()) {
-      setError(t('common.error_required', { field: 'Title' }));
-      return;
-    }
+  const onFormSubmit = async (data: TaskCreate) => {
     setIsSubmitting(true);
     setError(null);
     try {
       await onSubmit({
-        title: title.trim(),
-        description: description.trim() || undefined,
-        status,
-        priority,
+        ...data,
+        title: data.title.trim(),
+        description: data.description?.trim() || undefined,
       });
       onSuccess();
       onClose();
@@ -90,31 +104,26 @@ export default function TaskForm({
             </h2>
             <div className="rule-brand" />
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-warm-100 dark:hover:bg-warm-900 rounded-lg transition-colors">
+          <button onClick={onClose} className="p-2 hover:bg-warm-100 dark:hover:bg-warm-900 rounded-lg transition-colors cursor-pointer">
             <X className="h-5 w-5 text-warm-500" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 rounded-lg text-xs font-medium border border-red-100 dark:border-red-900/20">
-              <AlertCircle className="h-4 w-4 shrink-0" />
-              <p>{error}</p>
-            </div>
-          )}
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
+          {error && <ErrorMessage message={error} />}
 
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold text-warm-600 dark:text-warm-400 ml-0.5">
               {t('common.title')} <span className="text-red-500">*</span>
             </label>
             <input
+              {...register('title')}
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="input-base"
+              className={`input-base ${errors.title ? 'border-red-500 focus:border-red-500' : ''}`}
               placeholder={t('tasks.placeholder_title')}
               disabled={isSubmitting}
             />
+            {errors.title && <p className="text-[10px] text-red-500 ml-1">{errors.title.message as string}</p>}
           </div>
 
           <div className="space-y-1.5">
@@ -122,8 +131,7 @@ export default function TaskForm({
               {t('tasks.description')}
             </label>
             <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              {...register('description')}
               rows={3}
               className="input-base py-2.5 resize-none"
               placeholder={t('tasks.placeholder_description')}
@@ -138,8 +146,7 @@ export default function TaskForm({
               </label>
               <div className="relative">
                 <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as TaskStatus)}
+                  {...register('status')}
                   className="input-base appearance-none pr-10 cursor-pointer"
                   disabled={isSubmitting}
                 >
@@ -157,8 +164,7 @@ export default function TaskForm({
               </label>
               <div className="relative">
                 <select
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value as TaskPriority)}
+                  {...register('priority')}
                   className="input-base appearance-none pr-10 cursor-pointer"
                   disabled={isSubmitting}
                 >
@@ -176,17 +182,17 @@ export default function TaskForm({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 btn-ghost"
+              className="flex-1 btn-ghost cursor-pointer"
             >
               {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-[1.5] btn-primary"
+              className="flex-[1.5] btn-primary cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
-                <LoadingSpinner size="sm" className="text-white" />
+                <LoadingSpinner size="sm" color="white" />
               ) : <Save className="h-4 w-4" />}
               {editingTask ? t('tasks.edit_task') : t('tasks.create_task')}
             </button>

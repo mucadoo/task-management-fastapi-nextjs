@@ -46,6 +46,7 @@ export default function TaskCard({
             <button 
               onClick={() => onToggle(task.id)}
               disabled={isToggling || isDeleting}
+              aria-label={t('tasks.click_to_toggle')}
               className="flex-shrink-0 focus:outline-none group/status cursor-pointer"
             >
               <div className={`p-1 rounded-sm transition-colors ${isCompleted ? 'text-emerald-600' : 'text-warm-400 group-hover/status:text-brand-500'}`}>
@@ -87,6 +88,7 @@ export default function TaskCard({
               <button
                 onClick={() => onEdit(task)}
                 disabled={isDeleting}
+                aria-label={t('common.edit')}
                 className="p-1.5 text-warm-500 dark:text-gray-400 hover:text-brand-500 dark:hover:text-white hover:bg-warm-100 dark:hover:bg-white/5 rounded-lg transition-all active:scale-95 cursor-pointer"
               >
                 <Pencil className="h-3.5 w-3.5" />
@@ -102,6 +104,7 @@ export default function TaskCard({
               <button
                 onClick={() => onDelete(task.id)}
                 disabled={isDeleting}
+                aria-label={t('common.delete')}
                 className="p-1.5 text-warm-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all active:scale-95 cursor-pointer"
               >
                 {isDeleting ? <LoadingSpinner size="sm" /> : <Trash2 className="h-3.5 w-3.5" />}
@@ -127,6 +130,7 @@ export default function TaskCard({
               <button 
                 onClick={() => onToggle(task.id)}
                 disabled={isToggling || isDeleting}
+                aria-label={t('tasks.click_to_toggle')}
                 className="flex items-center gap-2 focus:outline-none group/status cursor-pointer"
               >
                 <div className={`p-0.5 rounded-sm transition-colors ${isCompleted ? 'text-emerald-600' : 'text-warm-400 group-hover/status:text-brand-500'}`}>
@@ -165,6 +169,7 @@ export default function TaskCard({
             <button
               onClick={() => onEdit(task)}
               disabled={isDeleting}
+              aria-label={t('common.edit')}
               className="p-2 text-warm-500 dark:text-gray-400 hover:text-brand-500 dark:hover:text-white hover:bg-warm-100 dark:hover:bg-white/5 rounded-lg transition-all active:scale-95 cursor-pointer"
             >
               <Pencil className="h-4 w-4" />
@@ -180,6 +185,7 @@ export default function TaskCard({
             <button
               onClick={() => onDelete(task.id)}
               disabled={isDeleting}
+              aria-label={t('common.delete')}
               className="p-2 text-warm-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all active:scale-95 cursor-pointer"
             >
               {isDeleting ? <LoadingSpinner size="sm" /> : <Trash2 className="h-4 w-4" />}

@@ -8,17 +8,23 @@ def get_by_id(db: Session, user_id: uuid.UUID) -> Optional[User]:
 
 def get_by_email(db: Session, email: str) -> Optional[User]:
     return db.query(User).filter(User.email == email).first()
-def create(db: Session, email: str, hashed_password: str, name: Optional[str] = None) -> User:
-    db_user = User(email=email, hashed_password=hashed_password, name=name)
+
+def get_by_username(db: Session, username: str) -> Optional[User]:
+    return db.query(User).filter(User.username == username).first()
+
+def create(db: Session, email: str, hashed_password: str, name: Optional[str] = None, username: Optional[str] = None) -> User:
+    db_user = User(email=email, hashed_password=hashed_password, name=name, username=username)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
-def update(db: Session, user: User, name: Optional[str] = None, email: Optional[str] = None, hashed_password: Optional[str] = None) -> User:
+def update(db: Session, user: User, name: Optional[str] = None, email: Optional[str] = None, hashed_password: Optional[str] = None, username: Optional[str] = None) -> User:
     if name is not None:
         user.name = name
     if email is not None:
         user.email = email
+    if username is not None:
+        user.username = username
     if hashed_password is not None:
         user.hashed_password = hashed_password
     db.commit()
