@@ -1,9 +1,15 @@
-import { request } from '../lib/api-client';
-import { tokenManager } from '../lib/token';
-import { TokenResponse, User } from '../types/auth';
+import { request } from '@/lib/api-client';
+import { tokenManager } from '@/lib/token';
+import { 
+  TokenResponse, 
+  User, 
+  LoginData, 
+  RegisterData, 
+  UpdateMeData 
+} from '@/types/auth';
 
 export const authService = {
-  login: async (data: any) => {
+  login: async (data: LoginData) => {
     const res = await request<TokenResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -12,7 +18,7 @@ export const authService = {
     return res;
   },
 
-  register: async (data: any) => {
+  register: async (data: RegisterData) => {
     const res = await request<TokenResponse>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -33,13 +39,7 @@ export const authService = {
 
   getMe: (token?: string) => request<User>('/auth/me', { token }),
 
-  updateMe: (data: {
-    email?: string;
-    name?: string;
-    username?: string;
-    password?: string;
-    current_password?: string;
-  }) =>
+  updateMe: (data: UpdateMeData) =>
     request<User>('/auth/me', {
       method: 'PATCH',
       body: JSON.stringify(data),

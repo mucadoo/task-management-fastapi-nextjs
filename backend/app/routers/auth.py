@@ -53,7 +53,7 @@ def register(
     if user_data.username and user_repo.get_by_username(user_data.username):
         raise HTTPException(status_code=409, detail="Username already taken")
     hashed = auth_service.hash_password(user_data.password)
-    user = user_repo.create(
+    user = user_repo.create_user(
         user_data.email, hashed, user_data.name, user_data.username
     )
     return create_user_tokens(user, auth_repo, user_repo)
@@ -104,8 +104,9 @@ def update_me(
     current_user: CurrentUser,
     user_repo: UserRepo,
 ):
-    hashed_password = None
-    if user_update.password:
+    update_data = user_update.model_dump(exclude_unset=True)
+    
+    if "password" in update_data:
         if not user_update.current_password:
             raise HTTPException(
                 status_code=400,
@@ -115,20 +116,19 @@ def update_me(
             user_update.current_password, current_user.hashed_password
         ):
             raise HTTPException(status_code=401, detail="Incorrect current password")
-        hashed_password = auth_service.hash_password(user_update.password)
+        
+        update_data["hashed_password"] = auth_service.hash_password(update_data.pop("password"))
+        update_data.pop("current_password", None)
+
     if user_update.email and user_update.email != current_user.email:
         if user_repo.get_by_email(user_update.email):
             raise HTTPException(status_code=409, detail="Email already registered")
+            
     if user_update.username and user_update.username != current_user.username:
         if user_repo.get_by_username(user_update.username):
             raise HTTPException(status_code=409, detail="Username already taken")
-    return user_repo.update(
-        current_user,
-        name=user_update.name,
-        email=user_update.email,
-        username=user_update.username,
-        hashed_password=hashed_password,
-    )
+            
+    return user_repo.update_user(current_user, update_data)
 
 
 @router.get("/check-username")

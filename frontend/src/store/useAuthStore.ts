@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User } from '@/types/auth';
+import { User, LoginData, RegisterData, UpdateMeData } from '@/types/auth';
 import { authService } from '@/services/auth-service';
 import { tokenManager } from '@/lib/token';
 import { useToastStore } from '@/store/useToastStore';
@@ -11,11 +11,11 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   setUser: (user: User | null) => void;
-  login: (data: any) => Promise<void>;
-  register: (data: any) => Promise<void>;
+  login: (data: LoginData) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
   logout: () => void;
   fetchMe: (force?: boolean) => Promise<void>;
-  updateMe: (data: any) => Promise<void>;
+  updateMe: (data: UpdateMeData) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
