@@ -77,11 +77,10 @@ const TaskCard = memo(function TaskCard({
   const accentColor = (() => {
     if (isCompleted) return 'bg-emerald-500';
     if (isOverdue) return 'bg-red-600';
+    if (task.priority === 'high') return 'bg-red-500';
     if (isDueToday) return 'bg-amber-500';
 
     switch (task.priority) {
-      case 'high':
-        return 'bg-red-500';
       case 'medium':
         return 'bg-amber-500';
       case 'low':
@@ -358,7 +357,7 @@ const TaskCard = memo(function TaskCard({
                 )}
                 {isDueToday && (
                   <span className="text-[8px] bg-amber-100 dark:bg-amber-900/40 px-1 py-0 rounded uppercase">
-                    {t('tasks.today')}
+                    {t('today')}
                   </span>
                 )}
               </div>
