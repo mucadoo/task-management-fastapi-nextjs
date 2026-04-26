@@ -2,22 +2,22 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { api } from '../../lib/api';
+import { authService } from '@/services/auth-service';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import LanguageSelector from '../../components/LanguageSelector';
-import ThemeToggle from '../../components/ThemeToggle';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import { useAuthStore } from '../../store/useAuthStore';
+import LanguageSelector from '@/components/LanguageSelector';
+import ThemeToggle from '@/components/ThemeToggle';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { useAuthStore } from '@/store/useAuthStore';
 import { Mail, Lock, User, ArrowRight, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
-import { getRegisterSchema } from '../../lib/validations';
+import { getRegisterSchema } from '@/lib/validations';
 import * as z from 'zod';
-import { cn } from '../../lib/utils';
-import { useAuth } from '../../hooks/useAuth';
-import { FormControl } from '../../components/ui/FormControl';
-import AuthSidebar from '../../components/AuthSidebar';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
+import { FormControl } from '@/components/ui/FormControl';
+import AuthSidebar from '@/components/AuthSidebar';
 
 type RegisterForm = z.infer<ReturnType<typeof getRegisterSchema>>;
 
@@ -55,7 +55,7 @@ export default function RegisterPage() {
       }
       setEmailStatus('checking');
       try {
-        const { available } = await api.checkEmail(debouncedEmail);
+        const { available } = await authService.checkEmail(debouncedEmail);
         setEmailStatus(available ? 'available' : 'taken');
       } catch {
         setEmailStatus('idle');
