@@ -9,13 +9,13 @@ export async function onMutateListUpdate<T>(
   queryKey: any[],
   updateFn: (page: PaginatedResponse<T>) => PaginatedResponse<T>,
 ) {
-  // Cancel any outgoing refetches
+  
   await queryClient.cancelQueries({ queryKey });
 
-  // Snapshot previous value
+  
   const previousQueries = queryClient.getQueriesData({ queryKey });
 
-  // Optimistically update all list queries
+  
   queryClient.setQueriesData({ queryKey }, (old: any) => {
     if (!old) return old;
     return {

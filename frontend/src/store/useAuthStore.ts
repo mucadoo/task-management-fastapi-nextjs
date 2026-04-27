@@ -81,7 +81,7 @@ export const useAuthStore = create<AuthState>()(
           return;
         }
 
-        // Skip if we already have a user and aren't forcing a refresh
+        
         if (get().user && !force) return;
 
         set({ isInitializing: true });
@@ -89,7 +89,7 @@ export const useAuthStore = create<AuthState>()(
           const user = await authService.getMe();
           set({ user, isAuthenticated: true, isInitializing: false });
         } catch {
-          // If fetchMe fails, the token is likely invalid/expired
+          
           authService.logout();
           set({ user: null, isAuthenticated: false, isInitializing: false });
         }

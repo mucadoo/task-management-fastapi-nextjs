@@ -43,8 +43,8 @@ class TaskCreate(TaskBase):
         if v:
             if v.tzinfo is None:
                 v = v.replace(tzinfo=datetime.timezone.utc)
-            # We don't want to enforce "not in the past" for simpler testing 
-            # and real-world edge cases where user sets a past due date on purpose
+            
+            
         return v
 
 

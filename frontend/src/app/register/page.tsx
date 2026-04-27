@@ -73,7 +73,7 @@ export default function RegisterPage() {
     try {
       await registerUser({ email: data.email, name: data.name, password: data.password });
     } catch {
-      // Handled by store
+      
     }
   };
 

@@ -11,7 +11,7 @@ export function useTaskBoard() {
   const [searchTerm, setSearchTerm] = useState(filters.q || '');
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 
-  // React Query Hooks
+  
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, error } =
     useTasks(filters);
 
@@ -23,7 +23,7 @@ export function useTaskBoard() {
 
   const total = data?.pages[0]?.total || 0;
 
-  // Disclosures
+  
   const formDisclosure = useDataDisclosure<Task>();
   const profileDisclosure = useDataDisclosure<'personal' | 'security'>('personal');
   const deleteDisclosure = useDataDisclosure<string>();
@@ -75,7 +75,7 @@ export function useTaskBoard() {
   }, [deleteDisclosure]);
 
   return {
-    // Data
+    
     tasks,
     total,
     isLoading,
@@ -83,7 +83,7 @@ export function useTaskBoard() {
     hasNextPage,
     error,
 
-    // UI State
+    
     viewMode,
     filters,
     searchTerm,
@@ -94,7 +94,7 @@ export function useTaskBoard() {
     deletingId: deleteDisclosure.data,
     isDeleting: deleteMutation.isPending,
 
-    // Actions
+    
     setViewMode,
     setFilters,
     setSearchTerm,

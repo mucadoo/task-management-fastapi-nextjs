@@ -43,17 +43,17 @@ export default function LoginPage() {
     try {
       await login(data);
     } catch {
-      // Error is handled by the store and displayed via notifications
+      
     }
   };
 
-  // Prevent flashing the form if we are already authenticated or still checking
+  
   if (authCheckLoading || isAuthenticated) return null;
 
   return (
     <div className="min-h-screen flex">
       <AuthSidebar />
-      <div className="flex-1 flex flex-col justify-center p-8 lg:p-16 relative bg-warm-50 dark:bg-[#0a0a0a]">
+      <div className="flex-1 flex flex-col justify-center p-8 lg:p-16 relative bg-warm-50 dark:bg-[
         <div className="absolute top-6 right-6 flex items-center space-x-3">
           <LanguageSelector />
           <ThemeToggle />

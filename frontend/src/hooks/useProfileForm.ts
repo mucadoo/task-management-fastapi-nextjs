@@ -51,7 +51,7 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
   const [debouncedUsername] = useDebounce(watchedUsername, 500);
   const [debouncedEmail] = useDebounce(watchedEmail, 500);
 
-  // Reset form when modal opens or tab changes
+  
   useEffect(() => {
     if (isOpen) {
       clearErrors();
@@ -71,7 +71,7 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
   const usernameError = (errors as FieldErrors<{ username: string }>).username;
   const emailError = (errors as FieldErrors<{ email: string }>).email;
 
-  // Username availability check
+  
   useEffect(() => {
     const checkUsername = async () => {
       if (!debouncedUsername || debouncedUsername === user?.username) {
@@ -93,7 +93,7 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
     if (activeTab === 'personal') checkUsername();
   }, [debouncedUsername, user?.username, activeTab, !!errors.username]);
 
-  // Email availability check
+  
   useEffect(() => {
     const checkEmail = async () => {
       if (!debouncedEmail || debouncedEmail === user?.email) {
@@ -130,7 +130,7 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
         reset({ ...form.getValues(), current_password: '', password: '', confirmPassword: '' });
       }
     } catch {
-      // Handled by store
+      
     } finally {
       setIsSubmitting(false);
     }

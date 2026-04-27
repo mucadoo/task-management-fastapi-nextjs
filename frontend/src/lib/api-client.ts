@@ -74,7 +74,7 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
     headers: getHeaders(),
   });
 
-  // Handle Token Refresh
+  
   if (
     response.status === 401 &&
     !options?.skipRefresh &&

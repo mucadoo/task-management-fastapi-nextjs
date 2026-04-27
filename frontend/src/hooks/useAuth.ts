@@ -13,13 +13,13 @@ export function useAuth(requireAuth: boolean = true) {
       fetchMe();
       hasFetched.current = true;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   useEffect(() => {
-    // Only redirect if initialization is finished
-    // We don't check 'isLoading' here because that's for login/register actions
-    // and we handle those redirects manually or want to stay on the page during the process
+    
+    
+    
     if (!isInitializing) {
       if (requireAuth && !isAuthenticated) {
         router.replace('/login');
@@ -32,7 +32,7 @@ export function useAuth(requireAuth: boolean = true) {
   return {
     isAuthenticated,
     user,
-    isLoading: isInitializing, // Only return true for the initial check
+    isLoading: isInitializing, 
     isActionLoading: isLoading,
   };
 }

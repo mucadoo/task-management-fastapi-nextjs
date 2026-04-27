@@ -87,7 +87,7 @@ class BaseRepository(Generic[ModelType]):
     def apply_sorting(self, query, sort_by: str, sort_dir: str):
         sort_col = getattr(self.model, sort_by, None)
         if sort_col is None:
-            # Fallback to id if the field doesn't exist on the model
+            
             sort_col = getattr(self.model, "id")
             
         if sort_dir == "asc":

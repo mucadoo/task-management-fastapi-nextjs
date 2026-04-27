@@ -107,7 +107,7 @@ class AuthService:
             raise UnauthorizedError("errors.user_not_found")
 
         self.auth_repo.revoke_token(db_token.id)
-        # We don't commit yet because create_user_tokens will do it
+        
         return self.create_user_tokens(user)
 
     def prepare_password_update(

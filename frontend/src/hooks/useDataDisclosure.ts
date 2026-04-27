@@ -13,7 +13,7 @@ export function useDataDisclosure<T>(initialData: T | null = null) {
 
   const onClose = useCallback(() => {
     setIsOpen(false);
-    // Delay clearing data to avoid flash during exit animations (e.g. Dialog/Modal closing)
+    
     setTimeout(() => {
       setData(null);
     }, 300);

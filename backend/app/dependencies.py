@@ -16,10 +16,10 @@ from .exceptions import UnauthorizedError
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 settings = get_settings()
 
-# Base Database Dependency
+
 DBSession = Annotated[Session, Depends(get_db)]
 
-# Repository Dependencies
+
 def get_user_repository(db: DBSession) -> UserRepository:
     return UserRepository(db)
 
@@ -33,7 +33,7 @@ UserRepo = Annotated[UserRepository, Depends(get_user_repository)]
 TaskRepo = Annotated[TaskRepository, Depends(get_task_repository)]
 AuthRepo = Annotated[AuthRepository, Depends(get_auth_repository)]
 
-# Service Dependencies
+
 def get_user_service(repo: UserRepo) -> UserService:
     return UserService(repo)
 
@@ -60,7 +60,7 @@ def get_auth_service(
 
 AuthServ = Annotated[AuthService, Depends(get_auth_service)]
 
-# Auth Dependencies
+
 def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     user_repo: UserRepo,

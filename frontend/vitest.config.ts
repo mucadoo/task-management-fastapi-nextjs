@@ -18,7 +18,7 @@ export default defineConfig({
         '**/*.test.ts',
         '**/*.test.tsx',
         '**/*.d.ts',
-        'src/lib/api.ts', // Usually mocked
+        'src/lib/api.ts', 
       ],
       thresholds: {
         lines: 80,

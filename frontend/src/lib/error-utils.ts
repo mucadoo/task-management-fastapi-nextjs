@@ -25,7 +25,7 @@ export function getErrorMessage(error: any): string {
   }
 
   if (Array.isArray(data.detail)) {
-    // Validation errors from FastAPI
+    
     return data.detail.map((err) => `${err.loc.join('.')}: ${err.msg}`).join(', ');
   }
 
@@ -41,12 +41,12 @@ export function useApiError() {
   const getTranslatedError = (error: any, fallbackKey?: string) => {
     const message = getErrorMessage(error);
 
-    // If it's a translation key, translate it
+    
     if (message.includes('common.') || message.includes('auth.') || message.includes('tasks.')) {
       return t(message);
     }
 
-    // If we have a fallback and the message is generic
+    
     if (fallbackKey && (message === 'common.error_unknown' || message === 'Error')) {
       return t(fallbackKey);
     }

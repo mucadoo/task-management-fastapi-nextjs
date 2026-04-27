@@ -65,10 +65,10 @@ def second_user_auth_headers(client, db):
 
 @pytest.fixture
 def sample_task(client, db, auth_headers):
-    # Get user id from db for the first user
+    
     user = db.query(User).filter(User.email == "test@example.com").first()
     task = TestDataFactory.create_task(db, owner_id=user.id)
-    # Return as dict matching response schema
+    
     return {
         "id": str(task.id),
         "title": task.title,

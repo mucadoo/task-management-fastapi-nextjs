@@ -138,15 +138,15 @@ def test_pagination(client, auth_headers):
 
 
 def test_task_ownership_isolation(client, auth_headers, second_user_auth_headers):
-    # User 1 creates a task
+    
     client.post("/api/v1/tasks/", json={"title": "User 1 Task"}, headers=auth_headers)
 
-    # User 2 lists tasks - should be empty
+    
     response = client.get("/api/v1/tasks/", headers=second_user_auth_headers)
     assert response.status_code == 200
     assert response.json()["total"] == 0
 
-    # User 2 tries to GET User 1's task
+    
     user1_task_response = client.post(
         "/api/v1/tasks/", json={"title": "User 1 Task"}, headers=auth_headers
     )
@@ -155,7 +155,7 @@ def test_task_ownership_isolation(client, auth_headers, second_user_auth_headers
     response = client.get(f"/api/v1/tasks/{task_id}", headers=second_user_auth_headers)
     assert response.status_code == 404
 
-    # User 2 tries to UPDATE User 1's task
+    
     response = client.put(
         f"/api/v1/tasks/{task_id}",
         json={"title": "Hacked"},
@@ -163,11 +163,11 @@ def test_task_ownership_isolation(client, auth_headers, second_user_auth_headers
     )
     assert response.status_code == 404
 
-    # User 2 tries to DELETE User 1's task
+    
     response = client.delete(f"/api/v1/tasks/{task_id}", headers=second_user_auth_headers)
     assert response.status_code == 404
 
-    # User 2 tries to TOGGLE User 1's task
+    
     response = client.post(
         f"/api/v1/tasks/{task_id}/toggle", headers=second_user_auth_headers
     )
@@ -186,12 +186,12 @@ def test_search_tasks(client, auth_headers):
         headers=auth_headers,
     )
 
-    # Search by title
+    
     response = client.get("/api/v1/tasks/?q=milk", headers=auth_headers)
     assert response.json()["total"] == 1
     assert response.json()["items"][0]["title"] == "Buy milk"
 
-    # Search by description
+    
     response = client.get("/api/v1/tasks/?q=Bedroom", headers=auth_headers)
     assert response.json()["total"] == 1
     assert response.json()["items"][0]["title"] == "Clean room"
@@ -221,11 +221,11 @@ def test_toggle_task_status(client, auth_headers):
     task_id = create_response.json()["id"]
     assert create_response.json()["status"] == "pending"
 
-    # Toggle to completed
+    
     toggle_response = client.post(f"/api/v1/tasks/{task_id}/toggle", headers=auth_headers)
     assert toggle_response.status_code == 200
     assert toggle_response.json()["status"] == "completed"
 
-    # Toggle back to pending
+    
     toggle_response = client.post(f"/api/v1/tasks/{task_id}/toggle", headers=auth_headers)
     assert toggle_response.json()["status"] == "pending"

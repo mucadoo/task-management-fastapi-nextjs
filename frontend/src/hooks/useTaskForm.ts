@@ -80,7 +80,7 @@ export function useTaskForm({ editingTask, isOpen, onClose }: UseTaskFormProps) 
       }
       onClose();
     } catch (err: any) {
-      // Error handled by hooks
+      
     }
   };
 
