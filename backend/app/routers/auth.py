@@ -58,18 +58,9 @@ def get_me(current_user: CurrentUser):
 def update_me(
     user_update: UserUpdate,
     current_user: CurrentUser,
-    user_service: UserServ,
     auth_service: AuthServ,
 ):
-    update_data = user_update.model_dump(exclude_unset=True)
-    
-    if "password" in update_data:
-        update_data["hashed_password"] = auth_service.prepare_password_update(
-            current_user, update_data.pop("password"), user_update.current_password
-        )
-        update_data.pop("current_password", None)
-
-    return user_service.update_user_profile(current_user, update_data)
+    return auth_service.update_user_profile(current_user, user_update)
 
 
 @router.get("/check-username")

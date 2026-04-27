@@ -7,19 +7,16 @@ import LoadingSpinner from './ui/LoadingSpinner';
 import { useTranslation } from 'react-i18next';
 import { useToggleTaskStatus } from '../hooks/useTasks';
 import {
-  Pencil,
-  Trash2,
   CheckCircle2,
   Circle,
-  Calendar,
-  Clock,
-  AlertCircle,
   Play,
   Pause,
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/Tooltip';
 import { cn } from '../lib/utils';
 import { getTaskDateStatus } from '../lib/date-utils';
+import { TaskCardActions } from './TaskCardActions';
+import { TaskDateBadge } from './TaskDateBadge';
 
 interface TaskCardProps {
   task: Task;
@@ -79,35 +76,17 @@ const TaskCard = memo(function TaskCard({
     toggleStatusMutation.mutate(task.id);
   };
 
-  const commonActions = (
-    <div className="flex items-center gap-1.5">
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            onClick={() => onEdit(task)}
-            disabled={isDeleting}
-            aria-label={t('common.edit')}
-            className="p-1 rounded-md text-warm-400 dark:text-gray-500 hover:text-brand-500 hover:bg-warm-100 dark:hover:bg-white/5 transition-colors"
-          >
-            <Pencil className="h-3.5 w-3.5" />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="top">{t('common.edit')}</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            onClick={() => onDelete(task.id)}
-            disabled={isDeleting}
-            aria-label={t('common.delete')}
-            className="p-1 rounded-md text-warm-400 dark:text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
-          >
-            {isDeleting ? <LoadingSpinner size="sm" /> : <Trash2 className="h-3.5 w-3.5" />}
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="top">{t('common.delete')}</TooltipContent>
-      </Tooltip>
-    </div>
+  const actions = (
+    <TaskCardActions
+      task={task}
+      onEdit={onEdit}
+      onDelete={onDelete}
+      onToggleStatus={toggleStatus}
+      isDeleting={isDeleting}
+      isToggling={isToggling}
+      isCompleted={isCompleted}
+      isInProgress={isInProgress}
+    />
   );
 
   const statusToggles = (
@@ -191,33 +170,17 @@ const TaskCard = memo(function TaskCard({
             )}
           </div>
 
-          {task.due_date && (
-            <div
-              className={cn("flex items-center gap-1.5 text-[10px] font-medium whitespace-nowrap flex-shrink-0 px-2 py-1 rounded-md transition-colors",
-                isOverdue
-                  ? 'text-red-600 bg-red-50 dark:bg-red-900/10'
-                  : isDueToday
-                    ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/10'
-                    : 'text-warm-500 dark:text-gray-400 bg-warm-100 dark:bg-white/5'
-              )}
-            >
-              {task.due_date_has_time ? (
-                <Clock className="h-3 w-3" />
-              ) : (
-                <Calendar className="h-3 w-3" />
-              )}
-              <span>{formattedDueDate}</span>
-              {isOverdue && <AlertCircle className="h-2.5 w-2.5" />}
-              {isDueToday && (
-                <span className="text-[9px] uppercase tracking-wider font-bold">
-                  {t('tasks.today')}
-                </span>
-              )}
-            </div>
-          )}
+          <TaskDateBadge
+            dueDate={task.due_date}
+            hasTime={task.due_date_has_time || false}
+            isOverdue={isOverdue}
+            isDueToday={isDueToday}
+            isCompleted={isCompleted}
+            variant="list"
+          />
         </div>
         <div className="flex-shrink-0 ml-2">
-          {commonActions}
+          {actions}
         </div>
       </div>
     );
@@ -245,54 +208,17 @@ const TaskCard = memo(function TaskCard({
         <p className="text-xs text-warm-500 dark:text-gray-400 line-clamp-3 leading-snug">
           {task.description || t('tasks.no_description')}
         </p>
-        {task.due_date && (
-          <div
-            className={cn("flex items-center gap-1.5 mt-2.5 text-[11px] font-semibold",
-              isOverdue
-                ? 'text-red-600'
-                : isDueToday
-                  ? 'text-amber-600 dark:text-amber-400'
-                  : 'text-warm-500 dark:text-gray-400'
-            )}
-          >
-            <div
-              className={cn("p-1 rounded-lg",
-                isOverdue
-                  ? 'bg-red-50 dark:bg-red-900/20'
-                  : isDueToday
-                    ? 'bg-amber-50 dark:bg-amber-900/20'
-                    : 'bg-warm-100 dark:bg-white/5'
-              )}
-            >
-              {task.due_date_has_time ? (
-                <Clock className="h-3 w-3" />
-              ) : (
-                <Calendar className="h-3 w-3" />
-              )}
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[9px] uppercase tracking-wider text-warm-400 dark:text-gray-500 mb-0">
-                {t('tasks.due_date')}
-              </span>
-              <div className="flex items-center gap-1">
-                <span>{formattedDueDate}</span>
-                {isOverdue && (
-                  <span className="text-[8px] bg-red-100 dark:bg-red-900/40 px-1 py-0 rounded uppercase">
-                    {t('tasks.overdue')}
-                  </span>
-                )}
-                {isDueToday && (
-                  <span className="text-[8px] bg-amber-100 dark:bg-amber-900/40 px-1 py-0 rounded uppercase">
-                    {t('tasks.today')}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+        <TaskDateBadge
+          dueDate={task.due_date}
+          hasTime={task.due_date_has_time || false}
+          isOverdue={isOverdue}
+          isDueToday={isDueToday}
+          isCompleted={isCompleted}
+          variant="gallery"
+        />
       </div>
       <div className="flex justify-end pt-2.5 mt-2.5 border-t border-warm-200 dark:border-white/10">
-        {commonActions}
+        {actions}
       </div>
     </div>
   );

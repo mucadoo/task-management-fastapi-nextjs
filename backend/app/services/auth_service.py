@@ -1,5 +1,5 @@
 import uuid
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Any
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
@@ -10,6 +10,7 @@ from ..exceptions import UnauthorizedError, AppError
 
 if TYPE_CHECKING:
     from ..services.user_service import UserService
+    from ..schemas.user import UserUpdate
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -123,3 +124,21 @@ class AuthService:
             raise UnauthorizedError("errors.incorrect_password")
             
         return self.hash_password(new_password)
+
+    def update_user_profile(
+        self,
+        current_user: User,
+        user_update: "UserUpdate",
+    ) -> User:
+        if not self.user_service:
+            raise AppError("UserService not initialized")
+            
+        update_data = user_update.model_dump(exclude_unset=True)
+        
+        if "password" in update_data:
+            update_data["hashed_password"] = self.prepare_password_update(
+                current_user, update_data.pop("password"), user_update.current_password
+            )
+            update_data.pop("current_password", None)
+
+        return self.user_service.update_user_profile(current_user, update_data)
