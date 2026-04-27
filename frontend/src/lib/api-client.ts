@@ -39,11 +39,10 @@ async function getResponseData(response: Response): Promise<any> {
   }
 }
 
-export async function request<T>(
-  path: string,
-  options?: RequestOptions,
-): Promise<T> {
-  let url = `${API_BASE_URL}${path}`;
+export async function request<T>(path: string, options?: RequestOptions): Promise<T> {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  let url = `${API_BASE_URL}${normalizedPath}`;
+
   if (options?.params) {
     const searchParams = new URLSearchParams();
     Object.entries(options.params).forEach(([key, value]) => {
@@ -52,7 +51,10 @@ export async function request<T>(
       }
     });
     const query = searchParams.toString();
-    if (query) url += `?${query}`;
+    if (query) {
+      const separator = url.includes('?') ? '&' : '?';
+      url += separator + query;
+    }
   }
 
   const getHeaders = (token?: string) => {
