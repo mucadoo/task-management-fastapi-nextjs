@@ -4,6 +4,7 @@ import { useTaskStore } from '@/store/useTaskStore';
 import { useTasks, useDeleteTask } from '@/hooks/useTasks';
 import { Task } from '@/types/task';
 import { useDisclosure } from './useDisclosure';
+import { useDataDisclosure } from './useDataDisclosure';
 
 export function useTaskBoard() {
   const {
@@ -35,12 +36,9 @@ export function useTaskBoard() {
   const total = data?.pages[0]?.total || 0;
 
   // Disclosures
-  const formDisclosure = useDisclosure(false);
-  const profileDisclosure = useDisclosure(false);
-  
-  const [profileTab, setProfileTab] = useState<'personal' | 'security'>('personal');
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const formDisclosure = useDataDisclosure<Task>();
+  const profileDisclosure = useDataDisclosure<'personal' | 'security'>('personal');
+  const deleteDisclosure = useDataDisclosure<string>();
 
   useEffect(() => {
     if (debouncedSearchTerm !== filters.q) {
@@ -49,39 +47,35 @@ export function useTaskBoard() {
   }, [debouncedSearchTerm, filters.q, setFilters]);
 
   const handleDeleteConfirm = useCallback(async () => {
-    if (deletingId) {
-      await deleteMutation.mutateAsync(deletingId);
-      setDeletingId(null);
+    if (deleteDisclosure.data) {
+      await deleteMutation.mutateAsync(deleteDisclosure.data);
+      deleteDisclosure.onClose();
     }
-  }, [deletingId, deleteMutation]);
+  }, [deleteDisclosure, deleteMutation]);
 
   const handleEdit = useCallback((t: Task) => {
-    setEditingTask(t);
-    formDisclosure.onOpen();
+    formDisclosure.onOpen(t);
   }, [formDisclosure]);
 
   const handleDelete = useCallback((id: string) => {
-    setDeletingId(id);
-  }, []);
+    deleteDisclosure.onOpen(id);
+  }, [deleteDisclosure]);
 
   const handleNewTask = useCallback(() => {
-    setEditingTask(null);
-    formDisclosure.onOpen();
+    formDisclosure.onOpen(null);
   }, [formDisclosure]);
 
   const handleProfileOpen = useCallback((tab: 'personal' | 'security') => {
-    setProfileTab(tab);
-    profileDisclosure.onOpen();
+    profileDisclosure.onOpen(tab);
   }, [profileDisclosure]);
 
   const handleFormClose = useCallback(() => {
     formDisclosure.onClose();
-    setEditingTask(null);
   }, [formDisclosure]);
 
   const handleCancelDelete = useCallback(() => {
-    setDeletingId(null);
-  }, []);
+    deleteDisclosure.onClose();
+  }, [deleteDisclosure]);
 
   return {
     // Data
@@ -98,9 +92,9 @@ export function useTaskBoard() {
     searchTerm,
     isFormOpen: formDisclosure.isOpen,
     isProfileOpen: profileDisclosure.isOpen,
-    profileTab,
-    editingTask,
-    deletingId,
+    profileTab: profileDisclosure.data || 'personal',
+    editingTask: formDisclosure.data,
+    deletingId: deleteDisclosure.data,
     isDeleting: deleteMutation.isPending,
     
     // Actions

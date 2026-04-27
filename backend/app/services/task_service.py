@@ -31,8 +31,11 @@ class TaskService:
             sort_dir=sort_dir,
         )
 
-    def get_task(self, user_id: uuid.UUID, task_id: uuid.UUID) -> Optional[Task]:
-        return self.task_repo.get_by_id(user_id, task_id)
+    def get_task(self, user_id: uuid.UUID, task_id: uuid.UUID) -> Task:
+        task = self.task_repo.get_by_id(user_id, task_id)
+        if not task:
+            raise NotFoundError("errors.task_not_found")
+        return task
 
     def create_task(self, user_id: uuid.UUID, task_data: TaskCreate) -> Task:
         task = self.task_repo.create_with_owner(user_id, task_data)
@@ -42,23 +45,25 @@ class TaskService:
 
     def update_task(
         self, user_id: uuid.UUID, task_id: uuid.UUID, task_data: TaskUpdate
-    ) -> Optional[Task]:
+    ) -> Task:
         task = self.task_repo.update_task(user_id, task_id, task_data)
-        if task:
-            self.task_repo.db.commit()
-            self.task_repo.db.refresh(task)
+        if not task:
+            raise NotFoundError("errors.task_not_found")
+        self.task_repo.db.commit()
+        self.task_repo.db.refresh(task)
         return task
 
     def delete_task(self, user_id: uuid.UUID, task_id: uuid.UUID) -> bool:
         success = self.task_repo.delete_task(user_id, task_id)
-        if success:
-            self.task_repo.db.commit()
-        return success
+        if not success:
+            raise NotFoundError("errors.task_not_found")
+        self.task_repo.db.commit()
+        return True
 
-    def toggle_task(self, user_id: uuid.UUID, task_id: uuid.UUID) -> Optional[Task]:
+    def toggle_task(self, user_id: uuid.UUID, task_id: uuid.UUID) -> Task:
         task = self.task_repo.get_by_id(user_id, task_id)
         if not task:
-            return None
+            raise NotFoundError("errors.task_not_found")
 
         new_status = (
             TaskStatus.PENDING

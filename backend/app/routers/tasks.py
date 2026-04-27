@@ -51,10 +51,7 @@ def read_task(
     current_user: CurrentUser,
     service: TaskServ,
 ):
-    task = service.get_task(current_user.id, task_id)
-    if not task:
-        raise NotFoundError("errors.task_not_found")
-    return task
+    return service.get_task(current_user.id, task_id)
 
 
 @router.put("/{task_id}", response_model=TaskResponse)
@@ -64,10 +61,7 @@ def update_task(
     current_user: CurrentUser,
     service: TaskServ,
 ):
-    updated = service.update_task(current_user.id, task_id, task)
-    if not updated:
-        raise NotFoundError("errors.task_not_found")
-    return updated
+    return service.update_task(current_user.id, task_id, task)
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -76,8 +70,7 @@ def delete_task(
     current_user: CurrentUser,
     service: TaskServ,
 ):
-    if not service.delete_task(current_user.id, task_id):
-        raise NotFoundError("errors.task_not_found")
+    service.delete_task(current_user.id, task_id)
     return None
 
 
@@ -87,7 +80,4 @@ def toggle_task(
     current_user: CurrentUser,
     service: TaskServ,
 ):
-    updated = service.toggle_task(current_user.id, task_id)
-    if not updated:
-        raise NotFoundError("errors.task_not_found")
-    return updated
+    return service.toggle_task(current_user.id, task_id)

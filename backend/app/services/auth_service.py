@@ -1,9 +1,15 @@
 import uuid
+from typing import Optional, TYPE_CHECKING
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from ..models.user import User
 from ..repositories.auth_repository import AuthRepository
+from ..repositories.user_repository import UserRepository
+from ..exceptions import UnauthorizedError, AppError
+
+if TYPE_CHECKING:
+    from ..services.user_service import UserService
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -48,3 +54,64 @@ class AuthService:
             "refresh_token": refresh_token_str,
             "token_type": "bearer",
         }
+
+    def register(
+        self,
+        email: str,
+        password: str,
+        name: Optional[str],
+        username: Optional[str],
+        user_service: "UserService",
+        auth_repo: AuthRepository,
+    ):
+        hashed = self.hash_password(password)
+        user = user_service.register_user(email, hashed, name, username)
+        return self.create_user_tokens(user, auth_repo)
+
+    def login(
+        self,
+        identifier: str,
+        password: str,
+        user_repo: UserRepository,
+        auth_repo: AuthRepository,
+    ):
+        user = user_repo.get_by_email_or_username(identifier)
+        if not user or not self.verify_password(password, user.hashed_password):
+            raise UnauthorizedError("errors.invalid_credentials")
+        return self.create_user_tokens(user, auth_repo)
+
+    def refresh_tokens(
+        self,
+        refresh_token: str,
+        user_repo: UserRepository,
+        auth_repo: AuthRepository,
+    ):
+        db_token = auth_repo.get_refresh_token(refresh_token)
+        if (
+            not db_token
+            or db_token.revoked
+            or db_token.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc)
+        ):
+            raise UnauthorizedError("errors.expired_refresh_token")
+
+        user = user_repo.get_by_id(db_token.user_id)
+        if not user:
+            raise UnauthorizedError("errors.user_not_found")
+
+        auth_repo.revoke_token(db_token.id)
+        # We don't commit yet because create_user_tokens will do it
+        return self.create_user_tokens(user, auth_repo)
+
+    def prepare_password_update(
+        self,
+        current_user: User,
+        new_password: str,
+        current_password: Optional[str],
+    ) -> str:
+        if not current_password:
+            raise AppError("errors.password_required_new", code="BAD_REQUEST")
+            
+        if not self.verify_password(current_password, current_user.hashed_password):
+            raise UnauthorizedError("errors.incorrect_password")
+            
+        return self.hash_password(new_password)
