@@ -2,9 +2,11 @@
 import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip';
+import { useTranslation } from 'react-i18next';
 
 export default function ThemeToggle() {
   const { setTheme, resolvedTheme } = useTheme();
+  const { t } = useTranslation();
 
   const toggleTheme = () => {
     setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
