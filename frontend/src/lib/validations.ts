@@ -41,6 +41,12 @@ export const getRegisterSchema = (t: any) =>
         .string()
         .min(1, t('common.error_required', { field: t('auth.name') }))
         .max(100),
+      username: z
+        .string()
+        .min(USERNAME_MIN_LENGTH, t('profile.username_invalid'))
+        .max(30)
+        .regex(USERNAME_REGEX, t('profile.username_invalid'))
+        .transform((val) => val.toLowerCase()),
       email: z.string().email(t('auth.invalid_email')).max(255),
       password: getPasswordSchema(t),
       confirmPassword: z
@@ -61,9 +67,7 @@ export const getPersonalSchema = (t: any) =>
       .min(USERNAME_MIN_LENGTH, t('profile.username_invalid'))
       .max(30)
       .regex(USERNAME_REGEX, t('profile.username_invalid'))
-      .transform((val) => val.toLowerCase())
-      .optional()
-      .or(z.literal('')),
+      .transform((val) => val.toLowerCase()),
   });
 
 export const getSecuritySchema = (t: any) =>

@@ -57,6 +57,7 @@ export default function ProfileModal({
               <FormField
                 name="name"
                 label={t('common.name')}
+                required
                 error={touchedFields.name ? errors.name?.message : undefined}
               >
                 <Input {...register('name')} type="text" placeholder={t('common.name')} />
@@ -65,6 +66,7 @@ export default function ProfileModal({
               <FormField
                 name="email"
                 label={t('common.email')}
+                required
                 error={
                   (touchedFields.email ? errors.email?.message : undefined) ||
                   (emailStatus === 'taken' ? t('profile.email_taken') : undefined)
@@ -98,6 +100,7 @@ export default function ProfileModal({
               <FormField
                 name="username"
                 label={t('common.username')}
+                required
                 error={
                   (touchedFields.username ? errors.username?.message : undefined) ||
                   (usernameStatus === 'taken' ? t('profile.username_taken') : undefined) ||
@@ -150,6 +153,7 @@ export default function ProfileModal({
               <FormField
                 name="current_password"
                 label={t('profile.current_password')}
+                required
                 error={touchedFields.current_password ? errors.current_password?.message : undefined}
               >
                 <Input
@@ -161,6 +165,7 @@ export default function ProfileModal({
               <FormField
                 name="password"
                 label={t('profile.new_password')}
+                required
                 error={touchedFields.password ? errors.password?.message : undefined}
               >
                 <Input
@@ -172,6 +177,7 @@ export default function ProfileModal({
               <FormField
                 name="confirmPassword"
                 label={t('profile.confirm_new_password')}
+                required
                 error={touchedFields.confirmPassword ? errors.confirmPassword?.message : undefined}
               >
                 <Input

@@ -2,7 +2,7 @@ import uuid
 from typing import Optional, Dict, Any
 from ..repositories.user_repository import UserRepository
 from ..models.user import User
-from ..exceptions import ConflictError, UnauthorizedError
+from ..exceptions import ConflictError, UnauthorizedError, BusinessError
 
 from .base_service import BaseService
 
@@ -23,14 +23,18 @@ class UserService(BaseService[User, UserRepository]):
         return self.repository.get_by_email_or_username(identifier)
 
     def register_user(
-        self, email: str, hashed_password: str, name: Optional[str] = None, username: Optional[str] = None
+        self, email: str, hashed_password: str, name: Optional[str] = None, username: str = None
     ) -> User:
         safe_email = email.lower()
-        safe_username = username.lower() if username else None
+        
+        if not username or username.strip() == "":
+            raise BusinessError("errors.username_required")
+            
+        safe_username = username.lower()
         
         if self.repository.get_by_email(safe_email):
             raise ConflictError("errors.email_registered")
-        if safe_username and self.repository.get_by_username(safe_username):
+        if self.repository.get_by_username(safe_username):
             raise ConflictError("errors.username_taken")
             
         user = self.repository.create_user(safe_email, hashed_password, name, safe_username)
@@ -44,8 +48,12 @@ class UserService(BaseService[User, UserRepository]):
                 if self.repository.get_by_email(email):
                     raise ConflictError("errors.email_registered")
                 
-        if "username" in update_data and update_data["username"]:
-            update_data["username"] = update_data["username"].lower()
+        if "username" in update_data:
+            new_username = update_data["username"]
+            if not new_username or str(new_username).strip() == "":
+                raise BusinessError("errors.username_required")
+                
+            update_data["username"] = new_username.lower()
             username = update_data["username"]
             if username != user.username:
                 if self.repository.get_by_username(username):
