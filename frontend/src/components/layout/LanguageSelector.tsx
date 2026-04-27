@@ -5,7 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from './ui/DropdownMenu';
+} from '@/components/ui/DropdownMenu';
 import { Languages } from 'lucide-react';
 export default function LanguageSelector() {
   const { i18n, t } = useTranslation();

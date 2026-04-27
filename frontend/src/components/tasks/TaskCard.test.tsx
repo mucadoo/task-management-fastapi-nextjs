@@ -5,7 +5,7 @@ import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const mockMutate = vi.fn();
-vi.mock('../hooks/useTasks', () => ({
+vi.mock('@/hooks/useTasks', () => ({
   useToggleTaskStatus: () => ({
     mutate: mockMutate,
     isPending: false,

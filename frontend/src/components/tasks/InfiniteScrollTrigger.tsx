@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import LoadingSpinner from './ui/LoadingSpinner';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 interface InfiniteScrollTriggerProps {
   onIntersect: () => void;
   isLoading: boolean;

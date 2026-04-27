@@ -4,14 +4,14 @@ import { Task } from '@/types/task';
 import { useTranslation } from 'react-i18next';
 import { Save } from 'lucide-react';
 import { Controller } from 'react-hook-form';
-import { DateTimePicker } from './ui/DateTimePicker';
+import { DateTimePicker } from '@/components/ui/DateTimePicker';
 import { useTaskForm } from '@/hooks/useTaskForm';
-import { FormField } from './ui/FormField';
-import { FormControl } from './ui/FormControl';
-import { Input } from './ui/Input';
-import { Textarea } from './ui/Textarea';
-import { Button } from './ui/Button';
-import { Select } from './ui/Select';
+import { FormField } from '@/components/ui/FormField';
+import { FormControl } from '@/components/ui/FormControl';
+import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
+import { Button } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
 import { getStatusOptions, getPriorityOptions } from '@/lib/constants';
 import {
   Dialog,
@@ -20,7 +20,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from './ui/Dialog';
+} from '@/components/ui/Dialog';
 
 interface TaskFormProps {
   isOpen: boolean;

@@ -1,6 +1,6 @@
 'use client';
 
-import TaskBoard from '@/components/TaskBoard';
+import TaskBoard from '@/components/tasks/TaskBoard';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { Suspense } from 'react';

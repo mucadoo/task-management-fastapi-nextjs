@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import DashboardHeader from './DashboardHeader';
-import ProfileModal from './ProfileModal';
+import ProfileModal from '@/components/profile/ProfileModal';
 
 interface AppLayoutProps {
   children: React.ReactNode;

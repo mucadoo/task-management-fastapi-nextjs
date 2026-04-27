@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Circle, Play, Pause } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/Tooltip';
-import LoadingSpinner from './ui/LoadingSpinner';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { cn } from '@/lib/utils';
 
 interface TaskStatusTogglesProps {

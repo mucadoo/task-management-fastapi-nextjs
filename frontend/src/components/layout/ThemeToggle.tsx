@@ -2,7 +2,7 @@
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { Sun, Moon } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/Tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip';
 import { useTranslation } from 'react-i18next';
 export default function ThemeToggle() {
   const { setTheme, resolvedTheme } = useTheme();

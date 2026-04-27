@@ -1,18 +1,18 @@
 'use client';
 import TaskCard from './TaskCard';
 import TaskForm from './TaskForm';
-import { TaskSkeleton } from './ui/Skeleton';
+import { TaskSkeleton } from '@/components/ui/Skeleton';
 import { InfiniteScrollTrigger } from './InfiniteScrollTrigger';
-import ErrorMessage from './ui/ErrorMessage';
-import ConfirmDialog from './ui/ConfirmDialog';
+import ErrorMessage from '@/components/ui/ErrorMessage';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import TaskFilters from './TaskFilters';
-import { EmptyState } from './ui/EmptyState';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { useTranslation } from 'react-i18next';
 import { useTaskBoard } from '@/hooks/useTaskBoard';
 import { LayoutGrid, List } from 'lucide-react';
-import { TooltipSimple } from './ui/Tooltip';
+import { TooltipSimple } from '@/components/ui/Tooltip';
 import { cn } from '@/lib/utils';
-import { AppLayout } from './AppLayout';
+import { AppLayout } from '@/components/layout/AppLayout';
 
 export default function TaskBoard() {
   const { t } = useTranslation();

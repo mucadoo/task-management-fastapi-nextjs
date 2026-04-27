@@ -2,7 +2,7 @@
 import { useTranslation } from 'react-i18next';
 import { User as UserIcon, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
-import { Avatar } from './ui/Avatar';
+import { Avatar } from '@/components/ui/Avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +10,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/DropdownMenu';
+} from '@/components/ui/DropdownMenu';
 
 interface UserMenuProps {
   onProfileOpen: (tab: 'personal' | 'security') => void;

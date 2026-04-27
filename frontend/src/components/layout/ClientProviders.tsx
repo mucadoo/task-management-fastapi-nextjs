@@ -6,7 +6,7 @@ import i18n from '@/lib/i18n';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
-import { ErrorBoundary } from './ErrorBoundary';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
 const createQueryClient = () =>

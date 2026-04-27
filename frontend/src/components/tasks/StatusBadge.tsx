@@ -1,7 +1,7 @@
 'use client';
 import { TaskStatus } from '@/types/task';
 import { useTranslation } from 'react-i18next';
-import { Badge } from './ui/Badge';
+import { Badge } from '@/components/ui/Badge';
 
 interface StatusBadgeProps {
   status: TaskStatus;

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Pencil, Trash2, Play, Pause } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/Tooltip';
-import { IconButton } from './ui/Button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip';
+import { IconButton } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import { Task } from '@/types/task';
 

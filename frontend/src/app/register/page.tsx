@@ -5,8 +5,8 @@ import { authService } from '@/services/auth-service';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import LanguageSelector from '@/components/LanguageSelector';
-import ThemeToggle from '@/components/ThemeToggle';
+import LanguageSelector from '@/components/layout/LanguageSelector';
+import ThemeToggle from '@/components/layout/ThemeToggle';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Mail, Lock, User, ArrowRight, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
@@ -16,7 +16,7 @@ import * as z from 'zod';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { FormControl } from '@/components/ui/FormControl';
-import AuthSidebar from '@/components/AuthSidebar';
+import AuthSidebar from '@/components/layout/AuthSidebar';
 
 type RegisterForm = z.infer<ReturnType<typeof getRegisterSchema>>;
 
