@@ -50,11 +50,6 @@ function analisarNumeros(dados: any[]): { somaPares: number; mediaImpares: numbe
 }
 ```
 
-**Endpoint de Exemplo (Público):**
-`POST /api/analyze-numbers`
-Exemplo de entrada: `[1, 2, 3, 4, 5, "a", null]`
-Retorno esperado: `{"evenSum": 6, "oddAverage": 3.0}`
-
 ---
 
 ### 2. Conceitos
@@ -85,7 +80,6 @@ Uma transação é uma unidade lógica de trabalho que deve ser executada totalm
 | GET    | /api/health             | Health check                       | Não   |
 | POST   | /api/auth/register      | Cadastro de usuário                | Não   |
 | POST   | /api/auth/login         | Login (retorna JWT)                | Não   |
-| POST   | /api/analyze-numbers    | Lógica (Parte 1)                   | Não   |
 | POST   | /api/tasks/             | Criar tarefa                       | Sim   |
 | GET    | /api/tasks/             | Listar tarefas (paginado, filtrado)| Sim   |
 | GET    | /api/tasks/{id}         | Buscar tarefa por ID               | Sim   |
