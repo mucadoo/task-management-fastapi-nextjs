@@ -1,6 +1,7 @@
 {
   "common": {
     "loading": "Loading...",
+    "authenticating": "Authenticating...",
     "saving": "Saving...",
     "processing": "Processing...",
     "error": "An error occurred",
@@ -20,9 +21,11 @@
     "save_changes": "Save Changes",
     "username": "Username",
     "copyright": "TaskFlow",
+    "app_name": "TaskFlow",
     "confirm_action": "Confirm Action",
     "light_mode": "Light Mode",
     "dark_mode": "Dark Mode",
+    "toggle_theme": "Toggle theme",
     "switch_portuguese": "Switch to Portuguese",
     "switch_english": "Switch to English",
     "select_language": "Select Language",
@@ -47,7 +50,13 @@
     "or": "Or",
     "logout": "Logout",
     "slogan": "Organize. Execute. Deliver.",
-    "error_password_match": "Passwords do not match"
+    "error_password_match": "Passwords do not match",
+    "login_success": "Successfully logged in!",
+    "login_failed": "Login failed",
+    "register_success": "Account created successfully!",
+    "register_failed": "Registration failed",
+    "logout_success": "Logged out successfully",
+    "invalid_email": "Invalid email address"
   },
   "tasks": {
     "title": "Task Board",
@@ -97,7 +106,14 @@
     "sort_title": "Title",
     "mark_in_progress": "Mark as In Progress",
     "mark_completed": "Mark as Completed",
-    "mark_pending": "Mark as Pending"
+    "mark_pending": "Mark as Pending",
+    "create_success": "Task created successfully!",
+    "create_failed": "Failed to create task",
+    "update_success": "Task updated successfully!",
+    "update_failed": "Failed to update task",
+    "delete_success": "Task deleted successfully",
+    "delete_failed": "Failed to delete task",
+    "status_update_failed": "Failed to update status"
   },
   "profile": {
     "title": "Your Profile",
@@ -113,6 +129,8 @@
     "username_taken": "Username is already taken",
     "username_checking": "Checking availability...",
     "username_invalid": "Username must be at least 3 characters and contain only letters and underscores",
+    "email_taken": "Email is already taken",
+    "email_available": "Email is available",
     "update_success": "Profile information updated successfully!",
     "password_success": "Password updated successfully!",
     "password_min": "Password must be at least 8 characters",
@@ -123,6 +141,7 @@
     "password_match": "Passwords do not match",
     "current_password_required": "Current password is required",
     "name_required": "Name is required",
-    "email_invalid": "Invalid email address"
+    "email_invalid": "Invalid email address",
+    "update_failed": "Update failed"
   }
 }

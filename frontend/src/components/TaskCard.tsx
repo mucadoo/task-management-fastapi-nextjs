@@ -281,7 +281,7 @@ const TaskCard = memo(function TaskCard({
                 )}
                 {isDueToday && (
                   <span className="text-[8px] bg-amber-100 dark:bg-amber-900/40 px-1 py-0 rounded uppercase">
-                    {t('today')}
+                    {t('tasks.today')}
                   </span>
                 )}
               </div>

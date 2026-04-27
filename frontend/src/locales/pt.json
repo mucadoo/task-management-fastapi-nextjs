@@ -1,6 +1,7 @@
 {
   "common": {
     "loading": "Carregando...",
+    "authenticating": "Autenticando...",
     "saving": "Salvando...",
     "processing": "Processando...",
     "error": "Ocorreu um erro",
@@ -20,9 +21,11 @@
     "save_changes": "Salvar Alterações",
     "username": "Nome de usuário",
     "copyright": "TaskFlow",
+    "app_name": "TaskFlow",
     "confirm_action": "Confirmar Ação",
     "light_mode": "Modo Claro",
     "dark_mode": "Modo Escuro",
+    "toggle_theme": "Alternar tema",
     "switch_portuguese": "Mudar para Português",
     "switch_english": "Mudar para Inglês",
     "select_language": "Selecionar Idioma",
@@ -47,7 +50,13 @@
     "or": "Ou",
     "logout": "Sair",
     "slogan": "Organize. Execute. Entregue.",
-    "error_password_match": "As senhas não coincidem"
+    "error_password_match": "As senhas não coincidem",
+    "login_success": "Login realizado com sucesso!",
+    "login_failed": "Falha no login",
+    "register_success": "Conta criada com sucesso!",
+    "register_failed": "Falha no cadastro",
+    "logout_success": "Sessão encerrada com sucesso",
+    "invalid_email": "E-mail inválido"
   },
   "tasks": {
     "title": "Quadro de Tarefas",
@@ -97,7 +106,14 @@
     "sort_title": "Título",
     "mark_in_progress": "Marcar como Em Andamento",
     "mark_completed": "Marcar como Concluído",
-    "mark_pending": "Marcar como Pendente"
+    "mark_pending": "Marcar como Pendente",
+    "create_success": "Tarefa criada com sucesso!",
+    "create_failed": "Falha ao criar tarefa",
+    "update_success": "Tarefa atualizada com sucesso!",
+    "update_failed": "Falha ao atualizar tarefa",
+    "delete_success": "Tarefa excluída com sucesso",
+    "delete_failed": "Falha ao excluir tarefa",
+    "status_update_failed": "Falha ao atualizar status"
   },
   "profile": {
     "title": "Seu Perfil",
@@ -113,6 +129,8 @@
     "username_taken": "Nome de usuário já está em uso",
     "username_checking": "Verificando disponibilidade...",
     "username_invalid": "O nome de usuário deve ter pelo menos 3 caracteres e conter apenas letras e sublinhados",
+    "email_taken": "E-mail já está em uso",
+    "email_available": "E-mail disponível",
     "update_success": "Informações do perfil atualizadas com sucesso!",
     "password_success": "Senha atualizada com sucesso!",
     "password_min": "A senha deve ter pelo menos 8 caracteres",
@@ -123,6 +141,7 @@
     "password_match": "As senhas não coincidem",
     "current_password_required": "A senha atual é obrigatória",
     "name_required": "O nome é obrigatório",
-    "email_invalid": "E-mail inválido"
+    "email_invalid": "E-mail inválido",
+    "update_failed": "Falha na atualização"
   }
 }

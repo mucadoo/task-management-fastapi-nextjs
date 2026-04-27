@@ -20,7 +20,7 @@ export default function AuthSidebar() {
         <div className="w-10 h-10 bg-white rounded flex items-center justify-center mb-6">
           <BookOpen className="text-brand-600 h-6 w-6" />
         </div>
-        <h1 className="text-4xl font-bold text-white mb-2">TaskFlow</h1>
+        <h1 className="text-4xl font-bold text-white mb-2">{t('common.app_name')}</h1>
         <p className="text-white/80">{t('auth.slogan')}</p>
       </div>
       <div className="relative z-10 text-white/60 text-sm">

@@ -2,8 +2,10 @@
 
 import TaskBoard from '../../components/TaskBoard';
 import { useAuth } from '../../hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 
 export default function AppDashboardPage() {
+  const { t } = useTranslation();
   const { isLoading, isAuthenticated } = useAuth(true);
 
   if (isLoading || !isAuthenticated) {
@@ -11,7 +13,7 @@ export default function AppDashboardPage() {
       <main className="min-h-screen flex items-center justify-center p-4">
         <div className="animate-pulse flex flex-col items-center gap-2">
           <div className="w-10 h-10 bg-primary/20 rounded-full" />
-          <p className="text-sm text-muted-foreground font-medium">Authenticating...</p>
+          <p className="text-sm text-muted-foreground font-medium">{t('common.authenticating')}</p>
         </div>
       </main>
     );

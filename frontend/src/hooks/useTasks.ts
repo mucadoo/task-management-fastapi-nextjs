@@ -14,6 +14,7 @@ import {
   Task,
 } from '@/types/task';
 import { useToastStore } from '@/store/useToastStore';
+import i18n from '@/lib/i18n';
 
 export function useTasks(filters: {
   status?: TaskStatus;
@@ -46,10 +47,10 @@ export function useCreateTask() {
     mutationFn: (data: TaskCreate) => taskService.createTask(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
-      addToast('Task created successfully!', 'success');
+      addToast(i18n.t('tasks.create_success'), 'success');
     },
     onError: (error: any) => {
-      addToast(error.message || 'Failed to create task', 'error');
+      addToast(error.message || i18n.t('tasks.create_failed'), 'error');
     },
   });
 }
@@ -64,11 +65,11 @@ export function useUpdateTask() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: taskKeys.all });
       if (variables.data.title) {
-        addToast('Task updated successfully!', 'success');
+        addToast(i18n.t('tasks.update_success'), 'success');
       }
     },
     onError: (error: any) => {
-      addToast(error.message || 'Failed to update task', 'error');
+      addToast(error.message || i18n.t('tasks.update_failed'), 'error');
     },
   });
 }
@@ -115,7 +116,7 @@ export function useToggleTaskStatus() {
           queryClient.setQueryData(queryKey, data);
         });
       }
-      addToast(err.message || 'Failed to update status', 'error');
+      addToast(err.message || i18n.t('tasks.status_update_failed'), 'error');
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: taskKeys.all });
@@ -153,10 +154,10 @@ export function useDeleteTask() {
           queryClient.setQueryData(queryKey, data);
         });
       }
-      addToast(err.message || 'Failed to delete task', 'error');
+      addToast(err.message || i18n.t('tasks.delete_failed'), 'error');
     },
     onSuccess: () => {
-      addToast('Task deleted successfully', 'info');
+      addToast(i18n.t('tasks.delete_success'), 'info');
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: taskKeys.all });
