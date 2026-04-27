@@ -42,7 +42,7 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     try {
       await login(data);
-    } catch (err) {
+    } catch {
       // Error is handled by the store and displayed via notifications
     }
   };

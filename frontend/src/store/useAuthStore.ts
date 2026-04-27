@@ -88,7 +88,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           const user = await authService.getMe();
           set({ user, isAuthenticated: true, isInitializing: false });
-        } catch (err) {
+        } catch {
           // If fetchMe fails, the token is likely invalid/expired
           authService.logout();
           set({ user: null, isAuthenticated: false, isInitializing: false });

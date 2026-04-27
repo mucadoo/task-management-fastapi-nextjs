@@ -7,6 +7,7 @@ import { IconButton } from './ui/Button';
 import { TaskStatus, TaskPriority } from '@/types/task';
 import { Select } from './ui/Select';
 import { getStatusOptions, getPriorityOptions, getSortOptions } from '@/lib/constants';
+import { Plus } from 'lucide-react';
 
 interface TaskFiltersProps {
   searchTerm: string;
@@ -23,8 +24,6 @@ export default function TaskFilters({
   onSearchChange,
   filters,
   setFilters,
-  viewMode,
-  setViewMode,
   onNewTask,
 }: TaskFiltersProps) {
   const { t } = useTranslation();

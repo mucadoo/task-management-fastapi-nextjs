@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Toast as ToastType, useToastStore } from '@/store/useToastStore';
 import { X, CheckCircle2, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 
@@ -8,20 +8,20 @@ export default function Toast({ toast }: { toast: ToastType }) {
   const { removeToast } = useToastStore();
   const [isExiting, setIsExiting] = useState(false);
 
+  const handleClose = useCallback(() => {
+    setIsExiting(true);
+    setTimeout(() => {
+      removeToast(toast.id);
+    }, 300); // Wait for fade-out animation
+  }, [removeToast, toast.id]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       handleClose();
     }, toast.duration || 5000);
 
     return () => clearTimeout(timer);
-  }, [toast]);
-
-  const handleClose = () => {
-    setIsExiting(true);
-    setTimeout(() => {
-      removeToast(toast.id);
-    }, 300); // Wait for fade-out animation
-  };
+  }, [toast, handleClose]);
 
   const getIcon = () => {
     switch (toast.type) {

@@ -1,6 +1,5 @@
 import React from 'react';
 import { SearchX, Plus } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
 interface EmptyStateProps {
@@ -15,8 +14,6 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({ icon, title, description, action, className }: EmptyStateProps) {
-  const { t } = useTranslation();
-
   return (
     <div
       className={cn(

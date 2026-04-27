@@ -7,6 +7,17 @@ import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
 import { ErrorBoundary } from './ErrorBoundary';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+
+const createQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1000,
+        retry: 1,
+      },
+    },
+  });
 
 export default function ClientProviders({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => createQueryClient());

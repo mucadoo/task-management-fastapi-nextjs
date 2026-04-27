@@ -5,7 +5,7 @@ import { Sun, Moon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/Tooltip';
 import { useTranslation } from 'react-i18next';
 export default function ThemeToggle() {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const { t } = useTranslation();
   useEffect(() => {

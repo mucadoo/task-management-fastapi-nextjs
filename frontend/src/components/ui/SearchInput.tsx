@@ -15,7 +15,9 @@ export default function SearchInput({
 }: SearchInputProps) {
   const [localValue, setLocalValue] = useState(value);
   useEffect(() => {
-    setLocalValue(value);
+    if (value !== localValue) {
+      setLocalValue(value);
+    }
   }, [value]);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVal = e.target.value;
