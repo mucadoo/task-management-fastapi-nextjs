@@ -1,6 +1,5 @@
 import uuid
 from typing import Optional, TYPE_CHECKING, Any
-from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from ..models.user import User
