@@ -1,5 +1,5 @@
 import { TFunction } from 'i18next';
-import { TaskStatus, TaskPriority } from '../types/task';
+import { TaskStatus, TaskPriority } from '@/types/task';
 
 export interface SelectOption<T = string> {
   value: T;

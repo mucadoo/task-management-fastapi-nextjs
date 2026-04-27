@@ -28,10 +28,10 @@ export default function RegisterPage() {
     'idle' | 'checking' | 'available' | 'taken' | 'invalid'
   >('idle');
 
-  const { 
-    isLoading: authCheckLoading, 
+  const {
+    isLoading: authCheckLoading,
     isActionLoading: authActionLoading,
-    isAuthenticated
+    isAuthenticated,
   } = useAuth(false);
 
   const {

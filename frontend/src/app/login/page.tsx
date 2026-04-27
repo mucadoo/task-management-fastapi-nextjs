@@ -4,17 +4,17 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import LanguageSelector from '../../components/LanguageSelector';
-import ThemeToggle from '../../components/ThemeToggle';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import { useAuthStore } from '../../store/useAuthStore';
+import LanguageSelector from '@/components/LanguageSelector';
+import ThemeToggle from '@/components/ThemeToggle';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { useAuthStore } from '@/store/useAuthStore';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
-import { getLoginSchema } from '../../lib/validations';
+import { getLoginSchema } from '@/lib/validations';
 import * as z from 'zod';
-import { useAuth } from '../../hooks/useAuth';
-import { cn } from '../../lib/utils';
-import { FormControl } from '../../components/ui/FormControl';
-import AuthSidebar from '../../components/AuthSidebar';
+import { useAuth } from '@/hooks/useAuth';
+import { cn } from '@/lib/utils';
+import { FormControl } from '@/components/ui/FormControl';
+import AuthSidebar from '@/components/AuthSidebar';
 
 type LoginForm = z.infer<ReturnType<typeof getLoginSchema>>;
 
@@ -22,10 +22,10 @@ export default function LoginPage() {
   const { t } = useTranslation();
   const { login } = useAuthStore();
 
-  const { 
-    isLoading: authCheckLoading, 
-    isActionLoading: authActionLoading, 
-    isAuthenticated 
+  const {
+    isLoading: authCheckLoading,
+    isActionLoading: authActionLoading,
+    isAuthenticated,
   } = useAuth(false);
 
   const {

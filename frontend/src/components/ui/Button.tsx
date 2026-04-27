@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { cn } from '../../lib/utils';
+import { cn } from '@/lib/utils';
 import LoadingSpinner from './LoadingSpinner';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

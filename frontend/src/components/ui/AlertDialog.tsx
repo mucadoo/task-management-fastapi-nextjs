@@ -3,7 +3,7 @@
 import * as React from 'react';
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
 
-import { cn } from '../../lib/utils';
+import { cn } from '@/lib/utils';
 
 const AlertDialog = AlertDialogPrimitive.Root;
 const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
@@ -88,7 +88,11 @@ const AlertDialogAction = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Action
     ref={ref}
-    className={cn(buttonBase, 'bg-brand-500 hover:bg-brand-600 text-white shadow-sm shadow-brand-500/20 h-9 px-4 py-2', className)}
+    className={cn(
+      buttonBase,
+      'bg-brand-500 hover:bg-brand-600 text-white shadow-sm shadow-brand-500/20 h-9 px-4 py-2',
+      className,
+    )}
     {...props}
   />
 ));

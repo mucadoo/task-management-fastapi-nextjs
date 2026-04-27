@@ -4,9 +4,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '../store/useAuthStore';
-import { authService } from '../services/auth-service';
-import { getPersonalSchema, getSecuritySchema } from '../lib/validations';
+import { useAuthStore } from '@/store/useAuthStore';
+import { authService } from '@/services/auth-service';
+import { getPersonalSchema, getSecuritySchema } from '@/lib/validations';
 
 interface UseProfileFormProps {
   isOpen: boolean;

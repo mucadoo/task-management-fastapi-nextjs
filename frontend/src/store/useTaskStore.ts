@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { TaskStatus, TaskPriority } from '../types/task';
+import { TaskStatus, TaskPriority } from '@/types/task';
 
 interface TaskUIState {
   viewMode: 'gallery' | 'list';

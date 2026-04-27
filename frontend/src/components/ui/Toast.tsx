@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Toast as ToastType, useToastStore } from '../../store/useToastStore';
+import { Toast as ToastType, useToastStore } from '@/store/useToastStore';
 import { X, CheckCircle2, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 
 export default function Toast({ toast }: { toast: ToastType }) {

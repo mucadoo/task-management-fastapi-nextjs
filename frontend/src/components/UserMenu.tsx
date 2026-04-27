@@ -1,7 +1,7 @@
 'use client';
 import { useTranslation } from 'react-i18next';
 import { User as UserIcon, LogOut, Settings, ChevronDown } from 'lucide-react';
-import { useAuthStore } from '../store/useAuthStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { Avatar } from './ui/Avatar';
 import {
   DropdownMenu,

@@ -2,10 +2,10 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Task, TaskCreate } from '../types/task';
+import { Task, TaskCreate } from '@/types/task';
 import { useCreateTask, useUpdateTask } from './useTasks';
 import { useTranslation } from 'react-i18next';
-import { getTaskSchema } from '../lib/validations';
+import { getTaskSchema } from '@/lib/validations';
 
 interface UseTaskFormProps {
   editingTask: Task | null;

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '../store/useAuthStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export function useAuth(requireAuth: boolean = true) {
   const router = useRouter();
@@ -28,10 +28,10 @@ export function useAuth(requireAuth: boolean = true) {
     }
   }, [isAuthenticated, isInitializing, router, requireAuth]);
 
-  return { 
-    isAuthenticated, 
-    user, 
+  return {
+    isAuthenticated,
+    user,
     isLoading: isInitializing, // Only return true for the initial check
-    isActionLoading: isLoading 
+    isActionLoading: isLoading,
   };
 }
