@@ -5,23 +5,13 @@ import { CheckSquare as CheckSquareIcon } from 'lucide-react';
 import LanguageSelector from './LanguageSelector';
 import ThemeToggle from './ThemeToggle';
 import UserMenu from './UserMenu';
-import ProfileModal from './ProfileModal';
 
 interface DashboardHeaderProps {
   totalTasks: number;
   onProfileOpen: (tab: 'personal' | 'security') => void;
-  isProfileOpen: boolean;
-  onProfileClose: () => void;
-  profileTab: 'personal' | 'security';
 }
 
-export default function DashboardHeader({
-  totalTasks,
-  onProfileOpen,
-  isProfileOpen,
-  onProfileClose,
-  profileTab,
-}: DashboardHeaderProps) {
+export default function DashboardHeader({ totalTasks, onProfileOpen }: DashboardHeaderProps) {
   const { t } = useTranslation();
 
   return (
@@ -51,8 +41,6 @@ export default function DashboardHeader({
         <div className="w-px h-4 bg-warm-200 dark:bg-white/10 mx-1" />
         <UserMenu onProfileOpen={onProfileOpen} />
       </div>
-
-      <ProfileModal isOpen={isProfileOpen} onClose={onProfileClose} initialTab={profileTab} />
     </div>
   );
 }

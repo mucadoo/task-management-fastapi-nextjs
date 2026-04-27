@@ -13,7 +13,8 @@ export function useAuth(requireAuth: boolean = true) {
       fetchMe();
       hasFetched.current = true;
     }
-  }, [fetchMe]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     // Only redirect if initialization is finished

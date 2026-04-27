@@ -91,7 +91,7 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
       }
     };
     if (activeTab === 'personal') checkUsername();
-  }, [debouncedUsername, user?.username, activeTab, usernameError]);
+  }, [debouncedUsername, user?.username, activeTab, !!errors.username]);
 
   // Email availability check
   useEffect(() => {
@@ -113,7 +113,7 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
       }
     };
     if (activeTab === 'personal') checkEmail();
-  }, [debouncedEmail, user?.email, activeTab, emailError]);
+  }, [debouncedEmail, user?.email, activeTab, !!errors.email]);
 
   const onFormSubmit = async (data: any) => {
     if (activeTab === 'personal' && (usernameStatus === 'taken' || emailStatus === 'taken')) return;

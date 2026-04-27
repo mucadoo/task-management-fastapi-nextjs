@@ -13,10 +13,10 @@ export function useDataDisclosure<T>(initialData: T | null = null) {
 
   const onClose = useCallback(() => {
     setIsOpen(false);
-    // We don't necessarily want to clear data immediately to avoid flash during exit animations
-    // but often it's desired. Let's make it optional or just clear it.
-    // For tasks, clearing it on close is usually fine.
-    setData(null);
+    // Delay clearing data to avoid flash during exit animations (e.g. Dialog/Modal closing)
+    setTimeout(() => {
+      setData(null);
+    }, 300);
   }, []);
 
   const onToggle = useCallback(() => {
