@@ -13,13 +13,7 @@ import { Textarea } from './ui/Textarea';
 import { Button } from './ui/Button';
 import { Select } from './ui/Select';
 import { getStatusOptions, getPriorityOptions } from '../lib/constants';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from './ui/Dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/Dialog';
 import { cn } from '../lib/utils';
 
 interface TaskFormProps {
@@ -28,34 +22,29 @@ interface TaskFormProps {
   editingTask: Task | null;
 }
 
-export default function TaskForm({
-  isOpen,
-  onClose,
-  editingTask,
-}: TaskFormProps) {
+export default function TaskForm({ isOpen, onClose, editingTask }: TaskFormProps) {
   const { t } = useTranslation();
-  
-  const { 
-    form: { register, control, watch, setValue, formState: { errors } }, 
-    isSubmitting, 
-    onSubmit 
+
+  const {
+    form: {
+      register,
+      control,
+      watch,
+      setValue,
+      formState: { errors },
+    },
+    isSubmitting,
+    onSubmit,
   } = useTaskForm({ editingTask, isOpen, onClose });
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>
-            {editingTask ? t('tasks.edit_task') : t('tasks.new_task')}
-          </DialogTitle>
+          <DialogTitle>{editingTask ? t('tasks.edit_task') : t('tasks.new_task')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4 py-4">
-          <FormField
-            name="title"
-            label={t('common.title')}
-            error={errors.title?.message}
-            required
-          >
+          <FormField name="title" label={t('common.title')} error={errors.title?.message} required>
             <Input
               {...register('title')}
               placeholder={t('tasks.placeholder_title')}
@@ -99,10 +88,9 @@ export default function TaskForm({
               name="due_date"
               render={({ field }) => (
                 <DateTimePicker
-                  id="due_date"
                   date={field.value}
                   setDate={field.onChange}
-                  hasTime={watch('due_date_has_time')}
+                  hasTime={watch('due_date_has_time') || false}
                   setHasTime={(val) => setValue('due_date_has_time', val)}
                 />
               )}
@@ -110,11 +98,7 @@ export default function TaskForm({
           </FormControl>
 
           <DialogFooter>
-            <Button
-              variant="ghost"
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
+            <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
               {t('common.cancel')}
             </Button>
             <Button

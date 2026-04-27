@@ -1,20 +1,9 @@
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQueryClient,
-  QueryClient,
-} from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient, QueryClient } from '@tanstack/react-query';
 import { taskService } from '@/services/task-service';
 import { taskKeys } from '@/lib/query-keys';
 import { onMutateListUpdate, rollbackQueries } from '@/lib/query-utils';
 import { PaginatedResponse } from '@/types/common';
-import {
-  TaskCreate,
-  TaskUpdate,
-  TaskStatus,
-  TaskPriority,
-  Task,
-} from '@/types/task';
+import { TaskCreate, TaskUpdate, TaskStatus, TaskPriority, Task } from '@/types/task';
 import { useToastStore } from '@/store/useToastStore';
 import i18n from '@/lib/i18n';
 import { notify } from '@/lib/notifications';
@@ -41,7 +30,6 @@ export function useTasks(filters: {
     initialPageParam: 1,
   });
 }
-
 
 export function useCreateTask() {
   const queryClient = useQueryClient();
@@ -77,8 +65,8 @@ export function useToggleTaskStatus() {
 
   return useMutation({
     mutationFn: (id: string) => taskService.toggleTaskStatus(id),
-    onMutate: (id: string) => 
-      onMutateListUpdate<Task>(queryClient, taskKeys.lists(), (page) => ({
+    onMutate: (id: string) =>
+      onMutateListUpdate<Task>(queryClient, taskKeys.lists() as any, (page) => ({
         ...page,
         items: page.items.map((task) => {
           if (task.id === id) {
@@ -105,8 +93,8 @@ export function useDeleteTask() {
 
   return useMutation({
     mutationFn: (id: string) => taskService.deleteTask(id),
-    onMutate: (id: string) => 
-      onMutateListUpdate<Task>(queryClient, taskKeys.lists(), (page) => ({
+    onMutate: (id: string) =>
+      onMutateListUpdate<Task>(queryClient, taskKeys.lists() as any, (page) => ({
         ...page,
         items: page.items.filter((task) => task.id !== id),
         total: page.total - 1,

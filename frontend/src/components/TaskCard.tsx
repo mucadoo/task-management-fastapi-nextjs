@@ -6,12 +6,7 @@ import PriorityBadge from './PriorityBadge';
 import LoadingSpinner from './ui/LoadingSpinner';
 import { useTranslation } from 'react-i18next';
 import { useToggleTaskStatus } from '../hooks/useTasks';
-import {
-  CheckCircle2,
-  Circle,
-  Play,
-  Pause,
-} from 'lucide-react';
+import { CheckCircle2, Circle, Play, Pause } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/Tooltip';
 import { cn } from '../lib/utils';
 import { getTaskDateStatus } from '../lib/date-utils';
@@ -38,15 +33,15 @@ const TaskCard = memo(function TaskCard({
 }: TaskCardProps) {
   const { t, i18n } = useTranslation();
   const toggleStatusMutation = useToggleTaskStatus();
-  
+
   const isToggling = isTogglingProp ?? toggleStatusMutation.isPending;
 
   const isCompleted = task.status === 'completed';
   const isInProgress = task.status === 'in_progress';
 
-  const { isOverdue, isDueToday } = useMemo(() => 
-    getTaskDateStatus(task.due_date, isCompleted, task.due_date_has_time || false),
-    [task.due_date, isCompleted, task.due_date_has_time]
+  const { isOverdue, isDueToday } = useMemo(
+    () => getTaskDateStatus(task.due_date, isCompleted, task.due_date_has_time || false),
+    [task.due_date, isCompleted, task.due_date_has_time],
   );
 
   const accentColor = useMemo(() => {
@@ -94,16 +89,24 @@ const TaskCard = memo(function TaskCard({
 
   if (viewMode === 'list') {
     return (
-      <div className={cn("group card-surface p-3 flex items-center gap-4 hover:shadow-md transition-all duration-300 relative pl-6", isCompleted && "opacity-80")}>
-        <span className={cn("accent-bar", accentColor)} />
+      <div
+        className={cn(
+          'group card-surface p-3 flex items-center gap-4 hover:shadow-md transition-all duration-300 relative pl-6',
+          isCompleted && 'opacity-80',
+        )}
+      >
+        <span className={cn('accent-bar', accentColor)} />
         {statusToggles}
 
         <div className="flex-grow min-w-0 flex items-center justify-between gap-4">
           <div className="flex-grow min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
               <h3
-                className={cn("text-sm font-semibold truncate transition-all duration-300",
-                  isCompleted ? "text-warm-400 dark:text-gray-500 line-through" : "text-warm-900 dark:text-gray-100 group-hover:text-brand-500"
+                className={cn(
+                  'text-sm font-semibold truncate transition-all duration-300',
+                  isCompleted
+                    ? 'text-warm-400 dark:text-gray-500 line-through'
+                    : 'text-warm-900 dark:text-gray-100 group-hover:text-brand-500',
                 )}
               >
                 {task.title}
@@ -121,7 +124,7 @@ const TaskCard = memo(function TaskCard({
           </div>
 
           <TaskDateBadge
-            dueDate={task.due_date}
+            dueDate={task.due_date as string | null}
             hasTime={task.due_date_has_time || false}
             isOverdue={isOverdue}
             isDueToday={isDueToday}
@@ -129,16 +132,19 @@ const TaskCard = memo(function TaskCard({
             variant="list"
           />
         </div>
-        <div className="flex-shrink-0 ml-2">
-          {actions}
-        </div>
+        <div className="flex-shrink-0 ml-2">{actions}</div>
       </div>
     );
   }
 
   return (
-    <div className={cn("group card-surface p-3.5 flex flex-col h-full hover:shadow-md transition-all duration-300 relative pl-6", isCompleted && "opacity-80")}>
-      <span className={cn("accent-bar", accentColor)} />
+    <div
+      className={cn(
+        'group card-surface p-3.5 flex flex-col h-full hover:shadow-md transition-all duration-300 relative pl-6',
+        isCompleted && 'opacity-80',
+      )}
+    >
+      <span className={cn('accent-bar', accentColor)} />
       <div className="flex justify-between items-start mb-3">
         {statusToggles}
         <div className="flex flex-col items-end gap-1">
@@ -149,8 +155,11 @@ const TaskCard = memo(function TaskCard({
 
       <div className="flex-grow">
         <h3
-          className={cn("text-sm font-semibold mb-1 transition-all duration-300",
-            isCompleted ? "text-warm-400 dark:text-gray-500 line-through" : "text-warm-900 dark:text-gray-100 group-hover:text-brand-500"
+          className={cn(
+            'text-sm font-semibold mb-1 transition-all duration-300',
+            isCompleted
+              ? 'text-warm-400 dark:text-gray-500 line-through'
+              : 'text-warm-900 dark:text-gray-100 group-hover:text-brand-500',
           )}
         >
           {task.title}
@@ -159,7 +168,7 @@ const TaskCard = memo(function TaskCard({
           {task.description || t('tasks.no_description')}
         </p>
         <TaskDateBadge
-          dueDate={task.due_date}
+          dueDate={task.due_date as string | null}
           hasTime={task.due_date_has_time || false}
           isOverdue={isOverdue}
           isDueToday={isDueToday}

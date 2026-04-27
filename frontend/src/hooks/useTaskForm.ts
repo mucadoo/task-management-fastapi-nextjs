@@ -21,13 +21,13 @@ export function useTaskForm({ editingTask, isOpen, onClose }: UseTaskFormProps) 
   const isSubmitting = createTaskMutation.isPending || updateTaskMutation.isPending;
 
   const form = useForm<TaskCreate & { due_date: Date | null }>({
-    resolver: zodResolver(getTaskSchema(t)),
+    resolver: zodResolver(getTaskSchema(t)) as any,
     defaultValues: {
       title: '',
       description: '',
       status: 'pending',
       priority: 'medium',
-      due_date: null,
+      due_date: undefined,
       due_date_has_time: false,
     },
   });
@@ -43,7 +43,7 @@ export function useTaskForm({ editingTask, isOpen, onClose }: UseTaskFormProps) 
           description: editingTask.description || '',
           status: editingTask.status,
           priority: editingTask.priority,
-          due_date: editingTask.due_date ? new Date(editingTask.due_date) : null,
+          due_date: (editingTask.due_date ? new Date(editingTask.due_date) : undefined) as any,
           due_date_has_time: editingTask.due_date_has_time || false,
         });
       } else {
@@ -52,7 +52,7 @@ export function useTaskForm({ editingTask, isOpen, onClose }: UseTaskFormProps) 
           description: '',
           status: 'pending',
           priority: 'medium',
-          due_date: null,
+          due_date: undefined,
           due_date_has_time: false,
         });
       }
@@ -65,7 +65,7 @@ export function useTaskForm({ editingTask, isOpen, onClose }: UseTaskFormProps) 
       if (finalDueDate) {
         finalDueDate = finalDueDate.toISOString();
       }
-      
+
       const taskData = {
         ...data,
         title: data.title.trim(),

@@ -6,13 +6,7 @@ import { Button } from './ui/Button';
 import { useProfileForm } from '../hooks/useProfileForm';
 import { FormField } from './ui/FormField';
 import { Input } from './ui/Input';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from './ui/Dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/Dialog';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/Tabs';
 import { cn } from '../lib/utils';
 
@@ -29,9 +23,12 @@ export default function ProfileModal({
 }: ProfileModalProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'personal' | 'security'>(initialTab);
-  
+
   const {
-    form: { register, formState: { errors, touchedFields } },
+    form: {
+      register,
+      formState: { errors, touchedFields },
+    },
     isSubmitting,
     usernameStatus,
     emailStatus,
@@ -48,79 +45,111 @@ export default function ProfileModal({
         <DialogHeader>
           <DialogTitle>{t('profile.title')}</DialogTitle>
         </DialogHeader>
-        
+
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="personal">{t('profile.personal_info')}</TabsTrigger>
             <TabsTrigger value="security">{t('profile.security')}</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="personal" className="mt-4">
             <form onSubmit={onSubmit} className="space-y-4">
               <FormField
                 name="name"
                 label={t('common.name')}
-                error={errors.name && touchedFields.name ? (errors.name.message as string) : undefined}
+                error={
+                  (errors as any).name && (touchedFields as any).name
+                    ? ((errors as any).name.message as string)
+                    : undefined
+                }
               >
-                <Input
-                  {...register('name')}
-                  type="text"
-                  placeholder={t('common.name')}
-                />
+                <Input {...register('name')} type="text" placeholder={t('common.name')} />
               </FormField>
 
-              <FormField 
-                name="email" 
-                label={t('common.email')} 
-                error={(errors.email && touchedFields.email ? (errors.email.message as string) : undefined) || (emailStatus === 'taken' ? t('profile.email_taken') : undefined)}
+              <FormField
+                name="email"
+                label={t('common.email')}
+                error={
+                  ((errors as any).email && (touchedFields as any).email
+                    ? ((errors as any).email.message as string)
+                    : undefined) || (emailStatus === 'taken' ? t('profile.email_taken') : undefined)
+                }
               >
                 <div className="relative">
                   <Input
                     {...register('email')}
                     type="email"
                     placeholder={t('common.email')}
-                    className={cn(
-                      "pr-10",
-                      emailStatus === 'available' && 'border-emerald-500'
-                    )}
-                    error={!!(emailStatus === 'taken' || (errors.email && touchedFields.email))}
+                    className={cn('pr-10', emailStatus === 'available' && 'border-emerald-500')}
+                    error={
+                      !!(
+                        emailStatus === 'taken' ||
+                        ((errors as any).email && (touchedFields as any).email)
+                      )
+                    }
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    {emailStatus === 'checking' && <Loader2 className="h-4 w-4 text-warm-400 animate-spin" />}
-                    {emailStatus === 'available' && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                    {emailStatus === 'checking' && (
+                      <Loader2 className="h-4 w-4 text-warm-400 animate-spin" />
+                    )}
+                    {emailStatus === 'available' && (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                    )}
                     {emailStatus === 'taken' && <AlertCircle className="h-4 w-4 text-red-500" />}
                   </div>
                 </div>
               </FormField>
-              {emailStatus === 'available' && <p className="text-[10px] text-emerald-500 ml-1 -mt-3 mb-4">{t('profile.email_available')}</p>}
+              {emailStatus === 'available' && (
+                <p className="text-[10px] text-emerald-500 ml-1 -mt-3 mb-4">
+                  {t('profile.email_available')}
+                </p>
+              )}
 
-              <FormField 
-                name="username" 
-                label={t('common.username')} 
-                error={(errors.username && touchedFields.username ? (errors.username.message as string) : undefined) || (usernameStatus === 'taken' ? t('profile.username_taken') : undefined) || (usernameStatus === 'invalid' ? t('profile.username_invalid') : undefined)}
+              <FormField
+                name="username"
+                label={t('common.username')}
+                error={
+                  ((errors as any).username && (touchedFields as any).username
+                    ? ((errors as any).username.message as string)
+                    : undefined) ||
+                  (usernameStatus === 'taken' ? t('profile.username_taken') : undefined) ||
+                  (usernameStatus === 'invalid' ? t('profile.username_invalid') : undefined)
+                }
               >
                 <div className="relative">
                   <Input
                     {...register('username')}
                     type="text"
                     placeholder={t('common.username')}
-                    className={cn(
-                      "pr-10",
-                      usernameStatus === 'available' && 'border-emerald-500'
-                    )}
-                    error={!!(usernameStatus === 'taken' || (errors.username && touchedFields.username))}
+                    className={cn('pr-10', usernameStatus === 'available' && 'border-emerald-500')}
+                    error={
+                      !!(
+                        usernameStatus === 'taken' ||
+                        ((errors as any).username && (touchedFields as any).username)
+                      )
+                    }
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    {usernameStatus === 'checking' && <Loader2 className="h-4 w-4 text-warm-400 animate-spin" />}
-                    {usernameStatus === 'available' && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                    {usernameStatus === 'checking' && (
+                      <Loader2 className="h-4 w-4 text-warm-400 animate-spin" />
+                    )}
+                    {usernameStatus === 'available' && (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                    )}
                     {usernameStatus === 'taken' && <AlertCircle className="h-4 w-4 text-red-500" />}
                   </div>
                 </div>
               </FormField>
-              {usernameStatus === 'available' && <p className="text-[10px] text-emerald-500 ml-1 -mt-3 mb-4">{t('profile.username_available')}</p>}
+              {usernameStatus === 'available' && (
+                <p className="text-[10px] text-emerald-500 ml-1 -mt-3 mb-4">
+                  {t('profile.username_available')}
+                </p>
+              )}
 
               <DialogFooter>
-                <Button variant="ghost" onClick={onClose}>{t('common.cancel')}</Button>
+                <Button variant="ghost" onClick={onClose}>
+                  {t('common.cancel')}
+                </Button>
                 <Button type="submit" isLoading={isSubmitting}>
                   {t('common.save_changes')}
                 </Button>
@@ -133,7 +162,11 @@ export default function ProfileModal({
               <FormField
                 name="current_password"
                 label={t('profile.current_password')}
-                error={errors.current_password && touchedFields.current_password ? (errors.current_password.message as string) : undefined}
+                error={
+                  (errors as any).current_password && (touchedFields as any).current_password
+                    ? ((errors as any).current_password.message as string)
+                    : undefined
+                }
               >
                 <Input
                   {...register('current_password')}
@@ -144,7 +177,11 @@ export default function ProfileModal({
               <FormField
                 name="password"
                 label={t('profile.new_password')}
-                error={errors.password && touchedFields.password ? (errors.password.message as string) : undefined}
+                error={
+                  (errors as any).password && (touchedFields as any).password
+                    ? ((errors as any).password.message as string)
+                    : undefined
+                }
               >
                 <Input
                   {...register('password')}
@@ -155,7 +192,11 @@ export default function ProfileModal({
               <FormField
                 name="confirmPassword"
                 label={t('profile.confirm_new_password')}
-                error={errors.confirmPassword && touchedFields.confirmPassword ? (errors.confirmPassword.message as string) : undefined}
+                error={
+                  (errors as any).confirmPassword && (touchedFields as any).confirmPassword
+                    ? ((errors as any).confirmPassword.message as string)
+                    : undefined
+                }
               >
                 <Input
                   {...register('confirmPassword')}
@@ -164,7 +205,9 @@ export default function ProfileModal({
                 />
               </FormField>
               <DialogFooter>
-                <Button variant="ghost" onClick={onClose}>{t('common.cancel')}</Button>
+                <Button variant="ghost" onClick={onClose}>
+                  {t('common.cancel')}
+                </Button>
                 <Button type="submit" isLoading={isSubmitting}>
                   {t('profile.change_password')}
                 </Button>

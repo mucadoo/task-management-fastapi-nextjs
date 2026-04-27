@@ -18,9 +18,13 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
   const { t } = useTranslation();
   const { user, updateMe } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
-  const [emailStatus, setEmailStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
+
+  const [usernameStatus, setUsernameStatus] = useState<
+    'idle' | 'checking' | 'available' | 'taken' | 'invalid'
+  >('idle');
+  const [emailStatus, setEmailStatus] = useState<
+    'idle' | 'checking' | 'available' | 'taken' | 'invalid'
+  >('idle');
 
   const form = useForm({
     resolver: zodResolver(activeTab === 'personal' ? getPersonalSchema(t) : getSecuritySchema(t)),
@@ -34,7 +38,13 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
     },
   });
 
-  const { reset, watch, clearErrors, handleSubmit, formState: { errors } } = form;
+  const {
+    reset,
+    watch,
+    clearErrors,
+    handleSubmit,
+    formState: { errors },
+  } = form;
 
   const watchedUsername = watch('username');
   const watchedEmail = watch('email');
@@ -65,7 +75,7 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
         setUsernameStatus('idle');
         return;
       }
-      if (errors.username) {
+      if ((errors as any).username) {
         setUsernameStatus('invalid');
         return;
       }
@@ -78,7 +88,7 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
       }
     };
     if (activeTab === 'personal') checkUsername();
-  }, [debouncedUsername, user?.username, activeTab, errors.username]);
+  }, [debouncedUsername, user?.username, activeTab, (errors as any).username]);
 
   // Email availability check
   useEffect(() => {
@@ -87,7 +97,7 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
         setEmailStatus('idle');
         return;
       }
-      if (errors.email) {
+      if ((errors as any).email) {
         setEmailStatus('invalid');
         return;
       }
@@ -100,18 +110,19 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
       }
     };
     if (activeTab === 'personal') checkEmail();
-  }, [debouncedEmail, user?.email, activeTab, errors.email]);
+  }, [debouncedEmail, user?.email, activeTab, (errors as any).email]);
 
   const onFormSubmit = async (data: any) => {
     if (activeTab === 'personal' && (usernameStatus === 'taken' || emailStatus === 'taken')) return;
     setIsSubmitting(true);
     try {
-      const payload = activeTab === 'personal'
-        ? { name: data.name, email: data.email, username: data.username }
-        : { current_password: data.current_password, password: data.password };
-      
+      const payload =
+        activeTab === 'personal'
+          ? { name: data.name, email: data.email, username: data.username }
+          : { current_password: data.current_password, password: data.password };
+
       await updateMe(payload);
-      
+
       if (activeTab === 'security') {
         reset({ ...form.getValues(), current_password: '', password: '', confirmPassword: '' });
       }
