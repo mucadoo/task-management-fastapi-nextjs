@@ -7,12 +7,11 @@ from ..models.user import User
 from ..repositories.auth_repository import AuthRepository
 from ..repositories.user_repository import UserRepository
 from ..exceptions import UnauthorizedError, AppError
+from ..utils.security import hash_password, verify_password
 
 if TYPE_CHECKING:
     from ..services.user_service import UserService
     from ..schemas.user import UserUpdate
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class AuthService:
     def __init__(
@@ -32,10 +31,10 @@ class AuthService:
         self.user_service = user_service
 
     def hash_password(self, plain: str) -> str:
-        return pwd_context.hash(plain[:72])
+        return hash_password(plain)
 
     def verify_password(self, plain: str, hashed: str) -> bool:
-        return pwd_context.verify(plain[:72], hashed)
+        return verify_password(plain, hashed)
 
     def create_access_token(self, data: dict) -> str:
         to_encode = data.copy()

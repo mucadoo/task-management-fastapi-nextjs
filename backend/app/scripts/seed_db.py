@@ -10,7 +10,7 @@ sys.path.append(
 from app.database import SessionLocal, engine
 from app.models.user import User
 from app.models.task import Task, TaskStatus, TaskPriority
-from app.services import auth_service
+from app.utils.security import hash_password
 
 fake = Faker("pt_BR")
 
@@ -31,7 +31,7 @@ def seed_db():
                     name=name,
                     email=email,
                     username=username,
-                    hashed_password=auth_service.hash_password(password),
+                    hashed_password=hash_password(password),
                 )
                 db.add(user)
         db.commit()

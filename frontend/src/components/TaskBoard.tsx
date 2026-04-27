@@ -13,6 +13,7 @@ import { useTaskBoard } from '@/hooks/useTaskBoard';
 import { LayoutGrid, List } from 'lucide-react';
 import { TooltipSimple } from './ui/Tooltip';
 import { cn } from '@/lib/utils';
+import { AppLayout } from './AppLayout';
 
 export default function TaskBoard() {
   const { t } = useTranslation();
@@ -48,141 +49,137 @@ export default function TaskBoard() {
   } = useTaskBoard();
 
   return (
-    <div className="min-h-screen bg-warm-50 dark:bg-[#0a0a0a]">
-      <DashboardHeader
-        totalTasks={total}
-        onProfileOpen={handleProfileOpen}
-        isProfileOpen={isProfileOpen}
-        onProfileClose={handleProfileClose}
-        profileTab={profileTab}
+    <AppLayout
+      totalTasks={total}
+      onProfileOpen={handleProfileOpen}
+      isProfileOpen={isProfileOpen}
+      onProfileClose={handleProfileClose}
+      profileTab={profileTab}
+    >
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <div className="rule-brand mb-4 w-8 h-1" />
+          <h1 className="text-2xl font-bold text-warm-900 dark:text-gray-100 tracking-tight">
+            {t('tasks.title')}
+          </h1>
+        </div>
+        
+        <div className="flex gap-1 p-1 bg-warm-100 dark:bg-white/5 rounded-lg border border-warm-200 dark:border-white/5">
+          <TooltipSimple content={t('tasks.view_gallery')} side="bottom">
+            <button
+              onClick={() => setViewMode('gallery')}
+              className={cn(
+                "h-8 w-8 rounded-md flex items-center justify-center transition-all",
+                viewMode === 'gallery' 
+                  ? "bg-white dark:bg-white/10 text-brand-500 shadow-sm" 
+                  : "text-warm-500 hover:text-warm-900 dark:hover:text-gray-100"
+              )}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+          </TooltipSimple>
+          
+          <TooltipSimple content={t('tasks.view_list')} side="bottom">
+            <button
+              onClick={() => setViewMode('list')}
+              className={cn(
+                "h-8 w-8 rounded-md flex items-center justify-center transition-all",
+                viewMode === 'list' 
+                  ? "bg-white dark:bg-white/10 text-brand-500 shadow-sm" 
+                  : "text-warm-500 hover:text-warm-900 dark:hover:text-gray-100"
+              )}
+            >
+              <List className="h-4 w-4" />
+            </button>
+          </TooltipSimple>
+        </div>
+      </div>
+
+      <TaskFilters
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        filters={filters}
+        setFilters={setFilters}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        onNewTask={handleNewTask}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <div className="rule-brand mb-4 w-8 h-1" />
-            <h1 className="text-2xl font-bold text-warm-900 dark:text-gray-100 tracking-tight">
-              {t('tasks.title')}
-            </h1>
-          </div>
-          
-          <div className="flex gap-1 p-1 bg-warm-100 dark:bg-white/5 rounded-lg border border-warm-200 dark:border-white/5">
-            <TooltipSimple content={t('tasks.view_gallery')} side="bottom">
-              <button
-                onClick={() => setViewMode('gallery')}
-                className={cn(
-                  "h-8 w-8 rounded-md flex items-center justify-center transition-all",
-                  viewMode === 'gallery' 
-                    ? "bg-white dark:bg-white/10 text-brand-500 shadow-sm" 
-                    : "text-warm-500 hover:text-warm-900 dark:hover:text-gray-100"
-                )}
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </button>
-            </TooltipSimple>
-            
-            <TooltipSimple content={t('tasks.view_list')} side="bottom">
-              <button
-                onClick={() => setViewMode('list')}
-                className={cn(
-                  "h-8 w-8 rounded-md flex items-center justify-center transition-all",
-                  viewMode === 'list' 
-                    ? "bg-white dark:bg-white/10 text-brand-500 shadow-sm" 
-                    : "text-warm-500 hover:text-warm-900 dark:hover:text-gray-100"
-                )}
-              >
-                <List className="h-4 w-4" />
-              </button>
-            </TooltipSimple>
-          </div>
+      {error && (
+        <div className="mb-6">
+          <ErrorMessage message={(error as any).message || t('common.error')} />
         </div>
+      )}
 
-        <TaskFilters
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          filters={filters}
-          setFilters={setFilters}
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-          onNewTask={handleNewTask}
-        />
-
-        {error && (
-          <div className="mb-6">
-            <ErrorMessage message={(error as any).message || t('common.error')} />
-          </div>
-        )}
-
-        {isLoading && tasks.length === 0 ? (
+      {isLoading && tasks.length === 0 ? (
+        <div
+          className={cn(
+            viewMode === 'gallery'
+              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3'
+              : 'space-y-3'
+          )}
+        >
+          {[...Array(6)].map((_, i) => (
+            <TaskSkeleton key={i} />
+          ))}
+        </div>
+      ) : tasks.length > 0 ? (
+        <>
           <div
             className={cn(
               viewMode === 'gallery'
-                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3'
-                : 'space-y-3'
+                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 animate-in fade-in duration-500'
+                : 'flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-500'
             )}
           >
-            {[...Array(6)].map((_, i) => (
-              <TaskSkeleton key={i} />
+            {tasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                viewMode={viewMode}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                isDeleting={deletingId === task.id}
+              />
             ))}
+            {isFetchingNextPage && (
+              <>
+                {[...Array(3)].map((_, i) => (
+                  <TaskSkeleton key={`more-${i}`} />
+                ))}
+              </>
+            )}
           </div>
-        ) : tasks.length > 0 ? (
-          <>
-            <div
-              className={cn(
-                viewMode === 'gallery'
-                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 animate-in fade-in duration-500'
-                  : 'flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-500'
-              )}
-            >
-              {tasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  viewMode={viewMode}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  isDeleting={deletingId === task.id}
-                />
-              ))}
-              {isFetchingNextPage && (
-                <>
-                  {[...Array(3)].map((_, i) => (
-                    <TaskSkeleton key={`more-${i}`} />
-                  ))}
-                </>
-              )}
-            </div>
-            <InfiniteScrollTrigger
-              onIntersect={() => fetchNextPage()}
-              isLoading={isFetchingNextPage}
-              hasMore={!!hasNextPage}
-            />
-          </>
-        ) : (
-          <EmptyState
-            title={t('tasks.no_tasks')}
-            description={searchTerm || filters.status || filters.priority ? t('tasks.no_tasks_match') : t('tasks.get_started')}
-            action={!(searchTerm || filters.status || filters.priority) ? {
-              label: t('tasks.new_task'),
-              onClick: handleNewTask
-            } : undefined}
+          <InfiniteScrollTrigger
+            onIntersect={() => fetchNextPage()}
+            isLoading={isFetchingNextPage}
+            hasMore={!!hasNextPage}
           />
-        )}
-
-        <TaskForm
-          isOpen={isFormOpen}
-          onClose={handleFormClose}
-          editingTask={editingTask}
+        </>
+      ) : (
+        <EmptyState
+          title={t('tasks.no_tasks')}
+          description={searchTerm || filters.status || filters.priority ? t('tasks.no_tasks_match') : t('tasks.get_started')}
+          action={!(searchTerm || filters.status || filters.priority) ? {
+            label: t('tasks.new_task'),
+            onClick: handleNewTask
+          } : undefined}
         />
+      )}
 
-        <ConfirmDialog
-          isOpen={deletingId !== null}
-          message={t('tasks.confirm_delete')}
-          onConfirm={handleDeleteConfirm}
-          onCancel={handleCancelDelete}
-          isLoading={isDeleting}
-        />
-      </main>
-    </div>
+      <TaskForm
+        isOpen={isFormOpen}
+        onClose={handleFormClose}
+        editingTask={editingTask}
+      />
+
+      <ConfirmDialog
+        isOpen={deletingId !== null}
+        message={t('tasks.confirm_delete')}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleCancelDelete}
+        isLoading={isDeleting}
+      />
+    </AppLayout>
   );
 }
