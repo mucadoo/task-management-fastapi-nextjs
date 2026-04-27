@@ -3,6 +3,7 @@ import prettierConfig from "eslint-config-prettier";
 import prettierPlugin from "eslint-plugin-prettier";
 import tsEslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
+import unusedImportsPlugin from "eslint-plugin-unused-imports";
 
 export default [
   {
@@ -25,12 +26,18 @@ export default [
     plugins: {
       "@typescript-eslint": tsEslint,
       prettier: prettierPlugin,
+      "unused-imports": unusedImportsPlugin,
     },
     rules: {
       "prettier/prettier": "error",
-      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-explicit-any": "warn",
       "no-console": ["warn", { allow: ["warn", "error"] }],
+      "unused-imports/no-unused-imports": "error",
+      "unused-imports/no-unused-vars": [
+        "warn",
+        { vars: "all", varsIgnorePattern: "^_", args: "after-used", argsIgnorePattern: "^_" },
+      ],
     },
   },
   prettierConfig,
