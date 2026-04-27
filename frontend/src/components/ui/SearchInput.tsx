@@ -14,11 +14,11 @@ export default function SearchInput({
   className = '',
 }: SearchInputProps) {
   const [localValue, setLocalValue] = useState(value);
-  useEffect(() => {
-    if (value !== localValue) {
-      setLocalValue(value);
-    }
-  }, [value]);
+
+  if (value !== localValue) {
+    setLocalValue(value);
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVal = e.target.value;
     setLocalValue(newVal);

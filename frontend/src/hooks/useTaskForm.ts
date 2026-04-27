@@ -49,9 +49,8 @@ export function useTaskForm({ editingTask, onClose }: UseTaskFormProps) {
 
   const onFormSubmit = async (data: FormData) => {
     try {
-      const finalDueDate = data.due_date instanceof Date
-        ? data.due_date.toISOString()
-        : data.due_date;
+      const finalDueDate =
+        data.due_date instanceof Date ? data.due_date.toISOString() : data.due_date;
 
       const taskData = {
         ...data,

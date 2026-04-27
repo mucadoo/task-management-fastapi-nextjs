@@ -1,19 +1,11 @@
 'use client';
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
 import { Sun, Moon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip';
-import { useTranslation } from 'react-i18next';
+
 export default function ThemeToggle() {
   const { setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const { t } = useTranslation();
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  if (!mounted) {
-    return <div className="p-2.5 w-10 h-10" />;
-  }
+
   const toggleTheme = () => {
     setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
   };

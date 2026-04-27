@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useTaskStore } from '@/store/useTaskStore';
 import { useTasks, useDeleteTask } from '@/hooks/useTasks';
@@ -65,9 +65,12 @@ export function useTaskBoard() {
     }
   }, [debouncedSearchTerm, filters.q, setFilters]);
 
-  // Update local search term when URL filter changes (e.g. on navigation or reset)
+  const lastFiltersRef = useRef(filters.q);
   useEffect(() => {
-    setSearchTerm(filters.q);
+    if (filters.q !== lastFiltersRef.current) {
+      lastFiltersRef.current = filters.q;
+      setSearchTerm(filters.q);
+    }
   }, [filters.q]);
 
   const handleDeleteConfirm = useCallback(async () => {
