@@ -3,6 +3,8 @@
 import TaskBoard from '@/components/TaskBoard';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
+import { Suspense } from 'react';
+import Loading from './loading';
 
 export default function AppDashboardPage() {
   const { t } = useTranslation();
@@ -25,7 +27,9 @@ export default function AppDashboardPage() {
 
   return (
     <main className="min-h-screen">
-      <TaskBoard />
+      <Suspense fallback={<Loading />}>
+        <TaskBoard />
+      </Suspense>
     </main>
   );
 }

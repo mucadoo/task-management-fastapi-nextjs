@@ -218,11 +218,11 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 **Pontos fortes:**
 - Tipagem rigorosa em todo o fluxo (Backend e Frontend).
 - CI/CD robusto com validação obrigatória por testes.
+- Arquitetura multi-tenant: Isolamento rigoroso de dados na camada de repositório, garantindo que usuários acessem apenas suas próprias tarefas.
 - Arquitetura limpa e desacoplada.
 
 **Limitações:**
 - Ausência de HTTPS nativo (necessário configurar Certbot/ACM).
-- Tarefas não são isoladas por usuário (nesta versão, todos veem todas as tarefas).
 
 ---
 
@@ -242,4 +242,3 @@ A arquitetura de produção utiliza:
    - Provisionar a infraestrutura (EC2 e Security Groups) via Terraform.
    - Construir e enviar as imagens Docker.
    - Implantar a aplicação na EC2.
-

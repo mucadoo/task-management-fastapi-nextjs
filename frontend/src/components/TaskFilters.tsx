@@ -12,8 +12,14 @@ import { Plus } from 'lucide-react';
 interface TaskFiltersProps {
   searchTerm: string;
   onSearchChange: (val: string) => void;
-  filters: any;
-  setFilters: (filters: any) => void;
+  filters: {
+    status?: TaskStatus;
+    priority?: TaskPriority;
+    q?: string;
+    sort_by?: string;
+    sort_dir?: string;
+  };
+  setFilters: (filters: Partial<TaskFiltersProps['filters']>) => void;
   viewMode: 'gallery' | 'list';
   setViewMode: (mode: 'gallery' | 'list') => void;
   onNewTask: () => void;

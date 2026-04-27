@@ -2,16 +2,28 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useTaskStore } from '@/store/useTaskStore';
 import { useTasks, useDeleteTask } from '@/hooks/useTasks';
-import { Task } from '@/types/task';
+import { Task, TaskStatus, TaskPriority } from '@/types/task';
 import { useDataDisclosure } from './useDataDisclosure';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 export function useTaskBoard() {
-  const { viewMode, setViewMode, filters, setFilters } = useTaskStore();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const [searchTerm, setSearchTerm] = useState(filters.q || '');
+  const { viewMode, setViewMode } = useTaskStore();
+
+  const filters = useMemo(() => ({
+    status: (searchParams.get('status') as TaskStatus) || undefined,
+    priority: (searchParams.get('priority') as TaskPriority) || undefined,
+    q: searchParams.get('q') || '',
+    sort_by: searchParams.get('sort_by') || 'due_date',
+    sort_dir: searchParams.get('sort_dir') || 'asc',
+  }), [searchParams]);
+
+  const [searchTerm, setSearchTerm] = useState(filters.q);
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 
-  
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, error } =
     useTasks(filters);
 
@@ -23,16 +35,34 @@ export function useTaskBoard() {
 
   const total = data?.pages[0]?.total || 0;
 
-  
   const formDisclosure = useDataDisclosure<Task>();
   const profileDisclosure = useDataDisclosure<'personal' | 'security'>('personal');
   const deleteDisclosure = useDataDisclosure<string>();
+
+  const setFilters = useCallback((newFilters: Partial<typeof filters>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (value && value !== 'all') {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    });
+
+    router.replace(`${pathname}?${params.toString()}`);
+  }, [searchParams, router, pathname]);
 
   useEffect(() => {
     if (debouncedSearchTerm !== filters.q) {
       setFilters({ q: debouncedSearchTerm });
     }
   }, [debouncedSearchTerm, filters.q, setFilters]);
+
+  // Update local search term when URL filter changes (e.g. on navigation or reset)
+  useEffect(() => {
+    setSearchTerm(filters.q);
+  }, [filters.q]);
 
   const handleDeleteConfirm = useCallback(async () => {
     if (deleteDisclosure.data) {
@@ -75,7 +105,6 @@ export function useTaskBoard() {
   }, [deleteDisclosure]);
 
   return {
-    
     tasks,
     total,
     isLoading,
@@ -83,7 +112,6 @@ export function useTaskBoard() {
     hasNextPage,
     error,
 
-    
     viewMode,
     filters,
     searchTerm,
@@ -94,7 +122,6 @@ export function useTaskBoard() {
     deletingId: deleteDisclosure.data,
     isDeleting: deleteMutation.isPending,
 
-    
     setViewMode,
     setFilters,
     setSearchTerm,
