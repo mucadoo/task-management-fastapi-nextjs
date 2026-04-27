@@ -60,6 +60,9 @@ class BaseRepository(Generic[ModelType]):
         return True
 
     def commit_and_refresh(self, model: ModelType) -> ModelType:
-        self.db.commit()
+        self.commit()
         self.db.refresh(model)
         return model
+
+    def commit(self) -> None:
+        self.db.commit()

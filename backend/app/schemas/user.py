@@ -3,6 +3,7 @@ import datetime
 import uuid
 import re
 from typing import Optional
+from .common import BaseResponseSchema
 
 
 def validate_username_logic(v: Optional[str]) -> Optional[str]:
@@ -23,9 +24,9 @@ def validate_password_logic(v: Optional[str]) -> Optional[str]:
 
 class UserCreate(BaseModel):
     email: EmailStr
-    username: Optional[str] = Field(None, min_length=3)
-    name: Optional[str] = None
-    password: str = Field(..., min_length=8)
+    username: Optional[str] = Field(None, min_length=3, max_length=30)
+    name: Optional[str] = Field(None, max_length=100)
+    password: str = Field(..., min_length=8, max_length=128)
 
     @field_validator("username")
     @classmethod
@@ -40,9 +41,9 @@ class UserCreate(BaseModel):
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
-    username: Optional[str] = Field(None, min_length=3)
-    name: Optional[str] = None
-    password: Optional[str] = Field(None, min_length=8)
+    username: Optional[str] = Field(None, min_length=3, max_length=30)
+    name: Optional[str] = Field(None, max_length=100)
+    password: Optional[str] = Field(None, min_length=8, max_length=128)
     current_password: Optional[str] = None
 
     @field_validator("username")
@@ -56,14 +57,13 @@ class UserUpdate(BaseModel):
         return validate_password_logic(v)
 
 
-class UserResponse(BaseModel):
+class UserResponse(BaseResponseSchema):
     id: uuid.UUID
     email: EmailStr
     username: Optional[str] = None
     name: Optional[str] = None
     created_at: datetime.datetime
     updated_at: Optional[datetime.datetime] = None
-    model_config = ConfigDict(from_attributes=True)
 
 
 class TokenResponse(BaseModel):

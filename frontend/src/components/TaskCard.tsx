@@ -48,14 +48,6 @@ const TaskCard = memo(function TaskCard({
     [task.due_date, isCompleted, task.due_date_has_time]
   );
 
-  const formattedDueDate = task.due_date
-    ? new Date(task.due_date).toLocaleDateString(i18n.language, {
-        month: 'short',
-        day: 'numeric',
-        ...(task.due_date_has_time ? { hour: '2-digit', minute: '2-digit' } : {}),
-      })
-    : null;
-
   const accentColor = useMemo(() => {
     if (isCompleted) return 'bg-emerald-500';
     if (isOverdue) return 'bg-red-600';

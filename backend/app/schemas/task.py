@@ -3,12 +3,12 @@ from typing import Optional, List
 import datetime
 import uuid
 from ..models.task import TaskStatus, TaskPriority
-from .common import PaginatedResponse
+from .common import PaginatedResponse, BaseResponseSchema
 
 
 class TaskBase(BaseModel):
-    title: str = Field(..., min_length=1)
-    description: Optional[str] = None
+    title: str = Field(..., min_length=1, max_length=100)
+    description: Optional[str] = Field(None, max_length=1000)
     status: TaskStatus = TaskStatus.PENDING
     priority: TaskPriority = TaskPriority.MEDIUM
     due_date: Optional[datetime.datetime] = None
@@ -20,19 +20,18 @@ class TaskCreate(TaskBase):
 
 
 class TaskUpdate(BaseModel):
-    title: Optional[str] = Field(None, min_length=1)
-    description: Optional[str] = None
+    title: Optional[str] = Field(None, min_length=1, max_length=100)
+    description: Optional[str] = Field(None, max_length=1000)
     status: Optional[TaskStatus] = None
     priority: Optional[TaskPriority] = None
     due_date: Optional[datetime.datetime] = None
     due_date_has_time: Optional[bool] = None
 
 
-class TaskResponse(TaskBase):
+class TaskResponse(BaseResponseSchema, TaskBase):
     id: uuid.UUID
     created_at: datetime.datetime
     updated_at: Optional[datetime.datetime] = None
-    model_config = ConfigDict(from_attributes=True)
 
 
 class TaskListResponse(PaginatedResponse[TaskResponse]):

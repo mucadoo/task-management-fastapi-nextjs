@@ -53,7 +53,7 @@ class TaskService:
         success = self.task_repo.delete_task(user_id, task_id)
         if not success:
             raise NotFoundError("errors.task_not_found")
-        self.task_repo.db.commit()
+        self.task_repo.commit()
         return True
 
     def toggle_task(self, user_id: uuid.UUID, task_id: uuid.UUID) -> Task:

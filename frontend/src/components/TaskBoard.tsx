@@ -7,6 +7,7 @@ import ErrorMessage from './ui/ErrorMessage';
 import ConfirmDialog from './ui/ConfirmDialog';
 import DashboardHeader from './DashboardHeader';
 import TaskFilters from './TaskFilters';
+import { EmptyState } from './ui/EmptyState';
 import { useTranslation } from 'react-i18next';
 import { useTaskBoard } from '@/hooks/useTaskBoard';
 import { LayoutGrid, List } from 'lucide-react';
@@ -158,9 +159,14 @@ export default function TaskBoard() {
             />
           </>
         ) : (
-          <div className="text-center py-20 border border-dashed border-warm-300 dark:border-white/5 rounded-xl text-warm-600 dark:text-gray-500">
-            {t('tasks.no_tasks')}
-          </div>
+          <EmptyState
+            title={t('tasks.no_tasks')}
+            description={searchTerm || filters.status || filters.priority ? t('tasks.no_tasks_match') : t('tasks.get_started')}
+            action={!(searchTerm || filters.status || filters.priority) ? {
+              label: t('tasks.new_task'),
+              onClick: handleNewTask
+            } : undefined}
+          />
         )}
 
         <TaskForm
