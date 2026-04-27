@@ -3,6 +3,7 @@ import { useDebounce } from 'use-debounce';
 import { useTaskStore } from '@/store/useTaskStore';
 import { useTasks, useDeleteTask } from '@/hooks/useTasks';
 import { Task } from '@/types/task';
+import { useDisclosure } from './useDisclosure';
 
 export function useTaskBoard() {
   const {
@@ -33,8 +34,10 @@ export function useTaskBoard() {
 
   const total = data?.pages[0]?.total || 0;
 
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  // Disclosures
+  const formDisclosure = useDisclosure(false);
+  const profileDisclosure = useDisclosure(false);
+  
   const [profileTab, setProfileTab] = useState<'personal' | 'security'>('personal');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -54,8 +57,8 @@ export function useTaskBoard() {
 
   const handleEdit = useCallback((t: Task) => {
     setEditingTask(t);
-    setIsFormOpen(true);
-  }, []);
+    formDisclosure.onOpen();
+  }, [formDisclosure]);
 
   const handleDelete = useCallback((id: string) => {
     setDeletingId(id);
@@ -63,22 +66,18 @@ export function useTaskBoard() {
 
   const handleNewTask = useCallback(() => {
     setEditingTask(null);
-    setIsFormOpen(true);
-  }, []);
+    formDisclosure.onOpen();
+  }, [formDisclosure]);
 
   const handleProfileOpen = useCallback((tab: 'personal' | 'security') => {
     setProfileTab(tab);
-    setIsProfileOpen(true);
-  }, []);
-
-  const handleProfileClose = useCallback(() => {
-    setIsProfileOpen(false);
-  }, []);
+    profileDisclosure.onOpen();
+  }, [profileDisclosure]);
 
   const handleFormClose = useCallback(() => {
-    setIsFormOpen(false);
+    formDisclosure.onClose();
     setEditingTask(null);
-  }, []);
+  }, [formDisclosure]);
 
   const handleCancelDelete = useCallback(() => {
     setDeletingId(null);
@@ -97,8 +96,8 @@ export function useTaskBoard() {
     viewMode,
     filters,
     searchTerm,
-    isFormOpen,
-    isProfileOpen,
+    isFormOpen: formDisclosure.isOpen,
+    isProfileOpen: profileDisclosure.isOpen,
     profileTab,
     editingTask,
     deletingId,
@@ -115,7 +114,7 @@ export function useTaskBoard() {
     handleCancelDelete,
     handleNewTask,
     handleProfileOpen,
-    handleProfileClose,
+    handleProfileClose: profileDisclosure.onClose,
     handleFormClose,
   };
 }

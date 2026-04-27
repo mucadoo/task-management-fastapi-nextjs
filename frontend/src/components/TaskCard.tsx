@@ -121,6 +121,7 @@ const TaskCard = memo(function TaskCard({
           <button
             onClick={toggleStatus}
             disabled={isToggling || isDeleting}
+            aria-label={isCompleted ? t('tasks.mark_pending') : t('tasks.mark_completed')}
             className={cn("p-1 rounded-md transition-colors", isCompleted ? "text-emerald-600" : "text-warm-400 dark:text-gray-500 hover:text-emerald-600 hover:bg-warm-100 dark:hover:bg-white/5")}
           >
             {isToggling ? (
@@ -144,6 +145,7 @@ const TaskCard = memo(function TaskCard({
             <button
               onClick={toggleStatus}
               disabled={isToggling || isDeleting}
+              aria-label={isInProgress ? t('tasks.mark_pending') : t('tasks.mark_in_progress')}
               className={cn("p-1 rounded-md transition-colors", isInProgress ? "text-amber-600" : "text-warm-400 dark:text-gray-500 hover:text-amber-600 hover:bg-warm-100 dark:hover:bg-white/5")}
             >
               {isInProgress ? (

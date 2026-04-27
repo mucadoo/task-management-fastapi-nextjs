@@ -29,6 +29,7 @@ class TaskRepository(BaseRepository[Task]):
         sort_dir: str = "desc",
     ) -> Tuple[List[Task], int]:
         query = self.db.query(Task).filter(Task.owner_id == user_id)
+        
         if status:
             query = query.filter(Task.status == status)
         if priority:
@@ -38,14 +39,19 @@ class TaskRepository(BaseRepository[Task]):
             query = query.filter(
                 Task.title.ilike(search) | Task.description.ilike(search)
             )
+
         total = query.count()
-        skip = (page - 1) * page_size
+        
+        # Sorting
         sort_col = getattr(Task, sort_by, Task.created_at)
         if sort_dir == "asc":
             query = query.order_by(sort_col.asc().nulls_last())
         else:
             query = query.order_by(sort_col.desc().nulls_last())
-        items = query.offset(skip).limit(page_size).all()
+
+        # Pagination
+        items = query.offset((page - 1) * page_size).limit(page_size).all()
+        
         return items, total
 
     def create_with_owner(self, user_id: uuid.UUID, task_data: TaskCreate) -> Task:

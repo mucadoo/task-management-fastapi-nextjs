@@ -3,11 +3,24 @@ import { describe, it, expect, vi } from 'vitest';
 import TaskCard from './TaskCard';
 import { TaskStatus, TaskPriority } from '../types/task';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const mockMutate = vi.fn();
+vi.mock('../hooks/useTasks', () => ({
+  useToggleTaskStatus: () => ({
+    mutate: mockMutate,
+    isPending: false,
+  }),
+}));
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key.split('.').pop(),
     i18n: { language: 'en' },
   }),
+  initReactI18next: {
+    type: '3rdParty',
+    init: vi.fn(),
+  },
 }));
 const mockTask = {
   id: '550e8400-e29b-41d4-a716-446655440000',
@@ -18,20 +31,29 @@ const mockTask = {
   created_at: '2023-10-27T10:00:00Z',
   owner_id: 1,
 };
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+  },
+});
+
 const renderWithProviders = (ui: React.ReactElement) => {
-  return render(<TooltipProvider>{ui}</TooltipProvider>);
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>{ui}</TooltipProvider>
+    </QueryClientProvider>
+  );
 };
 describe('TaskCard', () => {
   const onEdit = vi.fn();
   const onDelete = vi.fn();
-  const onStatusChange = vi.fn();
   it('renders task details correctly', () => {
     renderWithProviders(
       <TaskCard
         task={mockTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onStatusChange={onStatusChange}
         isDeleting={false}
       />,
     );
@@ -46,7 +68,6 @@ describe('TaskCard', () => {
         task={mockTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onStatusChange={onStatusChange}
         isDeleting={false}
       />,
     );
@@ -59,25 +80,23 @@ describe('TaskCard', () => {
         task={mockTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onStatusChange={onStatusChange}
         isDeleting={false}
       />,
     );
     fireEvent.click(screen.getByRole('button', { name: /delete/i }));
     expect(onDelete).toHaveBeenCalledWith(mockTask.id);
   });
-  it('calls onStatusChange when Status cycle button is clicked', () => {
+  it('calls toggleStatus when Status cycle button is clicked', () => {
     renderWithProviders(
       <TaskCard
         task={mockTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onStatusChange={onStatusChange}
         isDeleting={false}
       />,
     );
-    fireEvent.click(screen.getByRole('button', { name: /mark_in_progress/i }));
-    expect(onStatusChange).toHaveBeenCalledWith(mockTask.id, 'in_progress');
+    fireEvent.click(screen.getByRole('button', { name: /mark_completed/i }));
+    expect(mockMutate).toHaveBeenCalledWith(mockTask.id);
   });
   it('disables buttons when isDeleting is true', () => {
     renderWithProviders(
@@ -85,12 +104,11 @@ describe('TaskCard', () => {
         task={mockTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onStatusChange={onStatusChange}
         isDeleting={true}
       />,
     );
     expect(screen.getByRole('button', { name: /edit/i })).toBeDisabled();
-    expect(screen.getByRole('button', { name: /mark_in_progress/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /mark_completed/i })).toBeDisabled();
     expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
   });
   it('disables toggle button when isToggling is true', () => {
@@ -99,12 +117,11 @@ describe('TaskCard', () => {
         task={mockTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onStatusChange={onStatusChange}
         isDeleting={false}
         isToggling={true}
       />,
     );
-    expect(screen.getByRole('button', { name: /mark_in_progress/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /mark_completed/i })).toBeDisabled();
   });
   it('renders correctly in list view mode', () => {
     renderWithProviders(
@@ -112,7 +129,6 @@ describe('TaskCard', () => {
         task={mockTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onStatusChange={onStatusChange}
         isDeleting={false}
         viewMode="list"
       />,
@@ -124,8 +140,8 @@ describe('TaskCard', () => {
     expect(onEdit).toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: /delete/i }));
     expect(onDelete).toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: /mark_in_progress/i }));
-    expect(onStatusChange).toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: /mark_completed/i }));
+    expect(mockMutate).toHaveBeenCalled();
   });
   it('renders correctly in list view mode when completed and high priority', () => {
     const task = { ...mockTask, status: 'completed' as const, priority: 'high' as const };
@@ -134,7 +150,6 @@ describe('TaskCard', () => {
         task={task}
         onEdit={onEdit}
         onDelete={onDelete}
-        onStatusChange={onStatusChange}
         isDeleting={false}
         viewMode="list"
       />,
@@ -148,7 +163,6 @@ describe('TaskCard', () => {
         task={taskWithoutDesc}
         onEdit={onEdit}
         onDelete={onDelete}
-        onStatusChange={onStatusChange}
         isDeleting={false}
       />,
     );
@@ -163,7 +177,6 @@ describe('TaskCard', () => {
           task={taskWithPriority}
           onEdit={onEdit}
           onDelete={onDelete}
-          onStatusChange={onStatusChange}
           isDeleting={false}
         />,
       );
@@ -178,7 +191,6 @@ describe('TaskCard', () => {
         task={completedTask}
         onEdit={onEdit}
         onDelete={onDelete}
-        onStatusChange={onStatusChange}
         isDeleting={false}
       />,
     );

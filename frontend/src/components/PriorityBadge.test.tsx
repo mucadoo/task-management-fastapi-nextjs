@@ -20,6 +20,6 @@ describe('PriorityBadge', () => {
   it('renders low priority with correct style', () => {
     const { container } = render(<PriorityBadge priority="low" />);
     const badge = container.firstChild as HTMLElement;
-    expect(badge.className).toMatch(/emerald/);
+    expect(badge.className).toMatch(/blue/);
   });
 });

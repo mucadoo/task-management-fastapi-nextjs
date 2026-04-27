@@ -8,8 +8,9 @@ from ..schemas.user import (
     TokenResponse,
     RefreshRequest,
 )
-from ..dependencies import CurrentUser, UserRepo, AuthRepo, AuthServ
+from ..dependencies import CurrentUser, UserRepo, AuthRepo, AuthServ, UserServ
 from datetime import datetime, timezone
+from ..exceptions import UnauthorizedError, ConflictError, AppError
 
 router = APIRouter()
 
@@ -18,41 +19,36 @@ router = APIRouter()
 )
 def register(
     user_data: UserCreate,
-    user_repo: UserRepo,
+    user_service: UserServ,
     auth_repo: AuthRepo,
     auth_service: AuthServ,
 ):
-    if user_repo.get_by_email(user_data.email):
-        raise HTTPException(status_code=409, detail="errors.email_registered")
-    if user_data.username and user_repo.get_by_username(user_data.username):
-        raise HTTPException(status_code=409, detail="errors.username_taken")
     hashed = auth_service.hash_password(user_data.password)
-    user = user_repo.create_user(
+    user = user_service.register_user(
         user_data.email, hashed, user_data.name, user_data.username
     )
-    user_repo.db.commit()
     return auth_service.create_user_tokens(user, auth_repo)
 
 
 @router.post("/login", response_model=TokenResponse)
 def login(
     login_data: LoginRequest,
-    user_repo: UserRepo,
+    user_service: UserServ,
     auth_repo: AuthRepo,
     auth_service: AuthServ,
 ):
-    user = user_repo.get_by_email_or_username(login_data.identifier)
+    user = user_service.get_user_by_email_or_username(login_data.identifier)
     if not user or not auth_service.verify_password(
         login_data.password, user.hashed_password
     ):
-        raise HTTPException(status_code=401, detail="errors.invalid_credentials")
+        raise UnauthorizedError("errors.invalid_credentials")
     return auth_service.create_user_tokens(user, auth_repo)
 
 
 @router.post("/refresh", response_model=TokenResponse)
 def refresh(
     refresh_data: RefreshRequest,
-    user_repo: UserRepo,
+    user_service: UserServ,
     auth_repo: AuthRepo,
     auth_service: AuthServ,
 ):
@@ -61,10 +57,10 @@ def refresh(
         not db_token
         or db_token.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc)
     ):
-        raise HTTPException(status_code=401, detail="errors.expired_refresh_token")
-    user = user_repo.get_by_id(db_token.user_id)
+        raise UnauthorizedError("errors.expired_refresh_token")
+    user = user_service.get_user_by_id(db_token.user_id)
     if not user:
-        raise HTTPException(status_code=401, detail="errors.user_not_found")
+        raise UnauthorizedError("errors.user_not_found")
     auth_repo.revoke_token(db_token.id)
     auth_repo.db.commit()
     return auth_service.create_user_tokens(user, auth_repo)
@@ -79,51 +75,34 @@ def get_me(current_user: CurrentUser):
 def update_me(
     user_update: UserUpdate,
     current_user: CurrentUser,
-    user_repo: UserRepo,
+    user_service: UserServ,
     auth_service: AuthServ,
 ):
     update_data = user_update.model_dump(exclude_unset=True)
     
     if "password" in update_data:
         if not user_update.current_password:
-            raise HTTPException(
-                status_code=400,
-                detail="errors.password_required_new",
-            )
+            raise AppError("errors.password_required_new", code="BAD_REQUEST")
         if not auth_service.verify_password(
             user_update.current_password, current_user.hashed_password
         ):
-            raise HTTPException(status_code=401, detail="errors.incorrect_password")
+            raise UnauthorizedError("errors.incorrect_password")
         
         update_data["hashed_password"] = auth_service.hash_password(update_data.pop("password"))
         update_data.pop("current_password", None)
 
-    if user_update.email and user_update.email != current_user.email:
-        if user_repo.get_by_email(user_update.email):
-            raise HTTPException(status_code=409, detail="errors.email_registered")
-            
-    if user_update.username and user_update.username != current_user.username:
-        if user_repo.get_by_username(user_update.username):
-            raise HTTPException(status_code=409, detail="errors.username_taken")
-            
-    updated_user = user_repo.update_user(current_user, update_data)
-    user_repo.db.commit()
-    return updated_user
+    return user_service.update_user_profile(current_user, update_data)
 
 
 @router.get("/check-username")
 def check_username(
-    username: str, user_repo: UserRepo
+    username: str, user_service: UserServ
 ):
-    username = username.lower()
-    user = user_repo.get_by_username(username)
-    return {"available": user is None}
+    return {"available": user_service.is_username_available(username)}
 
 
 @router.get("/check-email")
 def check_email(
-    email: str, user_repo: UserRepo
+    email: str, user_service: UserServ
 ):
-    email = email.lower()
-    user = user_repo.get_by_email(email)
-    return {"available": user is None}
+    return {"available": user_service.is_email_available(email)}

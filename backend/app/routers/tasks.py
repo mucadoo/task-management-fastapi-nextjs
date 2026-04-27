@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import Optional, Annotated
 import uuid
-from ..dependencies import CurrentUser, TaskRepo, TaskServ
+from ..dependencies import CurrentUser, TaskServ
 from ..schemas.task import TaskCreate, TaskUpdate, TaskResponse, TaskListResponse
 from ..models.task import TaskStatus, TaskPriority
+from ..exceptions import NotFoundError
 
 router = APIRouter()
 
@@ -12,18 +13,15 @@ router = APIRouter()
 def create_task(
     task: TaskCreate,
     current_user: CurrentUser,
-    repo: TaskRepo,
+    service: TaskServ,
 ):
-    new_task = repo.create_with_owner(current_user.id, task)
-    repo.db.commit()
-    repo.db.refresh(new_task)
-    return new_task
+    return service.create_task(current_user.id, task)
 
 
 @router.get("/", response_model=TaskListResponse)
 def read_tasks(
     current_user: CurrentUser,
-    repo: TaskRepo,
+    service: TaskServ,
     status: Optional[TaskStatus] = None,
     priority: Optional[TaskPriority] = None,
     q: Optional[str] = None,
@@ -34,7 +32,7 @@ def read_tasks(
     ),
     sort_dir: str = Query("desc", pattern="^(asc|desc)$"),
 ):
-    items, total = repo.get_all(
+    items, total = service.get_tasks(
         user_id=current_user.id,
         page=page,
         page_size=page_size,
@@ -51,11 +49,11 @@ def read_tasks(
 def read_task(
     task_id: uuid.UUID,
     current_user: CurrentUser,
-    repo: TaskRepo,
+    service: TaskServ,
 ):
-    task = repo.get_by_id(current_user.id, task_id)
+    task = service.get_task(current_user.id, task_id)
     if not task:
-        raise HTTPException(status_code=404, detail="errors.task_not_found")
+        raise NotFoundError("errors.task_not_found")
     return task
 
 
@@ -64,13 +62,11 @@ def update_task(
     task_id: uuid.UUID,
     task: TaskUpdate,
     current_user: CurrentUser,
-    repo: TaskRepo,
+    service: TaskServ,
 ):
-    updated = repo.update_task(current_user.id, task_id, task)
+    updated = service.update_task(current_user.id, task_id, task)
     if not updated:
-        raise HTTPException(status_code=404, detail="errors.task_not_found")
-    repo.db.commit()
-    repo.db.refresh(updated)
+        raise NotFoundError("errors.task_not_found")
     return updated
 
 
@@ -78,11 +74,10 @@ def update_task(
 def delete_task(
     task_id: uuid.UUID,
     current_user: CurrentUser,
-    repo: TaskRepo,
+    service: TaskServ,
 ):
-    if not repo.delete_task(current_user.id, task_id):
-        raise HTTPException(status_code=404, detail="errors.task_not_found")
-    repo.db.commit()
+    if not service.delete_task(current_user.id, task_id):
+        raise NotFoundError("errors.task_not_found")
     return None
 
 
@@ -94,7 +89,5 @@ def toggle_task(
 ):
     updated = service.toggle_task(current_user.id, task_id)
     if not updated:
-        raise HTTPException(status_code=404, detail="errors.task_not_found")
-    service.task_repo.db.commit()
-    service.task_repo.db.refresh(updated)
+        raise NotFoundError("errors.task_not_found")
     return updated

@@ -5,6 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from .routers import tasks, auth, logic
 from .config import get_settings
 from .schemas.common import ErrorResponse
+from .exceptions import AppError
 
 settings = get_settings()
 app = FastAPI(
@@ -29,6 +30,19 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(
         status_code=exc.status_code,
         content=ErrorResponse(error=str(exc.detail)).model_dump(),
+    )
+
+
+@app.exception_handler(AppError)
+async def app_error_handler(request: Request, exc: AppError):
+    status_code = getattr(exc, "status_code", 400)
+    return JSONResponse(
+        status_code=status_code,
+        content=ErrorResponse(
+            error=exc.message,
+            detail=exc.detail,
+            code=exc.code
+        ).model_dump(),
     )
 
 

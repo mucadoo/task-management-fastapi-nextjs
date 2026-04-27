@@ -30,6 +30,15 @@ function onTokenRefreshed(token: string) {
   refreshSubscribers = [];
 }
 
+async function getResponseData(response: Response): Promise<any> {
+  if (response.status === 204) return {};
+  try {
+    return await response.json();
+  } catch {
+    return {};
+  }
+}
+
 export async function request<T>(
   path: string,
   options?: RequestOptions,
@@ -46,19 +55,21 @@ export async function request<T>(
     if (query) url += `?${query}`;
   }
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(options?.headers as any),
+  const getHeaders = (token?: string) => {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(options?.headers as any),
+    };
+    const activeToken = token || options?.token || tokenManager.getAccessToken();
+    if (activeToken) {
+      headers['Authorization'] = `Bearer ${activeToken}`;
+    }
+    return headers;
   };
-
-  const token = options?.token || tokenManager.getAccessToken();
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
 
   const response = await fetch(url, {
     ...options,
-    headers,
+    headers: getHeaders(),
   });
 
   // Handle Token Refresh
@@ -73,7 +84,6 @@ export async function request<T>(
     if (refreshToken) {
       if (!isRefreshing) {
         isRefreshing = true;
-        // Import dynamically to avoid circular dependency
         const { authService } = await import('../services/auth-service');
         try {
           const tokenRes = await authService.refresh(refreshToken);
@@ -91,13 +101,10 @@ export async function request<T>(
           try {
             const retryResponse = await fetch(url, {
               ...options,
-              headers: {
-                ...headers,
-                Authorization: `Bearer ${newToken}`,
-              },
+              headers: getHeaders(newToken),
             });
             if (retryResponse.ok) {
-              resolve(retryResponse.json());
+              resolve(await getResponseData(retryResponse));
             } else {
               reject(new ApiError(retryResponse.status, i18n.t('errors.retry_failed')));
             }
@@ -119,6 +126,5 @@ export async function request<T>(
     throw new ApiError(response.status, message);
   }
 
-  if (response.status === 204) return {} as T;
-  return response.json();
+  return getResponseData(response);
 }

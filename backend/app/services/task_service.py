@@ -2,10 +2,58 @@ import uuid
 from typing import Optional
 from ..repositories.task_repository import TaskRepository
 from ..models.task import Task, TaskStatus
+from ..schemas.task import TaskCreate, TaskUpdate
+from ..exceptions import NotFoundError
 
 class TaskService:
     def __init__(self, task_repo: TaskRepository):
         self.task_repo = task_repo
+
+    def get_tasks(
+        self,
+        user_id: uuid.UUID,
+        page: int,
+        page_size: int,
+        status: Optional[str] = None,
+        priority: Optional[str] = None,
+        q: Optional[str] = None,
+        sort_by: str = "created_at",
+        sort_dir: str = "desc",
+    ):
+        return self.task_repo.get_all(
+            user_id=user_id,
+            page=page,
+            page_size=page_size,
+            status=status,
+            priority=priority,
+            q=q,
+            sort_by=sort_by,
+            sort_dir=sort_dir,
+        )
+
+    def get_task(self, user_id: uuid.UUID, task_id: uuid.UUID) -> Optional[Task]:
+        return self.task_repo.get_by_id(user_id, task_id)
+
+    def create_task(self, user_id: uuid.UUID, task_data: TaskCreate) -> Task:
+        task = self.task_repo.create_with_owner(user_id, task_data)
+        self.task_repo.db.commit()
+        self.task_repo.db.refresh(task)
+        return task
+
+    def update_task(
+        self, user_id: uuid.UUID, task_id: uuid.UUID, task_data: TaskUpdate
+    ) -> Optional[Task]:
+        task = self.task_repo.update_task(user_id, task_id, task_data)
+        if task:
+            self.task_repo.db.commit()
+            self.task_repo.db.refresh(task)
+        return task
+
+    def delete_task(self, user_id: uuid.UUID, task_id: uuid.UUID) -> bool:
+        success = self.task_repo.delete_task(user_id, task_id)
+        if success:
+            self.task_repo.db.commit()
+        return success
 
     def toggle_task(self, user_id: uuid.UUID, task_id: uuid.UUID) -> Optional[Task]:
         task = self.task_repo.get_by_id(user_id, task_id)

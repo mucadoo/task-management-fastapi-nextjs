@@ -7,9 +7,11 @@ from .repositories.user_repository import UserRepository
 from .repositories.task_repository import TaskRepository
 from .repositories.auth_repository import AuthRepository
 from .services.auth_service import AuthService
+from .services.user_service import UserService
 from .services.task_service import TaskService
 from .config import get_settings
 from .models.user import User
+from .exceptions import UnauthorizedError
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 settings = get_settings()
@@ -41,6 +43,11 @@ def get_auth_service() -> AuthService:
 
 AuthServ = Annotated[AuthService, Depends(get_auth_service)]
 
+def get_user_service(repo: UserRepo) -> UserService:
+    return UserService(repo)
+
+UserServ = Annotated[UserService, Depends(get_user_service)]
+
 def get_task_service(repo: TaskRepo) -> TaskService:
     return TaskService(repo)
 
@@ -54,14 +61,10 @@ def get_current_user(
 ) -> User:
     payload = auth_service.decode_token(token)
     if not payload or "sub" not in payload:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="errors.invalid_token"
-        )
+        raise UnauthorizedError("errors.invalid_token")
     user = user_repo.get_by_email(payload["sub"])
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="errors.user_not_found"
-        )
+        raise UnauthorizedError("errors.user_not_found")
     return user
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
