@@ -1,7 +1,6 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import nextPlugin from "@next/eslint-plugin-next";
-const nextFlat = nextPlugin.configs;
 import unusedImports from "eslint-plugin-unused-imports";
 import prettierRecommended from "eslint-plugin-prettier/recommended";
 import globals from "globals";
@@ -21,10 +20,14 @@ export default [
   ]),
 
   js.configs.recommended,
-  ...nextFlat.recommended.rules ? [nextFlat.recommended] : [],
-  ...nextFlat["core-web-vitals"].rules ? [nextFlat["core-web-vitals"]] : [],
 
-  ...tseslint.configs.recommendedTypeChecked,
+  nextPlugin.flatConfig.recommended,
+  nextPlugin.flatConfig.coreWebVitals,
+
+  ...tseslint.configs.recommendedTypeChecked.map((config) => ({
+    ...config,
+    files: ["**/*.{ts,tsx}"],
+  })),
 
   {
     files: ["**/*.{ts,tsx}"],
@@ -45,7 +48,6 @@ export default [
     rules: {
       "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": "off",
-
       "unused-imports/no-unused-imports": "error",
       "unused-imports/no-unused-vars": [
         "warn",
