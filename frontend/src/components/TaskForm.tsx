@@ -13,7 +13,14 @@ import { Textarea } from './ui/Textarea';
 import { Button } from './ui/Button';
 import { Select } from './ui/Select';
 import { getStatusOptions, getPriorityOptions } from '@/lib/constants';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/Dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from './ui/Dialog';
 
 interface TaskFormProps {
   isOpen: boolean;
@@ -41,6 +48,9 @@ export default function TaskForm({ isOpen, onClose, editingTask }: TaskFormProps
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{editingTask ? t('tasks.edit_task') : t('tasks.new_task')}</DialogTitle>
+          <DialogDescription className="sr-only">
+            {t('tasks.form_description_sr_only', 'Fill out the form below to manage your task.')}
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4 py-4">
           <FormField name="title" label={t('common.title')} error={errors.title?.message} required>

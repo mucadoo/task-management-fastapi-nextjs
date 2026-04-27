@@ -13,10 +13,7 @@ export function useDataDisclosure<T>(initialData: T | null = null) {
 
   const onClose = useCallback(() => {
     setIsOpen(false);
-    
-    setTimeout(() => {
-      setData(null);
-    }, 300);
+    setData(null);
   }, []);
 
   const onToggle = useCallback(() => {

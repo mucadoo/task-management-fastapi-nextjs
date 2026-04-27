@@ -57,11 +57,7 @@ export default function ProfileModal({
               <FormField
                 name="name"
                 label={t('common.name')}
-                error={
-                  (errors as any).name && (touchedFields as any).name
-                    ? ((errors as any).name.message as string)
-                    : undefined
-                }
+                error={touchedFields.name ? errors.name?.message : undefined}
               >
                 <Input {...register('name')} type="text" placeholder={t('common.name')} />
               </FormField>
@@ -70,9 +66,8 @@ export default function ProfileModal({
                 name="email"
                 label={t('common.email')}
                 error={
-                  ((errors as any).email && (touchedFields as any).email
-                    ? ((errors as any).email.message as string)
-                    : undefined) || (emailStatus === 'taken' ? t('profile.email_taken') : undefined)
+                  (touchedFields.email ? errors.email?.message : undefined) ||
+                  (emailStatus === 'taken' ? t('profile.email_taken') : undefined)
                 }
               >
                 <div className="relative">
@@ -81,12 +76,7 @@ export default function ProfileModal({
                     type="email"
                     placeholder={t('common.email')}
                     className={cn('pr-10', emailStatus === 'available' && 'border-emerald-500')}
-                    error={
-                      !!(
-                        emailStatus === 'taken' ||
-                        ((errors as any).email && (touchedFields as any).email)
-                      )
-                    }
+                    error={!!(emailStatus === 'taken' || (touchedFields.email && errors.email))}
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
                     {emailStatus === 'checking' && (
@@ -109,9 +99,7 @@ export default function ProfileModal({
                 name="username"
                 label={t('common.username')}
                 error={
-                  ((errors as any).username && (touchedFields as any).username
-                    ? ((errors as any).username.message as string)
-                    : undefined) ||
+                  (touchedFields.username ? errors.username?.message : undefined) ||
                   (usernameStatus === 'taken' ? t('profile.username_taken') : undefined) ||
                   (usernameStatus === 'invalid' ? t('profile.username_invalid') : undefined)
                 }
@@ -125,7 +113,7 @@ export default function ProfileModal({
                     error={
                       !!(
                         usernameStatus === 'taken' ||
-                        ((errors as any).username && (touchedFields as any).username)
+                        (touchedFields.username && errors.username)
                       )
                     }
                   />
@@ -162,11 +150,7 @@ export default function ProfileModal({
               <FormField
                 name="current_password"
                 label={t('profile.current_password')}
-                error={
-                  (errors as any).current_password && (touchedFields as any).current_password
-                    ? ((errors as any).current_password.message as string)
-                    : undefined
-                }
+                error={touchedFields.current_password ? errors.current_password?.message : undefined}
               >
                 <Input
                   {...register('current_password')}
@@ -177,11 +161,7 @@ export default function ProfileModal({
               <FormField
                 name="password"
                 label={t('profile.new_password')}
-                error={
-                  (errors as any).password && (touchedFields as any).password
-                    ? ((errors as any).password.message as string)
-                    : undefined
-                }
+                error={touchedFields.password ? errors.password?.message : undefined}
               >
                 <Input
                   {...register('password')}
@@ -192,11 +172,7 @@ export default function ProfileModal({
               <FormField
                 name="confirmPassword"
                 label={t('profile.confirm_new_password')}
-                error={
-                  (errors as any).confirmPassword && (touchedFields as any).confirmPassword
-                    ? ((errors as any).confirmPassword.message as string)
-                    : undefined
-                }
+                error={touchedFields.confirmPassword ? errors.confirmPassword?.message : undefined}
               >
                 <Input
                   {...register('confirmPassword')}

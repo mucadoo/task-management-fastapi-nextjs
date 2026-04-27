@@ -23,10 +23,13 @@ export interface RequestOptions extends RequestInit {
 }
 
 let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
+let refreshSubscribers: { resolve: (token: string) => void; reject: (err: any) => void }[] = [];
 
-function onTokenRefreshed(token: string) {
-  refreshSubscribers.forEach((cb) => cb(token));
+function onTokenRefreshed(error: any, token: string | null) {
+  refreshSubscribers.forEach(({ resolve, reject }) => {
+    if (error) reject(error);
+    else if (token) resolve(token);
+  });
   refreshSubscribers = [];
 }
 
@@ -74,7 +77,6 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
     headers: getHeaders(),
   });
 
-  
   if (
     response.status === 401 &&
     !options?.skipRefresh &&
@@ -90,29 +92,33 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
         try {
           const tokenRes = await authService.refresh(refreshToken);
           isRefreshing = false;
-          onTokenRefreshed(tokenRes.access_token);
+          onTokenRefreshed(null, tokenRes.access_token);
         } catch (error) {
           isRefreshing = false;
           authService.logout();
+          onTokenRefreshed(error, null);
           throw error;
         }
       }
 
       return new Promise<T>((resolve, reject) => {
-        refreshSubscribers.push(async (newToken) => {
-          try {
-            const retryResponse = await fetch(url, {
-              ...options,
-              headers: getHeaders(newToken),
-            });
-            if (retryResponse.ok) {
-              resolve(await getResponseData(retryResponse));
-            } else {
-              reject(new ApiError(retryResponse.status, i18n.t('errors.retry_failed')));
+        refreshSubscribers.push({
+          resolve: async (newToken) => {
+            try {
+              const retryResponse = await fetch(url, {
+                ...options,
+                headers: getHeaders(newToken),
+              });
+              if (retryResponse.ok) {
+                resolve(await getResponseData(retryResponse));
+              } else {
+                reject(new ApiError(retryResponse.status, i18n.t('errors.retry_failed')));
+              }
+            } catch (e) {
+              reject(e);
             }
-          } catch (e) {
-            reject(e);
-          }
+          },
+          reject: (err) => reject(err),
         });
       });
     }

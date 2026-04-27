@@ -1,5 +1,4 @@
 'use client';
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Task, TaskCreate } from '@/types/task';
@@ -13,7 +12,7 @@ interface UseTaskFormProps {
   onClose: () => void;
 }
 
-export function useTaskForm({ editingTask, isOpen, onClose }: UseTaskFormProps) {
+export function useTaskForm({ editingTask, onClose }: UseTaskFormProps) {
   const { t } = useTranslation();
   const createTaskMutation = useCreateTask();
   const updateTaskMutation = useUpdateTask();
@@ -22,42 +21,26 @@ export function useTaskForm({ editingTask, isOpen, onClose }: UseTaskFormProps) 
 
   const form = useForm<TaskCreate & { due_date: Date | null }>({
     resolver: zodResolver(getTaskSchema(t)) as any,
-    defaultValues: {
-      title: '',
-      description: '',
-      status: 'pending',
-      priority: 'medium',
-      due_date: undefined,
-      due_date_has_time: false,
-    },
-  });
-
-  const { reset, clearErrors, handleSubmit } = form;
-
-  useEffect(() => {
-    if (isOpen) {
-      clearErrors();
-      if (editingTask) {
-        reset({
+    values: editingTask
+      ? {
           title: editingTask.title,
           description: editingTask.description || '',
           status: editingTask.status,
           priority: editingTask.priority,
-          due_date: (editingTask.due_date ? new Date(editingTask.due_date) : undefined) as any,
+          due_date: (editingTask.due_date ? new Date(editingTask.due_date) : null) as any,
           due_date_has_time: editingTask.due_date_has_time || false,
-        });
-      } else {
-        reset({
+        }
+      : {
           title: '',
           description: '',
           status: 'pending',
           priority: 'medium',
-          due_date: undefined,
+          due_date: null,
           due_date_has_time: false,
-        });
-      }
-    }
-  }, [editingTask, isOpen, reset, clearErrors]);
+        },
+  });
+
+  const { handleSubmit } = form;
 
   const onFormSubmit = async (data: any) => {
     try {
@@ -79,8 +62,8 @@ export function useTaskForm({ editingTask, isOpen, onClose }: UseTaskFormProps) 
         await createTaskMutation.mutateAsync(taskData);
       }
       onClose();
-    } catch (err: any) {
-      
+    } catch {
+
     }
   };
 

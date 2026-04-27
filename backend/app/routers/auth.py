@@ -1,10 +1,10 @@
-from fastapi import APIRouter, HTTPException, status, Query
+from fastapi import APIRouter, HTTPException, status, Query, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from typing import Optional, Annotated
 from ..schemas.user import (
     UserCreate,
     UserUpdate,
     UserResponse,
-    LoginRequest,
     TokenResponse,
     RefreshRequest,
 )
@@ -31,11 +31,11 @@ def register(
 
 @router.post("/login", response_model=TokenResponse)
 def login(
-    login_data: LoginRequest,
     auth_service: AuthServ,
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ):
     return auth_service.login(
-        login_data.identifier, login_data.password
+        form_data.username, form_data.password
     )
 
 

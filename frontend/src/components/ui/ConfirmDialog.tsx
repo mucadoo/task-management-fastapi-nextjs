@@ -7,6 +7,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -39,6 +40,9 @@ export default function ConfirmDialog({
           <AlertDialogTitle className="text-center text-xl font-bold text-gray-900 dark:text-white mb-2">
             {t('common.confirm_action')}
           </AlertDialogTitle>
+          <AlertDialogDescription className="sr-only">
+            {t('common.confirm_action_description')}
+          </AlertDialogDescription>
           <p className="text-center text-gray-500 dark:text-gray-400">{message}</p>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex flex-col gap-3 mt-8">

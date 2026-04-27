@@ -4,6 +4,7 @@ import { taskKeys } from '@/lib/query-keys';
 import { onMutateListUpdate, rollbackQueries } from '@/lib/query-utils';
 import { TaskCreate, TaskUpdate, TaskStatus, TaskPriority, Task } from '@/types/task';
 import { notify } from '@/lib/notifications';
+import { ApiError } from '@/lib/api-client';
 
 export function useTasks(filters: {
   status?: TaskStatus;
@@ -37,7 +38,7 @@ export function useCreateTask() {
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
       notify.success('tasks.create_success');
     },
-    onError: (error: any) => notify.error(error, 'tasks.create_failed'),
+    onError: (error: ApiError) => notify.error(error, 'tasks.create_failed'),
   });
 }
 
@@ -53,7 +54,7 @@ export function useUpdateTask() {
         notify.success('tasks.update_success');
       }
     },
-    onError: (error: any) => notify.error(error, 'tasks.update_failed'),
+    onError: (error: ApiError) => notify.error(error, 'tasks.update_failed'),
   });
 }
 
@@ -75,7 +76,7 @@ export function useToggleTaskStatus() {
           return task;
         }),
       })),
-    onError: (err: any, id: string, context: any) => {
+    onError: (err: ApiError, id: string, context: any) => {
       rollbackQueries(queryClient, context);
       notify.error(err, 'tasks.status_update_failed');
     },
@@ -96,7 +97,7 @@ export function useDeleteTask() {
         items: page.items.filter((task) => task.id !== id),
         total: page.total - 1,
       })),
-    onError: (err: any, id: string, context: any) => {
+    onError: (err: ApiError, id: string, context: any) => {
       rollbackQueries(queryClient, context);
       notify.error(err, 'tasks.delete_failed');
     },

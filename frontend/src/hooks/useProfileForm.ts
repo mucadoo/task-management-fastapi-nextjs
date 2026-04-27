@@ -1,12 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useForm, FieldErrors } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/useAuthStore';
 import { authService } from '@/services/auth-service';
 import { getPersonalSchema, getSecuritySchema } from '@/lib/validations';
+import * as z from 'zod';
 
 interface UseProfileFormProps {
   isOpen: boolean;
@@ -14,7 +15,7 @@ interface UseProfileFormProps {
   onSuccess?: () => void;
 }
 
-export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
+export function useProfileForm({ activeTab }: UseProfileFormProps) {
   const { t } = useTranslation();
   const { user, updateMe } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,22 +27,28 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
     'idle' | 'checking' | 'available' | 'taken' | 'invalid'
   >('idle');
 
-  const form = useForm({
-    resolver: zodResolver(activeTab === 'personal' ? getPersonalSchema(t) : getSecuritySchema(t)),
-    defaultValues: {
+  const personalSchema = getPersonalSchema(t);
+  const securitySchema = getSecuritySchema(t);
+
+  type PersonalFormData = z.infer<typeof personalSchema>;
+  type SecurityFormData = z.infer<typeof securitySchema>;
+  type FormData = PersonalFormData & SecurityFormData;
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(activeTab === 'personal' ? personalSchema : securitySchema),
+    values: {
       name: user?.name || '',
       email: user?.email || '',
       username: user?.username || '',
       current_password: '',
       password: '',
       confirmPassword: '',
-    },
+    } as any,
   });
 
   const {
     reset,
     watch,
-    clearErrors,
     handleSubmit,
     formState: { errors },
   } = form;
@@ -51,34 +58,18 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
   const [debouncedUsername] = useDebounce(watchedUsername, 500);
   const [debouncedEmail] = useDebounce(watchedEmail, 500);
 
-  
   useEffect(() => {
-    if (isOpen) {
-      clearErrors();
-      reset({
-        name: user?.name || '',
-        email: user?.email || '',
-        username: user?.username || '',
-        current_password: '',
-        password: '',
-        confirmPassword: '',
-      });
-      setUsernameStatus('idle');
-      setEmailStatus('idle');
-    }
-  }, [isOpen, activeTab, reset, user, clearErrors]);
+    setUsernameStatus('idle');
+    setEmailStatus('idle');
+  }, [activeTab]);
 
-  const usernameError = (errors as FieldErrors<{ username: string }>).username;
-  const emailError = (errors as FieldErrors<{ email: string }>).email;
-
-  
   useEffect(() => {
     const checkUsername = async () => {
       if (!debouncedUsername || debouncedUsername === user?.username) {
         setUsernameStatus('idle');
         return;
       }
-      if (usernameError) {
+      if (errors.username) {
         setUsernameStatus('invalid');
         return;
       }
@@ -93,14 +84,13 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
     if (activeTab === 'personal') checkUsername();
   }, [debouncedUsername, user?.username, activeTab, !!errors.username]);
 
-  
   useEffect(() => {
     const checkEmail = async () => {
       if (!debouncedEmail || debouncedEmail === user?.email) {
         setEmailStatus('idle');
         return;
       }
-      if (emailError) {
+      if (errors.email) {
         setEmailStatus('invalid');
         return;
       }
@@ -115,7 +105,7 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
     if (activeTab === 'personal') checkEmail();
   }, [debouncedEmail, user?.email, activeTab, !!errors.email]);
 
-  const onFormSubmit = async (data: any) => {
+  const onFormSubmit = async (data: FormData) => {
     if (activeTab === 'personal' && (usernameStatus === 'taken' || emailStatus === 'taken')) return;
     setIsSubmitting(true);
     try {
@@ -130,7 +120,7 @@ export function useProfileForm({ isOpen, activeTab }: UseProfileFormProps) {
         reset({ ...form.getValues(), current_password: '', password: '', confirmPassword: '' });
       }
     } catch {
-      
+
     } finally {
       setIsSubmitting(false);
     }

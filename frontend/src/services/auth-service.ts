@@ -4,9 +4,16 @@ import { TokenResponse, User, LoginData, RegisterData, UpdateMeData } from '@/ty
 
 export const authService = {
   login: async (data: LoginData) => {
+    const formData = new URLSearchParams();
+    formData.append('username', data.identifier);
+    formData.append('password', data.password);
+
     const res = await request<TokenResponse>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: formData.toString(),
     });
     tokenManager.setTokens(res.access_token, res.refresh_token);
     return res;
