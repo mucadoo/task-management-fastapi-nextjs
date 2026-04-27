@@ -1,44 +1,78 @@
-import nextConfig from "eslint-config-next";
-import prettierConfig from "eslint-config-prettier";
-import prettierPlugin from "eslint-plugin-prettier";
-import tsEslint from "@typescript-eslint/eslint-plugin";
-import tsParser from "@typescript-eslint/parser";
-import unusedImportsPlugin from "eslint-plugin-unused-imports";
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
+import nextPlugin from "@next/eslint-plugin-next";
+const nextFlat = nextPlugin.configs;
+import unusedImports from "eslint-plugin-unused-imports";
+import prettierRecommended from "eslint-plugin-prettier/recommended";
+import globals from "globals";
+import { globalIgnores } from "eslint/config";
 
 export default [
+  // Global ignores
+  globalIgnores([
+    "eslint.config.mjs",
+    "postcss.config.mjs",
+    ".next/**",
+    "out/**",
+    "build/**",
+    "node_modules/**",
+    "next-env.d.ts",
+    "public/**",
+    "coverage/**",
+  ]),
+
+  // Base + Next.js (includes React + React Hooks rules)
+  js.configs.recommended,
+  ...nextFlat.recommended.rules ? [nextFlat.recommended] : [],
+  ...nextFlat["core-web-vitals"].rules ? [nextFlat["core-web-vitals"]] : [],
+
+  // TypeScript type-aware rules
+  ...tseslint.configs.recommendedTypeChecked,
+
+  // Main project config
   {
-    ignores: [".next/*", "out/*", "build/*", "next-env.d.ts", "public/*", "node_modules/*", "coverage/*"],
-  },
-  ...nextConfig.map((config) => ({
-    ...config,
-    files: ["**/*.{js,ts,tsx}"],
-  })),
-  {
-    files: ["**/*.{js,ts,tsx}"],
+    files: ["**/*.{ts,tsx}"],
     languageOptions: {
-      parser: tsParser,
+      parser: tseslint.parser,
       parserOptions: {
-        ecmaFeatures: { jsx: true },
-        ecmaVersion: 2020,
-        sourceType: "module",
+        // Modern & faster alternative (recommended in 2026)
+        projectService: true,
+        // Keep tsconfigRootDir only if you still need it for some rules
+        tsconfigRootDir: import.meta.dirname,
+      },
+      globals: {
+        ...globals.browser,
+        ...globals.node,
       },
     },
     plugins: {
-      "@typescript-eslint": tsEslint,
-      prettier: prettierPlugin,
-      "unused-imports": unusedImportsPlugin,
+      "unused-imports": unusedImports,
+      // Uncomment only if you get "@next/next" plugin not found warnings
+      // "@next/next": nextFlat.plugin,
     },
     rules: {
-      "prettier/prettier": "error",
+      // Disable conflicting unused-vars rules
+      "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": "off",
-      "@typescript-eslint/no-explicit-any": "warn",
-      "no-console": ["warn", { allow: ["warn", "error"] }],
+
+      // Unused imports (excellent autofix)
       "unused-imports/no-unused-imports": "error",
       "unused-imports/no-unused-vars": [
         "warn",
-        { vars: "all", varsIgnorePattern: "^_", args: "after-used", argsIgnorePattern: "^_" },
+        {
+          vars: "all",
+          varsIgnorePattern: "^_",
+          args: "after-used",
+          argsIgnorePattern: "^_",
+        },
       ],
+
+      // Your custom rules
+      "@typescript-eslint/no-explicit-any": "warn",
+      "no-console": ["warn", { allow: ["warn", "error"] }],
     },
   },
-  prettierConfig,
+
+  // Prettier — must be last
+  prettierRecommended,
 ];
