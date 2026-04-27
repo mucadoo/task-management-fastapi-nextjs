@@ -6,7 +6,7 @@ import prettierRecommended from "eslint-plugin-prettier/recommended";
 import globals from "globals";
 import { globalIgnores } from "eslint/config";
 
-export default [
+export default tseslint.config(
   globalIgnores([
     "eslint.config.mjs",
     "postcss.config.mjs",
@@ -65,4 +65,4 @@ export default [
   },
 
   prettierRecommended,
-];
+);
