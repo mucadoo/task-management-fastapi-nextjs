@@ -29,7 +29,7 @@ class AuthRepository(BaseRepository[RefreshToken]):
 
     def revoke_all_user_tokens(self, user_id: uuid.UUID):
         self.db.query(RefreshToken).filter(
-            RefreshToken.user_id == user_id, RefreshToken.revoked == False
+            RefreshToken.user_id == user_id, RefreshToken.revoked.is_(False)
         ).update({RefreshToken.revoked: True})
 
     def cleanup_expired_tokens(self):

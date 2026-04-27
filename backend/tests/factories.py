@@ -1,9 +1,9 @@
 import uuid
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 from sqlalchemy.orm import Session
 from app.models.task import Task, TaskStatus, TaskPriority
 from app.models.user import User
-from app.services.security import get_password_hash
+from app.utils.security import hash_password as get_password_hash
 
 class TestDataFactory:
     @staticmethod
@@ -12,14 +12,13 @@ class TestDataFactory:
         email: str = "test@example.com",
         username: str = "testuser",
         password: str = "password123",
-        full_name: str = "Test User"
+        name: str = "Test User"
     ) -> User:
         user = User(
             email=email,
             username=username,
             hashed_password=get_password_hash(password),
-            full_name=full_name,
-            is_active=True
+            name=name
         )
         db.add(user)
         db.commit()

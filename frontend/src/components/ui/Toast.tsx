@@ -12,7 +12,7 @@ export default function Toast({ toast }: { toast: ToastType }) {
     setIsExiting(true);
     setTimeout(() => {
       removeToast(toast.id);
-    }, 300); 
+    }, 300);
   }, [removeToast, toast.id]);
 
   useEffect(() => {

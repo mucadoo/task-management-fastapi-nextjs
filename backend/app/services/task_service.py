@@ -3,7 +3,6 @@ from typing import Optional
 from ..repositories.task_repository import TaskRepository
 from ..models.task import Task, TaskStatus
 from ..schemas.task import TaskCreate, TaskUpdate
-from ..exceptions import NotFoundError
 
 from .base_service import BaseService
 

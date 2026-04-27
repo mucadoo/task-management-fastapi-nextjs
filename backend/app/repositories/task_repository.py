@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from .base_repository import BaseRepository
 from ..models.task import Task
 from ..schemas.task import TaskCreate, TaskUpdate
-from typing import List, Optional, Tuple
+from typing import Optional
 
 
 class TaskRepository(BaseRepository[Task]):

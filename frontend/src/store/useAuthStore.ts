@@ -81,7 +81,6 @@ export const useAuthStore = create<AuthState>()(
           return;
         }
 
-        
         if (get().user && !force) return;
 
         set({ isInitializing: true });
@@ -89,7 +88,6 @@ export const useAuthStore = create<AuthState>()(
           const user = await authService.getMe();
           set({ user, isAuthenticated: true, isInitializing: false });
         } catch {
-          
           authService.logout();
           set({ user: null, isAuthenticated: false, isInitializing: false });
         }
@@ -111,9 +109,9 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({ 
+      partialize: (state) => ({
         isAuthenticated: state.isAuthenticated,
-        user: state.user 
+        user: state.user,
       }),
     },
   ),

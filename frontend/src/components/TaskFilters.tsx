@@ -36,7 +36,7 @@ export default function TaskFilters({
 
   /**
    * Filter dropdowns trigger immediate state updates and refetches.
-   * Unlike the search input, these don't require debouncing as they are 
+   * Unlike the search input, these don't require debouncing as they are
    * discrete selections where the user expects an immediate response.
    */
   const handlePriorityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

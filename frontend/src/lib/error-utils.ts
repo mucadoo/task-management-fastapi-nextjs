@@ -25,7 +25,6 @@ export function getErrorMessage(error: any): string {
   }
 
   if (Array.isArray(data.detail)) {
-    
     return data.detail.map((err) => `${err.loc.join('.')}: ${err.msg}`).join(', ');
   }
 
@@ -41,12 +40,10 @@ export function useApiError() {
   const getTranslatedError = (error: any, fallbackKey?: string) => {
     const message = getErrorMessage(error);
 
-    
     if (message.includes('common.') || message.includes('auth.') || message.includes('tasks.')) {
       return t(message);
     }
 
-    
     if (fallbackKey && (message === 'common.error_unknown' || message === 'Error')) {
       return t(fallbackKey);
     }

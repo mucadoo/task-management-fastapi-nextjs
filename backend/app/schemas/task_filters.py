@@ -1,8 +1,6 @@
 from enum import Enum
-from typing import Optional, Annotated
-from fastapi import Query
+from typing import Optional
 from pydantic import BaseModel, Field
-import uuid
 
 from ..models.task import TaskStatus, TaskPriority
 

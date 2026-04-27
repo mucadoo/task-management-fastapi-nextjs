@@ -7,7 +7,7 @@ from app.database import Base, get_db
 from app.models.user import User
 from .factories import TestDataFactory
 
-TEST_DATABASE_URL = "sqlite:///./test.db"
+TEST_DATABASE_URL = "sqlite:////tmp/test.db"
 test_engine = create_engine(
     TEST_DATABASE_URL, connect_args={"check_same_thread": False}
 )

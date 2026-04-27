@@ -114,10 +114,7 @@ export default function ProfileModal({
                     placeholder={t('common.username')}
                     className={cn('pr-10', usernameStatus === 'available' && 'border-emerald-500')}
                     error={
-                      !!(
-                        usernameStatus === 'taken' ||
-                        (touchedFields.username && errors.username)
-                      )
+                      !!(usernameStatus === 'taken' || (touchedFields.username && errors.username))
                     }
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -154,7 +151,9 @@ export default function ProfileModal({
                 name="current_password"
                 label={t('profile.current_password')}
                 required
-                error={touchedFields.current_password ? errors.current_password?.message : undefined}
+                error={
+                  touchedFields.current_password ? errors.current_password?.message : undefined
+                }
               >
                 <Input
                   {...register('current_password')}

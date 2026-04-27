@@ -1,11 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
-from typing import Optional, Annotated
+from fastapi import APIRouter, Depends, status, Path
+from typing import Annotated
 import uuid
 from ..dependencies import CurrentUser, TaskServ
 from ..schemas.task import TaskCreate, TaskUpdate, TaskResponse, TaskListResponse
 from ..schemas.task_filters import TaskFilterParams
-from ..models.task import TaskStatus, TaskPriority
-from ..exceptions import NotFoundError
 
 router = APIRouter()
 

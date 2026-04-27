@@ -9,13 +9,10 @@ export async function onMutateListUpdate<T>(
   queryKey: any[],
   updateFn: (page: PaginatedResponse<T>) => PaginatedResponse<T>,
 ) {
-  
   await queryClient.cancelQueries({ queryKey });
 
-  
   const previousQueries = queryClient.getQueriesData({ queryKey });
 
-  
   queryClient.setQueriesData({ queryKey }, (old: any) => {
     if (!old) return old;
     return {

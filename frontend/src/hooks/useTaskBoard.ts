@@ -13,13 +13,16 @@ export function useTaskBoard() {
 
   const { viewMode, setViewMode } = useTaskStore();
 
-  const filters = useMemo(() => ({
-    status: (searchParams.get('status') as TaskStatus) || undefined,
-    priority: (searchParams.get('priority') as TaskPriority) || undefined,
-    q: searchParams.get('q') || '',
-    sort_by: searchParams.get('sort_by') || 'due_date',
-    sort_dir: searchParams.get('sort_dir') || 'asc',
-  }), [searchParams]);
+  const filters = useMemo(
+    () => ({
+      status: (searchParams.get('status') as TaskStatus) || undefined,
+      priority: (searchParams.get('priority') as TaskPriority) || undefined,
+      q: searchParams.get('q') || '',
+      sort_by: searchParams.get('sort_by') || 'due_date',
+      sort_dir: searchParams.get('sort_dir') || 'asc',
+    }),
+    [searchParams],
+  );
 
   const [searchTerm, setSearchTerm] = useState(filters.q);
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
@@ -39,19 +42,22 @@ export function useTaskBoard() {
   const profileDisclosure = useDataDisclosure<'personal' | 'security'>('personal');
   const deleteDisclosure = useDataDisclosure<string>();
 
-  const setFilters = useCallback((newFilters: Partial<typeof filters>) => {
-    const params = new URLSearchParams(searchParams.toString());
-    
-    Object.entries(newFilters).forEach(([key, value]) => {
-      if (value && value !== 'all') {
-        params.set(key, value);
-      } else {
-        params.delete(key);
-      }
-    });
+  const setFilters = useCallback(
+    (newFilters: Partial<typeof filters>) => {
+      const params = new URLSearchParams(searchParams.toString());
 
-    router.replace(`${pathname}?${params.toString()}`);
-  }, [searchParams, router, pathname]);
+      Object.entries(newFilters).forEach(([key, value]) => {
+        if (value && value !== 'all') {
+          params.set(key, value);
+        } else {
+          params.delete(key);
+        }
+      });
+
+      router.replace(`${pathname}?${params.toString()}`);
+    },
+    [searchParams, router, pathname],
+  );
 
   useEffect(() => {
     if (debouncedSearchTerm !== filters.q) {

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import { render } from '@testing-library/react';
 import StatusBadge from './StatusBadge';
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

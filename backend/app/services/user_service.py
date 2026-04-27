@@ -2,7 +2,7 @@ import uuid
 from typing import Optional, Dict, Any
 from ..repositories.user_repository import UserRepository
 from ..models.user import User
-from ..exceptions import ConflictError, UnauthorizedError, BusinessError
+from ..exceptions import ConflictError, BusinessError
 
 from .base_service import BaseService
 

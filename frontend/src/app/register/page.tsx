@@ -72,9 +72,7 @@ export default function RegisterPage() {
     if (emailStatus === 'taken') return;
     try {
       await registerUser({ email: data.email, name: data.name, password: data.password });
-    } catch {
-      
-    }
+    } catch {}
   };
 
   if (authCheckLoading || isAuthenticated) return null;

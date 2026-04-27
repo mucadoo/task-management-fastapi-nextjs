@@ -1,5 +1,4 @@
 from pydantic import BaseModel, EmailStr, ConfigDict, Field, field_validator
-import datetime
 import uuid
 import re
 from typing import Optional

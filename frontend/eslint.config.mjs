@@ -6,7 +6,7 @@ import tsParser from "@typescript-eslint/parser";
 
 export default [
   {
-    ignores: [".next/*", "out/*", "build/*", "next-env.d.ts", "public/*", "node_modules/*"],
+    ignores: [".next/*", "out/*", "build/*", "next-env.d.ts", "public/*", "node_modules/*", "coverage/*"],
   },
   ...nextConfig.map((config) => ({
     ...config,

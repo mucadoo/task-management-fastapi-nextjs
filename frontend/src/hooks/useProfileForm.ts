@@ -36,7 +36,7 @@ export function useProfileForm({ activeTab }: UseProfileFormProps) {
   type FormData = PersonalFormData & SecurityFormData;
 
   const form = useForm<FormData>({
-    resolver: zodResolver(activeTab === 'personal' ? personalSchema : securitySchema),
+    resolver: zodResolver(activeTab === 'personal' ? personalSchema : securitySchema) as any,
     defaultValues: {
       name: user?.name || '',
       email: user?.email || '',
@@ -121,7 +121,10 @@ export function useProfileForm({ activeTab }: UseProfileFormProps) {
         reset({ ...form.getValues(), current_password: '', password: '', confirmPassword: '' });
       }
     } catch (err) {
-      notify.error(err, activeTab === 'personal' ? 'profile.update_failed' : 'profile.change_password_failed');
+      notify.error(
+        err,
+        activeTab === 'personal' ? 'profile.update_failed' : 'profile.change_password_failed',
+      );
     } finally {
       setIsSubmitting(false);
     }

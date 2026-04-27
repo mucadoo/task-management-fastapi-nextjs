@@ -16,7 +16,7 @@ export function useAuth() {
   return {
     isAuthenticated,
     user,
-    isLoading: isInitializing, 
+    isLoading: isInitializing,
     isActionLoading: isLoading,
   };
 }

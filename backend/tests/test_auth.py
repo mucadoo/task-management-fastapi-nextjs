@@ -1,7 +1,7 @@
 def test_register_success(client):
     response = client.post(
         "/api/v1/auth/register",
-        json={"email": "newuser@example.com", "password": "password123"},
+        json={"email": "newuser@example.com", "password": "password123", "username": "newuser"},
     )
     assert response.status_code == 201
     data = response.json()
@@ -12,9 +12,9 @@ def test_register_success(client):
 
 def test_register_duplicate_email(client):
     email = "duplicate@example.com"
-    client.post("/api/v1/auth/register", json={"email": email, "password": "password123"})
+    client.post("/api/v1/auth/register", json={"email": email, "password": "password123", "username": "user_one"})
     response = client.post(
-        "/api/v1/auth/register", json={"email": email, "password": "password123"}
+        "/api/v1/auth/register", json={"email": email, "password": "password123", "username": "user_two"}
     )
     assert response.status_code == 409
 
@@ -36,7 +36,7 @@ def test_register_invalid_email(client):
 def test_login_success(client):
     email = "login@example.com"
     password = "password123"
-    client.post("/api/v1/auth/register", json={"email": email, "password": password})
+    client.post("/api/v1/auth/register", json={"email": email, "password": password, "username": "loginuser"})
     response = client.post(
         "/api/v1/auth/login", json={"identifier": email, "password": password}
     )
@@ -51,7 +51,7 @@ def test_refresh_token_success(client):
     email = "refresh@example.com"
     password = "password123"
     reg_response = client.post(
-        "/api/v1/auth/register", json={"email": email, "password": password}
+        "/api/v1/auth/register", json={"email": email, "password": password, "username": "refreshuser"}
     )
     refresh_token = reg_response.json()["refresh_token"]
     response = client.post("/api/v1/auth/refresh", json={"refresh_token": refresh_token})
@@ -65,7 +65,7 @@ def test_refresh_token_success(client):
 def test_login_wrong_password(client):
     email = "wrongpass@example.com"
     password = "password123"
-    client.post("/api/v1/auth/register", json={"email": email, "password": password})
+    client.post("/api/v1/auth/register", json={"email": email, "password": password, "username": "wrongpassuser"})
     response = client.post(
         "/api/v1/auth/login", json={"identifier": email, "password": "wrongpassword"}
     )

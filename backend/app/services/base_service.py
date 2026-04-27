@@ -1,4 +1,4 @@
-from typing import TypeVar, Generic, Optional, Any
+from typing import TypeVar, Generic, Any
 import uuid
 from ..repositories.base_repository import BaseRepository
 from ..exceptions import NotFoundError

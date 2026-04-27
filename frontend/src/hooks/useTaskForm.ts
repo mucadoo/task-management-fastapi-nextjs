@@ -25,7 +25,7 @@ export function useTaskForm({ editingTask, onClose }: UseTaskFormProps) {
   type FormData = z.infer<typeof schema>;
 
   const form = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: editingTask
       ? {
           title: editingTask.title,
@@ -49,10 +49,9 @@ export function useTaskForm({ editingTask, onClose }: UseTaskFormProps) {
 
   const onFormSubmit = async (data: FormData) => {
     try {
-      let finalDueDate = data.due_date;
-      if (finalDueDate instanceof Date) {
-        finalDueDate = finalDueDate.toISOString();
-      }
+      const finalDueDate = data.due_date instanceof Date
+        ? data.due_date.toISOString()
+        : data.due_date;
 
       const taskData = {
         ...data,
