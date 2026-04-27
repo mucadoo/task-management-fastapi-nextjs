@@ -202,11 +202,12 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 
 - **JWT Stateless:** Optamos por autenticação via JWT sem armazenamento em estado no servidor (Redis/DB). Isso simplifica a escalabilidade horizontal e reduz a complexidade da infraestrutura.
 
+- **JWT Refresh Queue:** Implementação avançada de interceptadores no frontend que captura tokens expirados, enfileira as requisições em background, atualiza o token via Refresh Token e repete as chamadas silenciosamente, garantindo uma UX perfeita.
+
 - **Docker Compose em Produção:** Para este escopo, o uso de Docker Compose em uma EC2 é uma solução de excelente custo-benefício, fácil manutenção e que provê isolamento suficiente entre os serviços (Backend, Frontend, Nginx).
 
 ### O que Melhoraria com Mais Tempo
 
-- Implementação de **Refresh Tokens** para melhor segurança e experiência do usuário.
 - **Rate Limiting** para proteger endpoints sensíveis contra brute-force.
 - **Soft Delete** nas tarefas para permitir recuperação de dados.
 - Testes de ponta a ponta (E2E) com **Playwright**.
