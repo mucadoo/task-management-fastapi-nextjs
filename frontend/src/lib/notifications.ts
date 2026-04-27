@@ -1,5 +1,6 @@
 import { useToastStore } from '@/store/useToastStore';
 import i18n from '@/lib/i18n';
+import { getErrorMessage } from './error-utils';
 
 /**
  * Centralized notification utility to reduce boilerplate for toast messages.
@@ -11,7 +12,12 @@ export const notify = {
   },
   
   error: (error: any, fallbackKey: string) => {
-    const message = error?.message || i18n.t(fallbackKey);
+    const rawMessage = getErrorMessage(error);
+    const message = (rawMessage === 'common.error_unknown' || rawMessage === 'Error') 
+      ? i18n.t(fallbackKey) 
+      : (rawMessage.includes('common.') || rawMessage.includes('auth.') || rawMessage.includes('tasks.') 
+        ? i18n.t(rawMessage) 
+        : rawMessage);
     useToastStore.getState().addToast(message, 'error');
   },
   

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import tasks, auth, logic
+from .routers import tasks, auth, logic, health
 from .config import get_settings
 from .exception_handlers import register_exception_handlers
 
@@ -24,12 +24,7 @@ app.add_middleware(
 register_exception_handlers(app)
 
 
-@app.get("/api/v1/health")
-@app.get("/api/health")  # Keep legacy for compatibility
-async def health_check():
-    return {"status": "ok", "version": "1.0.0"}
-
-
+app.include_router(health.router, prefix="/api", tags=["health"])
 app.include_router(tasks.router, prefix="/api/v1/tasks", tags=["tasks"])
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(logic.router, prefix="/api/v1", tags=["logic"])

@@ -1,7 +1,7 @@
 'use client';
 import TaskCard from './TaskCard';
 import TaskForm from './TaskForm';
-import TaskSkeleton from './ui/TaskSkeleton';
+import { TaskSkeleton } from './ui/Skeleton';
 import { InfiniteScrollTrigger } from './InfiniteScrollTrigger';
 import ErrorMessage from './ui/ErrorMessage';
 import ConfirmDialog from './ui/ConfirmDialog';

@@ -1,5 +1,5 @@
-from fastapi import APIRouter, HTTPException, status
-from typing import Optional
+from fastapi import APIRouter, HTTPException, status, Query
+from typing import Optional, Annotated
 from ..schemas.user import (
     UserCreate,
     UserUpdate,
@@ -65,13 +65,13 @@ def update_me(
 
 @router.get("/check-username")
 def check_username(
-    username: str, user_service: UserServ
+    username: Annotated[str, Query()], user_service: UserServ
 ):
     return {"available": user_service.is_username_available(username)}
 
 
 @router.get("/check-email")
 def check_email(
-    email: str, user_service: UserServ
+    email: Annotated[str, Query()], user_service: UserServ
 ):
     return {"available": user_service.is_email_available(email)}

@@ -3,7 +3,7 @@ import datetime
 import uuid
 import re
 from typing import Optional
-from .common import BaseResponseSchema
+from .common import BaseResponseSchema, TimestampSchema
 
 
 def validate_username_logic(v: Optional[str]) -> Optional[str]:
@@ -57,13 +57,11 @@ class UserUpdate(BaseModel):
         return validate_password_logic(v)
 
 
-class UserResponse(BaseResponseSchema):
+class UserResponse(BaseResponseSchema, TimestampSchema):
     id: uuid.UUID
     email: EmailStr
     username: Optional[str] = None
     name: Optional[str] = None
-    created_at: datetime.datetime
-    updated_at: Optional[datetime.datetime] = None
 
 
 class TokenResponse(BaseModel):

@@ -3,7 +3,7 @@ from typing import Optional, List
 import datetime
 import uuid
 from ..models.task import TaskStatus, TaskPriority
-from .common import PaginatedResponse, BaseResponseSchema
+from .common import PaginatedResponse, BaseResponseSchema, TimestampSchema
 
 
 class TaskBase(BaseModel):
@@ -38,10 +38,8 @@ class TaskUpdate(BaseModel):
     due_date_has_time: Optional[bool] = None
 
 
-class TaskResponse(BaseResponseSchema, TaskBase):
+class TaskResponse(BaseResponseSchema, TaskBase, TimestampSchema):
     id: uuid.UUID
-    created_at: datetime.datetime
-    updated_at: Optional[datetime.datetime] = None
 
 
 class TaskListResponse(PaginatedResponse[TaskResponse]):

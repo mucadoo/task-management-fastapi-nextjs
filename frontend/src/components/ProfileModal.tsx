@@ -5,6 +5,7 @@ import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import LoadingSpinner from './ui/LoadingSpinner';
 import { useProfileForm } from '../hooks/useProfileForm';
 import { FormField } from './ui/FormField';
+import { Input } from './ui/Input';
 import {
   Dialog,
   DialogContent,

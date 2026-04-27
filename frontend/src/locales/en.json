@@ -78,7 +78,7 @@
   },
   "tasks": {
     "title": "Task Board",
-    "tasks_count": "{{count}} tasks",
+    "tasks_count": "<bold>{{count}}</bold> tasks",
     "subtitle": "You have {{count}} tasks total.",
     "new_task": "New Task",
     "view_gallery": "Gallery View",

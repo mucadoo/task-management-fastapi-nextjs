@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from typing import Optional, Annotated
 import uuid
 from ..dependencies import CurrentUser, TaskServ
 from ..schemas.task import TaskCreate, TaskUpdate, TaskResponse, TaskListResponse
+from ..schemas.task_filters import TaskFilterParams
 from ..models.task import TaskStatus, TaskPriority
 from ..exceptions import NotFoundError
 
@@ -22,31 +23,23 @@ def create_task(
 def read_tasks(
     current_user: CurrentUser,
     service: TaskServ,
-    status: Optional[TaskStatus] = None,
-    priority: Optional[TaskPriority] = None,
-    q: Optional[str] = None,
-    page: int = Query(1, ge=1),
-    page_size: int = Query(10, ge=1, le=100),
-    sort_by: str = Query(
-        "created_at", pattern="^(created_at|due_date|priority|title)$"
-    ),
-    sort_dir: str = Query("desc", pattern="^(asc|desc)$"),
+    filters: Annotated[TaskFilterParams, Depends()],
 ):
     return service.get_tasks(
         user_id=current_user.id,
-        page=page,
-        page_size=page_size,
-        status=status.value if status else None,
-        priority=priority.value if priority else None,
-        q=q,
-        sort_by=sort_by,
-        sort_dir=sort_dir,
+        page=filters.page,
+        page_size=filters.page_size,
+        status=filters.status.value if filters.status else None,
+        priority=filters.priority.value if filters.priority else None,
+        q=filters.q,
+        sort_by=filters.sort_by.value,
+        sort_dir=filters.sort_dir.value,
     )
 
 
 @router.get("/{task_id}", response_model=TaskResponse)
 def read_task(
-    task_id: uuid.UUID,
+    task_id: Annotated[uuid.UUID, Path()],
     current_user: CurrentUser,
     service: TaskServ,
 ):
@@ -55,7 +48,7 @@ def read_task(
 
 @router.put("/{task_id}", response_model=TaskResponse)
 def update_task(
-    task_id: uuid.UUID,
+    task_id: Annotated[uuid.UUID, Path()],
     task: TaskUpdate,
     current_user: CurrentUser,
     service: TaskServ,
@@ -65,7 +58,7 @@ def update_task(
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_task(
-    task_id: uuid.UUID,
+    task_id: Annotated[uuid.UUID, Path()],
     current_user: CurrentUser,
     service: TaskServ,
 ):
@@ -75,7 +68,7 @@ def delete_task(
 
 @router.post("/{task_id}/toggle", response_model=TaskResponse)
 def toggle_task(
-    task_id: uuid.UUID,
+    task_id: Annotated[uuid.UUID, Path()],
     current_user: CurrentUser,
     service: TaskServ,
 ):

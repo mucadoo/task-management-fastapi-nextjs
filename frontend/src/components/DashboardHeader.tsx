@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { CheckSquare as CheckSquareIcon } from 'lucide-react';
 import LanguageSelector from './LanguageSelector';
 import ThemeToggle from './ThemeToggle';
@@ -33,7 +33,13 @@ export default function DashboardHeader({
         <span className="font-semibold text-sm text-warm-900 dark:text-gray-100">{t('common.app_name')}</span>
         <span className="mx-2 text-warm-200 dark:text-white/10">·</span>
         <span className="text-xs text-warm-600 dark:text-gray-500">
-          {t('tasks.tasks_count', { count: totalTasks })}
+          <Trans 
+            i18nKey="tasks.tasks_count" 
+            values={{ count: totalTasks }}
+            components={{ 
+              bold: <span className="font-bold text-warm-900 dark:text-gray-100" /> 
+            }} 
+          />
         </span>
       </div>
       <div className="flex-grow" />
