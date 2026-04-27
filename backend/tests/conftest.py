@@ -4,6 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.database import Base, get_db
+from app.models.user import User
+from .factories import TestDataFactory
 
 TEST_DATABASE_URL = "sqlite:///./test.db"
 test_engine = create_engine(
@@ -38,10 +40,10 @@ def client(db):
 
 
 @pytest.fixture
-def auth_headers(client):
+def auth_headers(client, db):
     email = "test@example.com"
     password = "password123"
-    client.post("/api/v1/auth/register", json={"email": email, "password": password})
+    TestDataFactory.create_user(db, email=email, password=password)
     response = client.post(
         "/api/v1/auth/login", json={"identifier": email, "password": password}
     )
@@ -50,10 +52,10 @@ def auth_headers(client):
 
 
 @pytest.fixture
-def second_user_auth_headers(client):
+def second_user_auth_headers(client, db):
     email = "second@example.com"
     password = "password123"
-    client.post("/api/v1/auth/register", json={"email": email, "password": password})
+    TestDataFactory.create_user(db, email=email, password=password, username="seconduser")
     response = client.post(
         "/api/v1/auth/login", json={"identifier": email, "password": password}
     )
@@ -62,10 +64,19 @@ def second_user_auth_headers(client):
 
 
 @pytest.fixture
-def sample_task(client, auth_headers):
-    response = client.post(
-        "/api/v1/tasks/",
-        json={"title": "Sample Task", "description": "Sample Description"},
-        headers=auth_headers,
-    )
-    return response.json()
+def sample_task(client, db, auth_headers):
+    # Get user id from db for the first user
+    user = db.query(User).filter(User.email == "test@example.com").first()
+    task = TestDataFactory.create_task(db, owner_id=user.id)
+    # Return as dict matching response schema
+    return {
+        "id": str(task.id),
+        "title": task.title,
+        "description": task.description,
+        "status": task.status.value,
+        "priority": task.priority.value,
+        "due_date": task.due_date.isoformat() if task.due_date else None,
+        "due_date_has_time": task.due_date_has_time,
+        "created_at": task.created_at.isoformat(),
+        "updated_at": task.updated_at.isoformat()
+    }

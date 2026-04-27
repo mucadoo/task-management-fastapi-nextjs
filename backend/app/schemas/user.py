@@ -23,10 +23,12 @@ def validate_password_logic(v: Optional[str]) -> Optional[str]:
 
 
 class UserCreate(BaseModel):
-    email: EmailStr
-    username: Optional[str] = Field(None, min_length=3, max_length=30)
-    name: Optional[str] = Field(None, max_length=100)
-    password: str = Field(..., min_length=8, max_length=128)
+    email: EmailStr = Field(..., description="User's email address", example="user@example.com")
+    username: Optional[str] = Field(
+        None, min_length=3, max_length=30, description="Unique username", example="johndoe"
+    )
+    name: Optional[str] = Field(None, max_length=100, description="User's full name", example="John Doe")
+    password: str = Field(..., min_length=8, max_length=128, description="User's password")
 
     @field_validator("username")
     @classmethod
@@ -40,11 +42,11 @@ class UserCreate(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    email: Optional[EmailStr] = None
-    username: Optional[str] = Field(None, min_length=3, max_length=30)
-    name: Optional[str] = Field(None, max_length=100)
-    password: Optional[str] = Field(None, min_length=8, max_length=128)
-    current_password: Optional[str] = None
+    email: Optional[EmailStr] = Field(None, description="Updated email address")
+    username: Optional[str] = Field(None, min_length=3, max_length=30, description="Updated username")
+    name: Optional[str] = Field(None, max_length=100, description="Updated full name")
+    password: Optional[str] = Field(None, min_length=8, max_length=128, description="New password")
+    current_password: Optional[str] = Field(None, description="Current password for verification")
 
     @field_validator("username")
     @classmethod
@@ -58,22 +60,22 @@ class UserUpdate(BaseModel):
 
 
 class UserResponse(BaseResponseSchema, TimestampSchema):
-    id: uuid.UUID
-    email: EmailStr
-    username: Optional[str] = None
-    name: Optional[str] = None
+    id: uuid.UUID = Field(..., description="Unique user identifier")
+    email: EmailStr = Field(..., description="User's email address")
+    username: Optional[str] = Field(None, description="Unique username")
+    name: Optional[str] = Field(None, description="User's full name")
 
 
 class TokenResponse(BaseModel):
-    access_token: str
-    refresh_token: str
-    token_type: str = "bearer"
+    access_token: str = Field(..., description="JWT access token")
+    refresh_token: str = Field(..., description="JWT refresh token")
+    token_type: str = Field("bearer", description="Token type")
 
 
 class RefreshRequest(BaseModel):
-    refresh_token: str
+    refresh_token: str = Field(..., description="The refresh token")
 
 
 class LoginRequest(BaseModel):
-    identifier: str
-    password: str
+    identifier: str = Field(..., description="Email or username")
+    password: str = Field(..., description="User's password")

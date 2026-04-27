@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ChevronDown, Plus, LayoutGrid, List } from 'lucide-react';
 import SearchInput from './ui/SearchInput';
 import { TooltipSimple } from './ui/Tooltip';
+import { IconButton } from './ui/Button';
 import { cn } from '../lib/utils';
 import { TaskStatus, TaskPriority } from '../types/task';
 import { Select } from './ui/Select';
@@ -84,12 +85,13 @@ export default function TaskFilters({
       </div>
 
       <TooltipSimple content={t('tasks.new_task')} side="left">
-        <button
+        <IconButton
           onClick={onNewTask}
-          className="h-10 w-10 bg-brand-500 hover:bg-brand-600 text-white rounded-lg flex items-center justify-center shadow-sm shadow-brand-500/10 transition-colors"
+          aria-label={t('tasks.new_task')}
+          className="h-10 w-10 shadow-sm shadow-brand-500/10"
         >
           <Plus className="h-5 w-5" />
-        </button>
+        </IconButton>
       </TooltipSimple>
     </div>
   );

@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
-import LoadingSpinner from './ui/LoadingSpinner';
+import { Button } from './ui/Button';
 import { useProfileForm } from '../hooks/useProfileForm';
 import { FormField } from './ui/FormField';
 import { Input } from './ui/Input';
@@ -47,7 +47,6 @@ export default function ProfileModal({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{t('profile.title')}</DialogTitle>
-          <div className="rule-brand w-8 h-1" />
         </DialogHeader>
         
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
@@ -120,11 +119,11 @@ export default function ProfileModal({
               </FormField>
               {usernameStatus === 'available' && <p className="text-[10px] text-emerald-500 ml-1 -mt-3 mb-4">{t('profile.username_available')}</p>}
 
-              <DialogFooter className="pt-4 flex flex-row justify-end gap-2">
-                <button type="button" onClick={onClose} className="btn-ghost">{t('common.cancel')}</button>
-                <button type="submit" disabled={isSubmitting} className="btn-primary">
-                  {isSubmitting ? <LoadingSpinner size="sm" className="text-white" /> : t('common.save_changes')}
-                </button>
+              <DialogFooter>
+                <Button variant="ghost" onClick={onClose}>{t('common.cancel')}</Button>
+                <Button type="submit" isLoading={isSubmitting}>
+                  {t('common.save_changes')}
+                </Button>
               </DialogFooter>
             </form>
           </TabsContent>
@@ -164,11 +163,11 @@ export default function ProfileModal({
                   placeholder={t('profile.confirm_new_password')}
                 />
               </FormField>
-              <DialogFooter className="pt-4 flex flex-row justify-end gap-2">
-                <button type="button" onClick={onClose} className="btn-ghost">{t('common.cancel')}</button>
-                <button type="submit" disabled={isSubmitting} className="btn-primary">
-                  {isSubmitting ? <LoadingSpinner size="sm" className="text-white" /> : t('profile.change_password')}
-                </button>
+              <DialogFooter>
+                <Button variant="ghost" onClick={onClose}>{t('common.cancel')}</Button>
+                <Button type="submit" isLoading={isSubmitting}>
+                  {t('profile.change_password')}
+                </Button>
               </DialogFooter>
             </form>
           </TabsContent>

@@ -4,14 +4,13 @@ import { Task } from '../types/task';
 import { useTranslation } from 'react-i18next';
 import { Save } from 'lucide-react';
 import { Controller } from 'react-hook-form';
-import LoadingSpinner from './ui/LoadingSpinner';
 import { DateTimePicker } from './ui/DateTimePicker';
 import { useTaskForm } from '../hooks/useTaskForm';
 import { FormField } from './ui/FormField';
 import { FormControl } from './ui/FormControl';
 import { Input } from './ui/Input';
 import { Textarea } from './ui/Textarea';
-import { Select } from './ui/Select';
+import { Button } from './ui/Button';
 import { getStatusOptions, getPriorityOptions } from '../lib/constants';
 import {
   Dialog,
@@ -48,7 +47,6 @@ export default function TaskForm({
           <DialogTitle>
             {editingTask ? t('tasks.edit_task') : t('tasks.new_task')}
           </DialogTitle>
-          <div className="rule-brand w-8 h-1" />
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4 py-4">
           <FormField
@@ -110,29 +108,22 @@ export default function TaskForm({
             />
           </FormControl>
 
-          <DialogFooter className="pt-4 flex flex-row justify-end gap-2">
-            <button
-              type="button"
+          <DialogFooter>
+            <Button
+              variant="ghost"
               onClick={onClose}
               disabled={isSubmitting}
-              className="btn-ghost"
             >
               {t('common.cancel')}
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              disabled={isSubmitting}
-              className="btn-primary min-w-[120px]"
+              isLoading={isSubmitting}
+              className="min-w-[120px]"
+              leftIcon={<Save className="h-4 w-4" />}
             >
-              {isSubmitting ? (
-                <LoadingSpinner size="sm" className="text-white" />
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  {editingTask ? t('tasks.edit_task') : t('tasks.create_task')}
-                </>
-              )}
-            </button>
+              {editingTask ? t('tasks.edit_task') : t('tasks.create_task')}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -59,15 +59,19 @@ DialogContent.displayName = DialogPrimitive.Content.displayName
 
 const DialogHeader = ({
   className,
+  children,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left",
+      "flex flex-col space-y-1.5 text-center sm:text-left pb-2",
       className
     )}
     {...props}
-  />
+  >
+    {children}
+    <div className="rule-brand w-8 h-1" />
+  </div>
 )
 DialogHeader.displayName = "DialogHeader"
 
@@ -77,7 +81,7 @@ const DialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4",
       className
     )}
     {...props}

@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
 import { createQueryClient } from '../lib/query-client';
+import { ErrorBoundary } from './ErrorBoundary';
 
 export default function ClientProviders({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => createQueryClient());
@@ -16,7 +17,11 @@ export default function ClientProviders({ children }: { children: React.ReactNod
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <I18nextProvider i18n={i18n}>
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider>
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
+          </TooltipProvider>
         </I18nextProvider>
       </ThemeProvider>
       <ReactQueryDevtools initialIsOpen={false} />
