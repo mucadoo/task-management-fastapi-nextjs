@@ -28,6 +28,11 @@ class UserCreate(BaseModel):
     name: Optional[str] = Field(None, max_length=100, description="User's full name", example="John Doe")
     password: str = Field(..., min_length=8, max_length=128, description="User's password")
 
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        from_attributes=True
+    )
+
     @field_validator("username")
     @classmethod
     def validate_username(cls, v: str) -> str:
@@ -45,6 +50,11 @@ class UserUpdate(BaseModel):
     name: Optional[str] = Field(None, max_length=100, description="Updated full name")
     password: Optional[str] = Field(None, min_length=8, max_length=128, description="New password")
     current_password: Optional[str] = Field(None, description="Current password for verification")
+
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        from_attributes=True
+    )
 
     @field_validator("username")
     @classmethod

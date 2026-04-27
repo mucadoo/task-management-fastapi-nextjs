@@ -5,6 +5,8 @@ import { Task, TaskCreate } from '@/types/task';
 import { useCreateTask, useUpdateTask } from './useTasks';
 import { useTranslation } from 'react-i18next';
 import { getTaskSchema } from '@/lib/validations';
+import { notify } from '@/lib/notifications';
+import * as z from 'zod';
 
 interface UseTaskFormProps {
   editingTask: Task | null;
@@ -19,15 +21,18 @@ export function useTaskForm({ editingTask, onClose }: UseTaskFormProps) {
 
   const isSubmitting = createTaskMutation.isPending || updateTaskMutation.isPending;
 
-  const form = useForm<TaskCreate & { due_date: Date | null }>({
-    resolver: zodResolver(getTaskSchema(t)) as any,
-    values: editingTask
+  const schema = getTaskSchema(t);
+  type FormData = z.infer<typeof schema>;
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: editingTask
       ? {
           title: editingTask.title,
           description: editingTask.description || '',
           status: editingTask.status,
           priority: editingTask.priority,
-          due_date: (editingTask.due_date ? new Date(editingTask.due_date) : null) as any,
+          due_date: editingTask.due_date ? new Date(editingTask.due_date) : null,
           due_date_has_time: editingTask.due_date_has_time || false,
         }
       : {
@@ -42,10 +47,10 @@ export function useTaskForm({ editingTask, onClose }: UseTaskFormProps) {
 
   const { handleSubmit } = form;
 
-  const onFormSubmit = async (data: any) => {
+  const onFormSubmit = async (data: FormData) => {
     try {
       let finalDueDate = data.due_date;
-      if (finalDueDate) {
+      if (finalDueDate instanceof Date) {
         finalDueDate = finalDueDate.toISOString();
       }
 
@@ -53,17 +58,17 @@ export function useTaskForm({ editingTask, onClose }: UseTaskFormProps) {
         ...data,
         title: data.title.trim(),
         description: data.description?.trim() || undefined,
-        due_date: finalDueDate || undefined,
+        due_date: (finalDueDate as unknown as string) || undefined,
       };
 
       if (editingTask) {
         await updateTaskMutation.mutateAsync({ id: editingTask.id, data: taskData });
       } else {
-        await createTaskMutation.mutateAsync(taskData);
+        await createTaskMutation.mutateAsync(taskData as TaskCreate);
       }
       onClose();
-    } catch {
-
+    } catch (err) {
+      notify.error(err, editingTask ? 'tasks.update_failed' : 'tasks.create_failed');
     }
   };
 

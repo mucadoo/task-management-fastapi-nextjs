@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/useAuthStore';
 import { authService } from '@/services/auth-service';
 import { getPersonalSchema, getSecuritySchema } from '@/lib/validations';
+import { notify } from '@/lib/notifications';
 import * as z from 'zod';
 
 interface UseProfileFormProps {
@@ -36,14 +37,14 @@ export function useProfileForm({ activeTab }: UseProfileFormProps) {
 
   const form = useForm<FormData>({
     resolver: zodResolver(activeTab === 'personal' ? personalSchema : securitySchema),
-    values: {
+    defaultValues: {
       name: user?.name || '',
       email: user?.email || '',
       username: user?.username || '',
       current_password: '',
       password: '',
       confirmPassword: '',
-    } as any,
+    },
   });
 
   const {
@@ -119,8 +120,8 @@ export function useProfileForm({ activeTab }: UseProfileFormProps) {
       if (activeTab === 'security') {
         reset({ ...form.getValues(), current_password: '', password: '', confirmPassword: '' });
       }
-    } catch {
-
+    } catch (err) {
+      notify.error(err, activeTab === 'personal' ? 'profile.update_failed' : 'profile.change_password_failed');
     } finally {
       setIsSubmitting(false);
     }

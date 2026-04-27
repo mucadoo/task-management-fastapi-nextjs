@@ -220,6 +220,11 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 - Logs estruturados e monitoramento via CloudWatch.
 - Camada de Cache com **Redis** para queries frequentes.
 
+### Infraestrutura e Terraform
+
+- **Gerenciamento de Estado:** Atualmente, o estado do Terraform é armazenado localmente para simplificar o projeto.
+- **Nota para Produção:** Em um ambiente corporativo, deve-se configurar um **Backend Remoto (S3 + DynamoDB)** para garantir o bloqueio de estado (*state locking*) e a colaboração segura entre múltiplos desenvolvedores, evitando a corrupção do arquivo de estado.
+
 ### Pontos Fortes e Limitações
 
 **Pontos fortes:**

@@ -33,6 +33,11 @@ class TaskBase(BaseModel):
         False, description="Whether the due date includes a specific time"
     )
 
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        from_attributes=True
+    )
+
 
 class TaskCreate(TaskBase):
     @field_validator("due_date")
@@ -55,6 +60,11 @@ class TaskUpdate(BaseModel):
     priority: Optional[TaskPriority] = Field(None, description="Updated priority")
     due_date: Optional[datetime.datetime] = Field(None, description="Updated due date")
     due_date_has_time: Optional[bool] = Field(None, description="Whether updated due date includes time")
+
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        from_attributes=True
+    )
 
 
 class TaskResponse(BaseResponseSchema, TaskBase, TimestampSchema):
