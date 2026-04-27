@@ -39,9 +39,7 @@ class TaskService:
 
     def create_task(self, user_id: uuid.UUID, task_data: TaskCreate) -> Task:
         task = self.task_repo.create_with_owner(user_id, task_data)
-        self.task_repo.db.commit()
-        self.task_repo.db.refresh(task)
-        return task
+        return self.task_repo.commit_and_refresh(task)
 
     def update_task(
         self, user_id: uuid.UUID, task_id: uuid.UUID, task_data: TaskUpdate
@@ -49,9 +47,7 @@ class TaskService:
         task = self.task_repo.update_task(user_id, task_id, task_data)
         if not task:
             raise NotFoundError("errors.task_not_found")
-        self.task_repo.db.commit()
-        self.task_repo.db.refresh(task)
-        return task
+        return self.task_repo.commit_and_refresh(task)
 
     def delete_task(self, user_id: uuid.UUID, task_id: uuid.UUID) -> bool:
         success = self.task_repo.delete_task(user_id, task_id)
@@ -71,9 +67,5 @@ class TaskService:
             else TaskStatus.COMPLETED
         )
         
-        # We can use the repository's update method or direct attribute access if we have the object
-        # Direct access is fine here since we have the task object and the repo has a session
         task.status = new_status
-        self.task_repo.db.commit()
-        self.task_repo.db.refresh(task)
-        return task
+        return self.task_repo.commit_and_refresh(task)

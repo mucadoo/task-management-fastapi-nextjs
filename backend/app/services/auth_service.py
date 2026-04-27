@@ -14,10 +14,21 @@ if TYPE_CHECKING:
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class AuthService:
-    def __init__(self, secret: str, expire_minutes: int, refresh_expire_days: int):
+    def __init__(
+        self,
+        secret: str,
+        expire_minutes: int,
+        refresh_expire_days: int,
+        user_repo: UserRepository,
+        auth_repo: AuthRepository,
+        user_service: Optional["UserService"] = None,
+    ):
         self.secret = secret
         self.expire_minutes = expire_minutes
         self.refresh_expire_days = refresh_expire_days
+        self.user_repo = user_repo
+        self.auth_repo = auth_repo
+        self.user_service = user_service
 
     def hash_password(self, plain: str) -> str:
         return pwd_context.hash(plain[:72])
@@ -43,12 +54,12 @@ class AuthService:
         except (JWTError, Exception):
             return None
 
-    def create_user_tokens(self, user: User, auth_repo: AuthRepository):
+    def create_user_tokens(self, user: User):
         access_token = self.create_access_token({"sub": user.email})
         refresh_token_str = self.create_refresh_token({"sub": user.email})
         expires_at = datetime.now(timezone.utc) + timedelta(days=self.refresh_expire_days)
-        auth_repo.create_token(user.id, refresh_token_str, expires_at)
-        auth_repo.db.commit()
+        self.auth_repo.create_token(user.id, refresh_token_str, expires_at)
+        self.auth_repo.db.commit()
         return {
             "access_token": access_token,
             "refresh_token": refresh_token_str,
@@ -61,32 +72,29 @@ class AuthService:
         password: str,
         name: Optional[str],
         username: Optional[str],
-        user_service: "UserService",
-        auth_repo: AuthRepository,
     ):
+        if not self.user_service:
+            raise AppError("UserService not initialized")
+            
         hashed = self.hash_password(password)
-        user = user_service.register_user(email, hashed, name, username)
-        return self.create_user_tokens(user, auth_repo)
+        user = self.user_service.register_user(email, hashed, name, username)
+        return self.create_user_tokens(user)
 
     def login(
         self,
         identifier: str,
         password: str,
-        user_repo: UserRepository,
-        auth_repo: AuthRepository,
     ):
-        user = user_repo.get_by_email_or_username(identifier)
+        user = self.user_repo.get_by_email_or_username(identifier)
         if not user or not self.verify_password(password, user.hashed_password):
             raise UnauthorizedError("errors.invalid_credentials")
-        return self.create_user_tokens(user, auth_repo)
+        return self.create_user_tokens(user)
 
     def refresh_tokens(
         self,
         refresh_token: str,
-        user_repo: UserRepository,
-        auth_repo: AuthRepository,
     ):
-        db_token = auth_repo.get_refresh_token(refresh_token)
+        db_token = self.auth_repo.get_refresh_token(refresh_token)
         if (
             not db_token
             or db_token.revoked
@@ -94,13 +102,13 @@ class AuthService:
         ):
             raise UnauthorizedError("errors.expired_refresh_token")
 
-        user = user_repo.get_by_id(db_token.user_id)
+        user = self.user_repo.get_by_id(db_token.user_id)
         if not user:
             raise UnauthorizedError("errors.user_not_found")
 
-        auth_repo.revoke_token(db_token.id)
+        self.auth_repo.revoke_token(db_token.id)
         # We don't commit yet because create_user_tokens will do it
-        return self.create_user_tokens(user, auth_repo)
+        return self.create_user_tokens(user)
 
     def prepare_password_update(
         self,

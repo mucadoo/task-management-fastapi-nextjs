@@ -34,15 +34,6 @@ TaskRepo = Annotated[TaskRepository, Depends(get_task_repository)]
 AuthRepo = Annotated[AuthRepository, Depends(get_auth_repository)]
 
 # Service Dependencies
-def get_auth_service() -> AuthService:
-    return AuthService(
-        secret=settings.jwt_secret,
-        expire_minutes=settings.jwt_expire_minutes,
-        refresh_expire_days=settings.jwt_refresh_expire_days,
-    )
-
-AuthServ = Annotated[AuthService, Depends(get_auth_service)]
-
 def get_user_service(repo: UserRepo) -> UserService:
     return UserService(repo)
 
@@ -52,6 +43,22 @@ def get_task_service(repo: TaskRepo) -> TaskService:
     return TaskService(repo)
 
 TaskServ = Annotated[TaskService, Depends(get_task_service)]
+
+def get_auth_service(
+    user_repo: UserRepo,
+    auth_repo: AuthRepo,
+    user_service: UserServ,
+) -> AuthService:
+    return AuthService(
+        secret=settings.jwt_secret,
+        expire_minutes=settings.jwt_expire_minutes,
+        refresh_expire_days=settings.jwt_refresh_expire_days,
+        user_repo=user_repo,
+        auth_repo=auth_repo,
+        user_service=user_service,
+    )
+
+AuthServ = Annotated[AuthService, Depends(get_auth_service)]
 
 # Auth Dependencies
 def get_current_user(

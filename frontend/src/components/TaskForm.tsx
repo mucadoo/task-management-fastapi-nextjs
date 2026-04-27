@@ -2,12 +2,13 @@
 import React from 'react';
 import { Task } from '../types/task';
 import { useTranslation } from 'react-i18next';
-import { Save, ChevronDown } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { Controller } from 'react-hook-form';
 import LoadingSpinner from './ui/LoadingSpinner';
 import { DateTimePicker } from './ui/DateTimePicker';
 import { useTaskForm } from '../hooks/useTaskForm';
 import { FormControl } from './ui/FormControl';
+import { Select } from './ui/Select';
 import {
   Dialog,
   DialogContent,
@@ -69,35 +70,29 @@ export default function TaskForm({
 
           <div className="grid grid-cols-2 gap-4">
             <FormControl id="status" label={t('tasks.status')}>
-              <div className="relative">
-                <select
-                  id="status"
-                  {...register('status')}
-                  disabled={isSubmitting}
-                  className="input-base appearance-none pr-10 cursor-pointer"
-                >
-                  <option value="pending">{t('tasks.pending')}</option>
-                  <option value="in_progress">{t('tasks.in_progress')}</option>
-                  <option value="completed">{t('tasks.completed')}</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
-              </div>
+              <Select
+                id="status"
+                {...register('status')}
+                disabled={isSubmitting}
+                options={[
+                  { value: 'pending', label: t('tasks.pending') },
+                  { value: 'in_progress', label: t('tasks.in_progress') },
+                  { value: 'completed', label: t('tasks.completed') },
+                ]}
+              />
             </FormControl>
 
             <FormControl id="priority" label={t('tasks.priority')}>
-              <div className="relative">
-                <select
-                  id="priority"
-                  {...register('priority')}
-                  disabled={isSubmitting}
-                  className="input-base appearance-none pr-10 cursor-pointer"
-                >
-                  <option value="low">{t('tasks.low')}</option>
-                  <option value="medium">{t('tasks.medium')}</option>
-                  <option value="high">{t('tasks.high')}</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
-              </div>
+              <Select
+                id="priority"
+                {...register('priority')}
+                disabled={isSubmitting}
+                options={[
+                  { value: 'low', label: t('tasks.low') },
+                  { value: 'medium', label: t('tasks.medium') },
+                  { value: 'high', label: t('tasks.high') },
+                ]}
+              />
             </FormControl>
           </div>
 

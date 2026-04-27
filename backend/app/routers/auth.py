@@ -19,8 +19,6 @@ router = APIRouter()
 )
 def register(
     user_data: UserCreate,
-    user_service: UserServ,
-    auth_repo: AuthRepo,
     auth_service: AuthServ,
 ):
     return auth_service.register(
@@ -28,32 +26,26 @@ def register(
         user_data.password,
         user_data.name,
         user_data.username,
-        user_service,
-        auth_repo,
     )
 
 
 @router.post("/login", response_model=TokenResponse)
 def login(
     login_data: LoginRequest,
-    user_repo: UserRepo,
-    auth_repo: AuthRepo,
     auth_service: AuthServ,
 ):
     return auth_service.login(
-        login_data.identifier, login_data.password, user_repo, auth_repo
+        login_data.identifier, login_data.password
     )
 
 
 @router.post("/refresh", response_model=TokenResponse)
 def refresh(
     refresh_data: RefreshRequest,
-    user_repo: UserRepo,
-    auth_repo: AuthRepo,
     auth_service: AuthServ,
 ):
     return auth_service.refresh_tokens(
-        refresh_data.refresh_token, user_repo, auth_repo
+        refresh_data.refresh_token
     )
 
 

@@ -11,11 +11,7 @@ class TaskRepository(BaseRepository[Task]):
         super().__init__(Task, db)
 
     def get_by_id(self, user_id: uuid.UUID, task_id: uuid.UUID) -> Optional[Task]:
-        return (
-            self.db.query(Task)
-            .filter(Task.id == task_id, Task.owner_id == user_id)
-            .first()
-        )
+        return super().get_by_id_scoped(task_id, user_id)
 
     def get_all(
         self,
@@ -68,8 +64,4 @@ class TaskRepository(BaseRepository[Task]):
         return super().update(db_task, task_data.model_dump(exclude_unset=True))
 
     def delete_task(self, user_id: uuid.UUID, task_id: uuid.UUID) -> bool:
-        db_task = self.get_by_id(user_id, task_id)
-        if not db_task:
-            return False
-        self.db.delete(db_task)
-        return True
+        return super().delete_scoped(task_id, user_id)

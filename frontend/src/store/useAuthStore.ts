@@ -3,8 +3,8 @@ import { persist } from 'zustand/middleware';
 import { User, LoginData, RegisterData, UpdateMeData } from '@/types/auth';
 import { authService } from '@/services/auth-service';
 import { tokenManager } from '@/lib/token';
-import { useToastStore } from '@/store/useToastStore';
 import i18n from '@/lib/i18n';
+import { notify } from '@/lib/notifications';
 
 interface AuthState {
   user: User | null;
@@ -33,32 +33,30 @@ export const useAuthStore = create<AuthState>()(
 
       login: async (data) => {
         set({ isLoading: true, error: null });
-        const { addToast } = useToastStore.getState();
         try {
           await authService.login(data);
           const user = await authService.getMe();
           set({ user, isAuthenticated: true, isLoading: false });
-          addToast(i18n.t('auth.login_success'), 'success');
+          notify.success('auth.login_success');
         } catch (err: any) {
           const message = err.message || i18n.t('auth.login_failed');
           set({ error: message, isLoading: false, isAuthenticated: false });
-          addToast(message, 'error');
+          notify.error(err, 'auth.login_failed');
           throw err;
         }
       },
 
       register: async (data) => {
         set({ isLoading: true, error: null });
-        const { addToast } = useToastStore.getState();
         try {
           await authService.register(data);
           const user = await authService.getMe();
           set({ user, isAuthenticated: true, isLoading: false });
-          addToast(i18n.t('auth.register_success'), 'success');
+          notify.success('auth.register_success');
         } catch (err: any) {
           const message = err.message || i18n.t('auth.register_failed');
           set({ error: message, isLoading: false, isAuthenticated: false });
-          addToast(message, 'error');
+          notify.error(err, 'auth.register_failed');
           throw err;
         }
       },
@@ -66,7 +64,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         authService.logout();
         set({ user: null, isAuthenticated: false, error: null });
-        useToastStore.getState().addToast(i18n.t('auth.logout_success'), 'info');
+        notify.info('auth.logout_success');
       },
 
       fetchMe: async (force = false) => {
@@ -93,15 +91,14 @@ export const useAuthStore = create<AuthState>()(
 
       updateMe: async (data) => {
         set({ isLoading: true, error: null });
-        const { addToast } = useToastStore.getState();
         try {
           const updatedUser = await authService.updateMe(data);
           set({ user: updatedUser, isLoading: false });
-          addToast(i18n.t('profile.update_success'), 'success');
+          notify.success('profile.update_success');
         } catch (err: any) {
           const message = err.message || i18n.t('profile.update_failed');
           set({ error: message, isLoading: false });
-          addToast(message, 'error');
+          notify.error(err, 'profile.update_failed');
           throw err;
         }
       },

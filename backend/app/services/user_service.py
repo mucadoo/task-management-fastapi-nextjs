@@ -29,9 +29,7 @@ class UserService:
             raise ConflictError("errors.username_taken")
             
         user = self.user_repo.create_user(email, hashed_password, name, username)
-        self.user_repo.db.commit()
-        self.user_repo.db.refresh(user)
-        return user
+        return self.user_repo.commit_and_refresh(user)
 
     def update_user_profile(self, user: User, update_data: Dict[str, Any]) -> User:
         email = update_data.get("email")
@@ -45,9 +43,7 @@ class UserService:
                 raise ConflictError("errors.username_taken")
                 
         updated_user = self.user_repo.update_user(user, update_data)
-        self.user_repo.db.commit()
-        self.user_repo.db.refresh(updated_user)
-        return updated_user
+        return self.user_repo.commit_and_refresh(updated_user)
 
     def is_username_available(self, username: str) -> bool:
         return self.user_repo.get_by_username(username.lower()) is None

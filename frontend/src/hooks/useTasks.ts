@@ -2,6 +2,7 @@ import {
   useInfiniteQuery,
   useMutation,
   useQueryClient,
+  QueryClient,
 } from '@tanstack/react-query';
 import { taskService } from '@/services/task-service';
 import { taskKeys } from '@/lib/query-keys';
@@ -15,6 +16,7 @@ import {
 } from '@/types/task';
 import { useToastStore } from '@/store/useToastStore';
 import i18n from '@/lib/i18n';
+import { notify } from '@/lib/notifications';
 
 export function useTasks(filters: {
   status?: TaskStatus;
@@ -39,25 +41,57 @@ export function useTasks(filters: {
   });
 }
 
+/**
+ * Helper to handle optimistic updates for paginated lists
+ */
+async function onMutateListUpdate<T>(
+  queryClient: QueryClient,
+  updateFn: (page: PaginatedResponse<T>) => PaginatedResponse<T>
+) {
+  // Cancel any outgoing refetches
+  await queryClient.cancelQueries({ queryKey: taskKeys.lists() });
+
+  // Snapshot previous value
+  const previousQueries = queryClient.getQueriesData({ queryKey: taskKeys.lists() });
+
+  // Optimistically update all list queries
+  queryClient.setQueriesData({ queryKey: taskKeys.lists() }, (old: any) => {
+    if (!old) return old;
+    return {
+      ...old,
+      pages: old.pages.map(updateFn),
+    };
+  });
+
+  return { previousQueries };
+}
+
+/**
+ * Helper to rollback optimistic updates on error
+ */
+function rollbackQueries(queryClient: QueryClient, context: any) {
+  if (context?.previousQueries) {
+    context.previousQueries.forEach(([queryKey, data]: any) => {
+      queryClient.setQueryData(queryKey, data);
+    });
+  }
+}
+
 export function useCreateTask() {
   const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
 
   return useMutation({
     mutationFn: (data: TaskCreate) => taskService.createTask(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
-      addToast(i18n.t('tasks.create_success'), 'success');
+      notify.success('tasks.create_success');
     },
-    onError: (error: any) => {
-      addToast(error.message || i18n.t('tasks.create_failed'), 'error');
-    },
+    onError: (error: any) => notify.error(error, 'tasks.create_failed'),
   });
 }
 
 export function useUpdateTask() {
   const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: TaskUpdate }) =>
@@ -65,58 +99,34 @@ export function useUpdateTask() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: taskKeys.all });
       if (variables.data.title) {
-        addToast(i18n.t('tasks.update_success'), 'success');
+        notify.success('tasks.update_success');
       }
     },
-    onError: (error: any) => {
-      addToast(error.message || i18n.t('tasks.update_failed'), 'error');
-    },
+    onError: (error: any) => notify.error(error, 'tasks.update_failed'),
   });
 }
 
 export function useToggleTaskStatus() {
   const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
 
   return useMutation({
     mutationFn: (id: string) => taskService.toggleTaskStatus(id),
-    onMutate: async (id: string) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: taskKeys.lists() });
-
-      // Snapshot previous value
-      const previousQueries = queryClient.getQueriesData({ queryKey: taskKeys.lists() });
-
-      // Optimistically update all list queries
-      queryClient.setQueriesData({ queryKey: taskKeys.lists() }, (old: any) => {
-        if (!old) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page: PaginatedResponse<Task>) => ({
-            ...page,
-            items: page.items.map((task: Task) => {
-              if (task.id === id) {
-                return {
-                  ...task,
-                  status:
-                    task.status === 'completed' ? 'pending' : 'completed',
-                };
-              }
-              return task;
-            }),
-          })),
-        };
-      });
-
-      return { previousQueries };
-    },
+    onMutate: (id: string) => 
+      onMutateListUpdate<Task>(queryClient, (page) => ({
+        ...page,
+        items: page.items.map((task) => {
+          if (task.id === id) {
+            return {
+              ...task,
+              status: task.status === 'completed' ? 'pending' : 'completed',
+            };
+          }
+          return task;
+        }),
+      })),
     onError: (err: any, id: string, context: any) => {
-      if (context?.previousQueries) {
-        context.previousQueries.forEach(([queryKey, data]: any) => {
-          queryClient.setQueryData(queryKey, data);
-        });
-      }
-      addToast(err.message || i18n.t('tasks.status_update_failed'), 'error');
+      rollbackQueries(queryClient, context);
+      notify.error(err, 'tasks.status_update_failed');
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: taskKeys.all });
@@ -126,38 +136,21 @@ export function useToggleTaskStatus() {
 
 export function useDeleteTask() {
   const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
 
   return useMutation({
     mutationFn: (id: string) => taskService.deleteTask(id),
-    onMutate: async (id: string) => {
-      await queryClient.cancelQueries({ queryKey: taskKeys.lists() });
-      const previousQueries = queryClient.getQueriesData({ queryKey: taskKeys.lists() });
-
-      queryClient.setQueriesData({ queryKey: taskKeys.lists() }, (old: any) => {
-        if (!old) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page: PaginatedResponse<Task>) => ({
-            ...page,
-            items: page.items.filter((task: Task) => task.id !== id),
-            total: page.total - 1,
-          })),
-        };
-      });
-
-      return { previousQueries };
-    },
+    onMutate: (id: string) => 
+      onMutateListUpdate<Task>(queryClient, (page) => ({
+        ...page,
+        items: page.items.filter((task) => task.id !== id),
+        total: page.total - 1,
+      })),
     onError: (err: any, id: string, context: any) => {
-      if (context?.previousQueries) {
-        context.previousQueries.forEach(([queryKey, data]: any) => {
-          queryClient.setQueryData(queryKey, data);
-        });
-      }
-      addToast(err.message || i18n.t('tasks.delete_failed'), 'error');
+      rollbackQueries(queryClient, context);
+      notify.error(err, 'tasks.delete_failed');
     },
     onSuccess: () => {
-      addToast(i18n.t('tasks.delete_success'), 'info');
+      notify.info('tasks.delete_success');
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: taskKeys.all });

@@ -1,11 +1,8 @@
-from fastapi import FastAPI, Request, HTTPException, status
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.exceptions import RequestValidationError
 from .routers import tasks, auth, logic
 from .config import get_settings
-from .schemas.common import ErrorResponse
-from .exceptions import AppError
+from .exception_handlers import register_exception_handlers
 
 settings = get_settings()
 app = FastAPI(
@@ -24,43 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content=ErrorResponse(error=str(exc.detail)).model_dump(),
-    )
-
-
-@app.exception_handler(AppError)
-async def app_error_handler(request: Request, exc: AppError):
-    status_code = getattr(exc, "status_code", 400)
-    return JSONResponse(
-        status_code=status_code,
-        content=ErrorResponse(
-            error=exc.message,
-            detail=exc.detail,
-            code=exc.code
-        ).model_dump(),
-    )
-
-
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    errors = []
-    for error in exc.errors():
-        field = error["loc"][-1] if error["loc"] else "unknown"
-        errors.append({"field": str(field), "message": error["msg"]})
-
-    return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content=ErrorResponse(
-            error="errors.validation_failed",
-            detail=errors,
-            code="VALIDATION_ERROR"
-        ).model_dump(),
-    )
+register_exception_handlers(app)
 
 
 @app.get("/api/v1/health")
