@@ -20,10 +20,13 @@ type LoginForm = z.infer<ReturnType<typeof getLoginSchema>>;
 
 export default function LoginPage() {
   const { t } = useTranslation();
-  const router = useRouter();
-  const { login, isLoading: authActionLoading } = useAuthStore();
+  const { login } = useAuthStore();
 
-  const { isLoading: authCheckLoading } = useAuth(false);
+  const { 
+    isLoading: authCheckLoading, 
+    isActionLoading: authActionLoading, 
+    isAuthenticated 
+  } = useAuth(false);
 
   const {
     register,
@@ -40,13 +43,13 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     try {
       await login(data);
-      router.push('/app');
     } catch (err) {
-      // Handled by store
+      // Error is handled by the store and displayed via notifications
     }
   };
 
-  if (authCheckLoading) return null;
+  // Prevent flashing the form if we are already authenticated or still checking
+  if (authCheckLoading || isAuthenticated) return null;
 
   return (
     <div className="min-h-screen flex">

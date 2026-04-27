@@ -23,13 +23,16 @@ type RegisterForm = z.infer<ReturnType<typeof getRegisterSchema>>;
 
 export default function RegisterPage() {
   const { t } = useTranslation();
-  const { register: registerUser, isLoading: authActionLoading } = useAuthStore();
+  const { register: registerUser } = useAuthStore();
   const [emailStatus, setEmailStatus] = useState<
     'idle' | 'checking' | 'available' | 'taken' | 'invalid'
   >('idle');
 
-  const router = useRouter();
-  const { isLoading: authCheckLoading } = useAuth(false);
+  const { 
+    isLoading: authCheckLoading, 
+    isActionLoading: authActionLoading,
+    isAuthenticated
+  } = useAuth(false);
 
   const {
     register,
@@ -70,13 +73,12 @@ export default function RegisterPage() {
     if (emailStatus === 'taken') return;
     try {
       await registerUser({ email: data.email, name: data.name, password: data.password });
-      router.push('/app');
     } catch (err) {
       // Handled by store
     }
   };
 
-  if (authCheckLoading) return null;
+  if (authCheckLoading || isAuthenticated) return null;
 
   return (
     <div className="min-h-screen flex">

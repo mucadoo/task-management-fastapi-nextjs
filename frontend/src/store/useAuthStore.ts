@@ -10,6 +10,7 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isInitializing: boolean;
   error: string | null;
   setUser: (user: User | null) => void;
   login: (data: LoginData) => Promise<void>;
@@ -25,6 +26,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: tokenManager.isAuthenticated(),
       isLoading: false,
+      isInitializing: false,
       error: null,
 
       setUser: (user) => {
@@ -62,7 +64,7 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         authService.logout();
-        set({ user: null, isAuthenticated: false, error: null });
+        set({ user: null, isAuthenticated: false, error: null, isLoading: false, isInitializing: false });
       },
 
       fetchMe: async (force = false) => {
@@ -76,14 +78,14 @@ export const useAuthStore = create<AuthState>()(
         // Skip if we already have a user and aren't forcing a refresh
         if (get().user && !force) return;
 
-        set({ isLoading: true });
+        set({ isInitializing: true });
         try {
           const user = await authService.getMe();
-          set({ user, isAuthenticated: true, isLoading: false });
+          set({ user, isAuthenticated: true, isInitializing: false });
         } catch (err) {
           // If fetchMe fails, the token is likely invalid/expired
           authService.logout();
-          set({ user: null, isAuthenticated: false, isLoading: false });
+          set({ user: null, isAuthenticated: false, isInitializing: false });
         }
       },
 

@@ -5,7 +5,7 @@ import { useAuthStore } from '../store/useAuthStore';
 
 export function useAuth(requireAuth: boolean = true) {
   const router = useRouter();
-  const { isAuthenticated, user, fetchMe, isLoading } = useAuthStore();
+  const { isAuthenticated, user, fetchMe, isLoading, isInitializing } = useAuthStore();
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -16,15 +16,22 @@ export function useAuth(requireAuth: boolean = true) {
   }, [fetchMe]);
 
   useEffect(() => {
-    // Only redirect if loading is finished
-    if (!isLoading) {
+    // Only redirect if initialization is finished
+    // We don't check 'isLoading' here because that's for login/register actions
+    // and we handle those redirects manually or want to stay on the page during the process
+    if (!isInitializing) {
       if (requireAuth && !isAuthenticated) {
-        router.push('/login');
+        router.replace('/login');
       } else if (!requireAuth && isAuthenticated) {
-        router.push('/app');
+        router.replace('/app');
       }
     }
-  }, [isAuthenticated, isLoading, router, requireAuth]);
+  }, [isAuthenticated, isInitializing, router, requireAuth]);
 
-  return { isAuthenticated, user, isLoading };
+  return { 
+    isAuthenticated, 
+    user, 
+    isLoading: isInitializing, // Only return true for the initial check
+    isActionLoading: isLoading 
+  };
 }
