@@ -1,7 +1,7 @@
 'use client';
 
-import TaskBoard from '../../components/TaskBoard';
-import { useAuth } from '../../hooks/useAuth';
+import TaskBoard from '@/components/TaskBoard';
+import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 
 export default function AppDashboardPage() {

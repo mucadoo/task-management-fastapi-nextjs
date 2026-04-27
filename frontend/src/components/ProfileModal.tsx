@@ -3,12 +3,12 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from './ui/Button';
-import { useProfileForm } from '../hooks/useProfileForm';
+import { useProfileForm } from '@/hooks/useProfileForm';
 import { FormField } from './ui/FormField';
 import { Input } from './ui/Input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/Dialog';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/Tabs';
-import { cn } from '../lib/utils';
+import { cn } from '@/lib/utils';
 
 interface ProfileModalProps {
   isOpen: boolean;

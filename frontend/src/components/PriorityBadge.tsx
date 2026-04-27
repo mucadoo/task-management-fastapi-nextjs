@@ -1,5 +1,5 @@
 'use client';
-import { TaskPriority } from '../types/task';
+import { TaskPriority } from '@/types/task';
 import { useTranslation } from 'react-i18next';
 import { Badge } from './ui/Badge';
 

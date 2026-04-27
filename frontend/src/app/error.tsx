@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
-import { Button } from '../components/ui/Button';
+import { Button } from '@/components/ui/Button';
 
 export default function Error({
   error,

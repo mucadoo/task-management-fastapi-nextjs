@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Calendar, Clock, AlertCircle } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn } from '@/lib/utils';
 
 interface TaskDateBadgeProps {
   dueDate: string | null;

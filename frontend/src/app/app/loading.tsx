@@ -1,4 +1,4 @@
-import { TaskSkeleton } from '../../components/ui/Skeleton';
+import { TaskSkeleton } from '@/components/ui/Skeleton';
 
 export default function Loading() {
   return (

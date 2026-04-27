@@ -1,20 +1,20 @@
 'use client';
 import React from 'react';
-import { Task } from '../types/task';
+import { Task } from '@/types/task';
 import { useTranslation } from 'react-i18next';
 import { Save } from 'lucide-react';
 import { Controller } from 'react-hook-form';
 import { DateTimePicker } from './ui/DateTimePicker';
-import { useTaskForm } from '../hooks/useTaskForm';
+import { useTaskForm } from '@/hooks/useTaskForm';
 import { FormField } from './ui/FormField';
 import { FormControl } from './ui/FormControl';
 import { Input } from './ui/Input';
 import { Textarea } from './ui/Textarea';
 import { Button } from './ui/Button';
 import { Select } from './ui/Select';
-import { getStatusOptions, getPriorityOptions } from '../lib/constants';
+import { getStatusOptions, getPriorityOptions } from '@/lib/constants';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/Dialog';
-import { cn } from '../lib/utils';
+import { cn } from '@/lib/utils';
 
 interface TaskFormProps {
   isOpen: boolean;
