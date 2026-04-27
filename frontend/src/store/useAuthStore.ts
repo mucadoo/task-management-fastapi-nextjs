@@ -37,7 +37,6 @@ export const useAuthStore = create<AuthState>()(
           await authService.login(data);
           const user = await authService.getMe();
           set({ user, isAuthenticated: true, isLoading: false });
-          notify.success('auth.login_success');
         } catch (err: any) {
           const message = err.message || i18n.t('auth.login_failed');
           set({ error: message, isLoading: false, isAuthenticated: false });
@@ -64,7 +63,6 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         authService.logout();
         set({ user: null, isAuthenticated: false, error: null });
-        notify.info('auth.logout_success');
       },
 
       fetchMe: async (force = false) => {
