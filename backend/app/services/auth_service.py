@@ -5,7 +5,7 @@ from jose import jwt, JWTError
 from ..models.user import User
 from ..repositories.auth_repository import AuthRepository
 from ..repositories.user_repository import UserRepository
-from ..exceptions import UnauthorizedError, AppError
+from ..exceptions import UnauthorizedError, AppError, ConflictError
 from ..utils.security import hash_password, verify_password
 
 if TYPE_CHECKING:
@@ -70,10 +70,15 @@ class AuthService:
         email: str,
         password: str,
         name: Optional[str],
-        username: Optional[str],
+        username: str,
     ):
         if not self.user_service:
             raise AppError("UserService not initialized")
+
+        if self.user_repo.get_by_email(email.lower()):
+            raise ConflictError("errors.email_registered")
+        if self.user_repo.get_by_username(username.lower()):
+            raise ConflictError("errors.username_taken")
             
         hashed = self.hash_password(password)
         user = self.user_service.register_user(email, hashed, name, username)

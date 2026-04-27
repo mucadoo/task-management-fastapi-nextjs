@@ -190,6 +190,12 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 | `EC2_SSH_KEY` | Conteúdo da sua chave `.pem` |
 | `IMAGE_TAG` | Tag da imagem (usado via github.sha) |
 
+### Recursos de Segurança
+
+- **Assuntos de JWT Imutáveis**: UUIDs de usuário são utilizados em vez de e-mails nos tokens, garantindo que atualizações de e-mail não interrompam sessões ativas.
+- **Tokens de Atualização sem Estado**: A rotação e a revogação automatizada de tokens são implementadas para maior segurança.
+- **Defesa em Profundidade**: A validação de dados é realizada em múltiplos níveis: Banco de Dados (Constraints), API (Pydantic) e Frontend (Zod).
+
 ### Decisões Técnicas
 
 - **FastAPI sobre Django REST:** Escolhido pela performance assíncrona superior e tipagem nativa com Pydantic v2. A documentação automática via OpenAPI (Swagger) acelera o desenvolvimento e facilita a integração com o frontend.
