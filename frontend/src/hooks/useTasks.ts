@@ -1,11 +1,7 @@
-import { useInfiniteQuery, useMutation, useQueryClient, QueryClient } from '@tanstack/react-query';
 import { taskService } from '@/services/task-service';
 import { taskKeys } from '@/lib/query-keys';
 import { onMutateListUpdate, rollbackQueries } from '@/lib/query-utils';
-import { PaginatedResponse } from '@/types/common';
 import { TaskCreate, TaskUpdate, TaskStatus, TaskPriority, Task } from '@/types/task';
-import { useToastStore } from '@/store/useToastStore';
-import i18n from '@/lib/i18n';
 import { notify } from '@/lib/notifications';
 
 export function useTasks(filters: {

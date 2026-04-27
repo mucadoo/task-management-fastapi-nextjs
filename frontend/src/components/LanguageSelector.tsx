@@ -7,7 +7,6 @@ import {
   DropdownMenuTrigger,
 } from './ui/DropdownMenu';
 import { Languages } from 'lucide-react';
-import { TooltipSimple } from './ui/Tooltip';
 export default function LanguageSelector() {
   const { i18n, t } = useTranslation();
   const languages = [

@@ -1,7 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import TaskCard from './TaskCard';
-import { TaskStatus, TaskPriority } from '@/types/task';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 

@@ -5,7 +5,6 @@ import { TaskSkeleton } from './ui/Skeleton';
 import { InfiniteScrollTrigger } from './InfiniteScrollTrigger';
 import ErrorMessage from './ui/ErrorMessage';
 import ConfirmDialog from './ui/ConfirmDialog';
-import DashboardHeader from './DashboardHeader';
 import TaskFilters from './TaskFilters';
 import { EmptyState } from './ui/EmptyState';
 import { useTranslation } from 'react-i18next';

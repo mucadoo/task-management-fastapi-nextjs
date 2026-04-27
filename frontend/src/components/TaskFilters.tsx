@@ -1,11 +1,9 @@
 'use client';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, Plus, LayoutGrid, List } from 'lucide-react';
 import SearchInput from './ui/SearchInput';
 import { TooltipSimple } from './ui/Tooltip';
 import { IconButton } from './ui/Button';
-import { cn } from '@/lib/utils';
 import { TaskStatus, TaskPriority } from '@/types/task';
 import { Select } from './ui/Select';
 import { getStatusOptions, getPriorityOptions, getSortOptions } from '@/lib/constants';
