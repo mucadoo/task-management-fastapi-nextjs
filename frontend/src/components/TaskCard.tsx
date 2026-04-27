@@ -17,6 +17,7 @@ import { cn } from '../lib/utils';
 import { getTaskDateStatus } from '../lib/date-utils';
 import { TaskCardActions } from './TaskCardActions';
 import { TaskDateBadge } from './TaskDateBadge';
+import { TaskStatusToggles } from './TaskStatusToggles';
 
 interface TaskCardProps {
   task: Task;
@@ -82,56 +83,13 @@ const TaskCard = memo(function TaskCard({
   );
 
   const statusToggles = (
-    <div className={cn(
-      "flex items-center gap-1",
-      viewMode === 'gallery' ? "bg-warm-50 dark:bg-white/5 p-1 rounded-lg border border-warm-200 dark:border-white/10" : ""
-    )}>
-      {/* Completion Toggle */}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            onClick={toggleStatus}
-            disabled={isToggling || isDeleting}
-            aria-label={isCompleted ? t('tasks.mark_pending') : t('tasks.mark_completed')}
-            className={cn("p-1 rounded-md transition-colors", isCompleted ? "text-emerald-600" : "text-warm-400 dark:text-gray-500 hover:text-emerald-600 hover:bg-warm-100 dark:hover:bg-white/5")}
-          >
-            {isToggling ? (
-              <LoadingSpinner size="sm" />
-            ) : isCompleted ? (
-              <CheckCircle2 className={viewMode === 'list' ? "h-5 w-5" : "h-4 w-4"} />
-            ) : (
-              <Circle className={viewMode === 'list' ? "h-5 w-5" : "h-4 w-4"} />
-            )}
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="top">
-          {isCompleted ? t('tasks.mark_pending') : t('tasks.mark_completed')}
-        </TooltipContent>
-      </Tooltip>
-
-      {/* In Progress Toggle */}
-      {!isCompleted && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              onClick={toggleStatus}
-              disabled={isToggling || isDeleting}
-              aria-label={isInProgress ? t('tasks.mark_pending') : t('tasks.mark_in_progress')}
-              className={cn("p-1 rounded-md transition-colors", isInProgress ? "text-amber-600" : "text-warm-400 dark:text-gray-500 hover:text-amber-600 hover:bg-warm-100 dark:hover:bg-white/5")}
-            >
-              {isInProgress ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="top">
-            {isInProgress ? t('tasks.mark_pending') : t('tasks.mark_in_progress')}
-          </TooltipContent>
-        </Tooltip>
-      )}
-    </div>
+    <TaskStatusToggles
+      status={task.status}
+      onToggleStatus={toggleStatus}
+      isToggling={isToggling}
+      isDeleting={isDeleting}
+      viewMode={viewMode}
+    />
   );
 
   if (viewMode === 'list') {

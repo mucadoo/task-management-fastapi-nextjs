@@ -9,6 +9,7 @@ import { DateTimePicker } from './ui/DateTimePicker';
 import { useTaskForm } from '../hooks/useTaskForm';
 import { FormControl } from './ui/FormControl';
 import { Select } from './ui/Select';
+import { getStatusOptions, getPriorityOptions } from '../lib/constants';
 import {
   Dialog,
   DialogContent,
@@ -74,11 +75,7 @@ export default function TaskForm({
                 id="status"
                 {...register('status')}
                 disabled={isSubmitting}
-                options={[
-                  { value: 'pending', label: t('tasks.pending') },
-                  { value: 'in_progress', label: t('tasks.in_progress') },
-                  { value: 'completed', label: t('tasks.completed') },
-                ]}
+                options={getStatusOptions(t)}
               />
             </FormControl>
 
@@ -87,11 +84,7 @@ export default function TaskForm({
                 id="priority"
                 {...register('priority')}
                 disabled={isSubmitting}
-                options={[
-                  { value: 'low', label: t('tasks.low') },
-                  { value: 'medium', label: t('tasks.medium') },
-                  { value: 'high', label: t('tasks.high') },
-                ]}
+                options={getPriorityOptions(t)}
               />
             </FormControl>
           </div>

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import Optional, List
 import datetime
 import uuid
@@ -16,7 +16,17 @@ class TaskBase(BaseModel):
 
 
 class TaskCreate(TaskBase):
-    pass
+    @field_validator("due_date")
+    @classmethod
+    def validate_due_date(
+        cls, v: Optional[datetime.datetime]
+    ) -> Optional[datetime.datetime]:
+        if v:
+            if v.tzinfo is None:
+                v = v.replace(tzinfo=datetime.timezone.utc)
+            if v < datetime.datetime.now(datetime.timezone.utc):
+                raise ValueError("Due date cannot be in the past")
+        return v
 
 
 class TaskUpdate(BaseModel):

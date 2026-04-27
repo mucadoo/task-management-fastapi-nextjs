@@ -15,8 +15,8 @@ const getPasswordSchema = (t: any) =>
 
 export const getTaskSchema = (t: any) =>
   z.object({
-    title: z.string().min(1, t('common.error_required', { field: t('common.title') })),
-    description: z.string().optional(),
+    title: z.string().min(1, t('common.error_required', { field: t('common.title') })).max(100),
+    description: z.string().max(1000).optional(),
     status: z.enum(['pending', 'in_progress', 'completed']),
     priority: z.enum(['low', 'medium', 'high']),
     due_date: z.date().optional().nullable(),
@@ -36,8 +36,8 @@ export const getLoginSchema = (t: any) =>
 export const getRegisterSchema = (t: any) =>
   z
     .object({
-      name: z.string().min(1, t('common.error_required', { field: t('auth.name') })),
-      email: z.string().email(t('auth.invalid_email')),
+      name: z.string().min(1, t('common.error_required', { field: t('auth.name') })).max(100),
+      email: z.string().email(t('auth.invalid_email')).max(255),
       password: getPasswordSchema(t),
       confirmPassword: z
         .string()
@@ -50,11 +50,12 @@ export const getRegisterSchema = (t: any) =>
 
 export const getPersonalSchema = (t: any) =>
   z.object({
-    name: z.string().min(1, t('profile.name_required')),
-    email: z.string().email(t('profile.email_invalid')),
+    name: z.string().min(1, t('profile.name_required')).max(100),
+    email: z.string().email(t('profile.email_invalid')).max(255),
     username: z
       .string()
       .min(USERNAME_MIN_LENGTH, t('profile.username_invalid'))
+      .max(30)
       .regex(USERNAME_REGEX, t('profile.username_invalid'))
       .transform((val) => val.toLowerCase())
       .optional()
