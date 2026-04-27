@@ -1,5 +1,4 @@
-from fastapi import APIRouter, status, Query, Depends
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, status, Query
 from typing import Annotated
 from ..schemas.user import (
     UserCreate,
