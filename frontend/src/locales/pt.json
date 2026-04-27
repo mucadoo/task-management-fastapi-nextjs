@@ -33,7 +33,20 @@
     "portuguese": "Português",
     "pick_date": "Escolher data",
     "set_time": "Definir hora",
-    "clear": "Limpar"
+    "clear": "Limpar",
+    "close": "Fechar"
+  },
+  "errors": {
+    "invalid_token": "Token inválido",
+    "user_not_found": "Usuário não encontrado",
+    "email_registered": "E-mail já cadastrado",
+    "username_taken": "Nome de usuário já em uso",
+    "invalid_credentials": "Credenciais inválidas",
+    "expired_refresh_token": "Token de atualização inválido ou expirado",
+    "password_required_new": "A senha atual é necessária para definir uma nova senha",
+    "incorrect_password": "Senha atual incorreta",
+    "task_not_found": "Tarefa não encontrada",
+    "validation_failed": "Falha na validação"
   },
   "auth": {
     "login": "Entrar",

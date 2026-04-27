@@ -55,7 +55,7 @@ def read_task(
 ):
     task = repo.get_by_id(current_user.id, task_id)
     if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
+        raise HTTPException(status_code=404, detail="errors.task_not_found")
     return task
 
 
@@ -68,7 +68,7 @@ def update_task(
 ):
     updated = repo.update_task(current_user.id, task_id, task)
     if not updated:
-        raise HTTPException(status_code=404, detail="Task not found")
+        raise HTTPException(status_code=404, detail="errors.task_not_found")
     repo.db.commit()
     repo.db.refresh(updated)
     return updated
@@ -81,7 +81,7 @@ def delete_task(
     repo: TaskRepo,
 ):
     if not repo.delete_task(current_user.id, task_id):
-        raise HTTPException(status_code=404, detail="Task not found")
+        raise HTTPException(status_code=404, detail="errors.task_not_found")
     repo.db.commit()
     return None
 
@@ -94,7 +94,7 @@ def toggle_task(
 ):
     updated = service.toggle_task(current_user.id, task_id)
     if not updated:
-        raise HTTPException(status_code=404, detail="Task not found")
+        raise HTTPException(status_code=404, detail="errors.task_not_found")
     service.task_repo.db.commit()
     service.task_repo.db.refresh(updated)
     return updated

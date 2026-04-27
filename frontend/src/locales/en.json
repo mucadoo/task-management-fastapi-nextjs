@@ -33,7 +33,20 @@
     "portuguese": "Portuguese",
     "pick_date": "Pick a date",
     "set_time": "Set time",
-    "clear": "Clear"
+    "clear": "Clear",
+    "close": "Close"
+  },
+  "errors": {
+    "invalid_token": "Invalid token",
+    "user_not_found": "User not found",
+    "email_registered": "Email already registered",
+    "username_taken": "Username already taken",
+    "invalid_credentials": "Invalid credentials",
+    "expired_refresh_token": "Invalid or expired refresh token",
+    "password_required_new": "Current password is required to set a new password",
+    "incorrect_password": "Incorrect current password",
+    "task_not_found": "Task not found",
+    "validation_failed": "Validation failed"
   },
   "auth": {
     "login": "Login",

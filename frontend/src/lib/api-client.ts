@@ -1,4 +1,5 @@
 import { tokenManager } from './token';
+import i18n from './i18n';
 
 const API_BASE_URL =
   (typeof window === 'undefined'
@@ -112,7 +113,8 @@ export async function request<T>(
     let message = 'An error occurred';
     try {
       const errorData = await response.json();
-      message = errorData.error || errorData.detail || message;
+      const rawMessage = errorData.error || errorData.detail || message;
+      message = typeof rawMessage === 'string' ? i18n.t(rawMessage) : 'An error occurred';
     } catch {}
     throw new ApiError(response.status, message);
   }

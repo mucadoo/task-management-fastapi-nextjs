@@ -55,12 +55,12 @@ def get_current_user(
     payload = auth_service.decode_token(token)
     if not payload or "sub" not in payload:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="errors.invalid_token"
         )
     user = user_repo.get_by_email(payload["sub"])
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="errors.user_not_found"
         )
     return user
 

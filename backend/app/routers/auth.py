@@ -23,9 +23,9 @@ def register(
     auth_service: AuthServ,
 ):
     if user_repo.get_by_email(user_data.email):
-        raise HTTPException(status_code=409, detail="Email already registered")
+        raise HTTPException(status_code=409, detail="errors.email_registered")
     if user_data.username and user_repo.get_by_username(user_data.username):
-        raise HTTPException(status_code=409, detail="Username already taken")
+        raise HTTPException(status_code=409, detail="errors.username_taken")
     hashed = auth_service.hash_password(user_data.password)
     user = user_repo.create_user(
         user_data.email, hashed, user_data.name, user_data.username
@@ -45,7 +45,7 @@ def login(
     if not user or not auth_service.verify_password(
         login_data.password, user.hashed_password
     ):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="errors.invalid_credentials")
     return auth_service.create_user_tokens(user, auth_repo)
 
 
@@ -59,13 +59,12 @@ def refresh(
     db_token = auth_repo.get_refresh_token(refresh_data.refresh_token)
     if (
         not db_token
-        or db_token.revoked
         or db_token.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc)
     ):
-        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
+        raise HTTPException(status_code=401, detail="errors.expired_refresh_token")
     user = user_repo.get_by_id(db_token.user_id)
     if not user:
-        raise HTTPException(status_code=401, detail="User not found")
+        raise HTTPException(status_code=401, detail="errors.user_not_found")
     auth_repo.revoke_token(db_token.id)
     auth_repo.db.commit()
     return auth_service.create_user_tokens(user, auth_repo)
@@ -89,23 +88,23 @@ def update_me(
         if not user_update.current_password:
             raise HTTPException(
                 status_code=400,
-                detail="Current password is required to set a new password",
+                detail="errors.password_required_new",
             )
         if not auth_service.verify_password(
             user_update.current_password, current_user.hashed_password
         ):
-            raise HTTPException(status_code=401, detail="Incorrect current password")
+            raise HTTPException(status_code=401, detail="errors.incorrect_password")
         
         update_data["hashed_password"] = auth_service.hash_password(update_data.pop("password"))
         update_data.pop("current_password", None)
 
     if user_update.email and user_update.email != current_user.email:
         if user_repo.get_by_email(user_update.email):
-            raise HTTPException(status_code=409, detail="Email already registered")
+            raise HTTPException(status_code=409, detail="errors.email_registered")
             
     if user_update.username and user_update.username != current_user.username:
         if user_repo.get_by_username(user_update.username):
-            raise HTTPException(status_code=409, detail="Username already taken")
+            raise HTTPException(status_code=409, detail="errors.username_taken")
             
     updated_user = user_repo.update_user(current_user, update_data)
     user_repo.db.commit()
