@@ -14,10 +14,10 @@ class UserService(BaseService[User, UserRepository]):
         return self.get_by_id_or_404(user_id)
 
     def get_user_by_email(self, email: str) -> Optional[User]:
-        return self.repository.get_by_email(email)
+        return self.repository.get_by_email(email.lower())
 
     def get_user_by_username(self, username: str) -> Optional[User]:
-        return self.repository.get_by_username(username)
+        return self.repository.get_by_username(username.lower())
 
     def get_user_by_email_or_username(self, identifier: str) -> Optional[User]:
         return self.repository.get_by_email_or_username(identifier)
@@ -25,24 +25,31 @@ class UserService(BaseService[User, UserRepository]):
     def register_user(
         self, email: str, hashed_password: str, name: Optional[str] = None, username: Optional[str] = None
     ) -> User:
-        if self.repository.get_by_email(email):
+        safe_email = email.lower()
+        safe_username = username.lower() if username else None
+        
+        if self.repository.get_by_email(safe_email):
             raise ConflictError("errors.email_registered")
-        if username and self.repository.get_by_username(username):
+        if safe_username and self.repository.get_by_username(safe_username):
             raise ConflictError("errors.username_taken")
             
-        user = self.repository.create_user(email, hashed_password, name, username)
+        user = self.repository.create_user(safe_email, hashed_password, name, safe_username)
         return self.repository.commit_and_refresh(user)
 
     def update_user_profile(self, user: User, update_data: Dict[str, Any]) -> User:
-        email = update_data.get("email")
-        if email and email != user.email:
-            if self.repository.get_by_email(email):
-                raise ConflictError("errors.email_registered")
+        if "email" in update_data:
+            update_data["email"] = update_data["email"].lower()
+            email = update_data["email"]
+            if email != user.email:
+                if self.repository.get_by_email(email):
+                    raise ConflictError("errors.email_registered")
                 
-        username = update_data.get("username")
-        if username and username != user.username:
-            if self.repository.get_by_username(username):
-                raise ConflictError("errors.username_taken")
+        if "username" in update_data and update_data["username"]:
+            update_data["username"] = update_data["username"].lower()
+            username = update_data["username"]
+            if username != user.username:
+                if self.repository.get_by_username(username):
+                    raise ConflictError("errors.username_taken")
                 
         updated_user = self.repository.update_user(user, update_data)
         return self.repository.commit_and_refresh(updated_user)

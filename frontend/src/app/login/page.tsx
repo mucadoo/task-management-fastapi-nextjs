@@ -25,7 +25,7 @@ export default function LoginPage() {
     isLoading: authCheckLoading,
     isActionLoading: authActionLoading,
     isAuthenticated,
-  } = useAuth(false);
+  } = useAuth();
 
   const {
     register,
@@ -47,13 +47,12 @@ export default function LoginPage() {
     }
   };
 
-  
   if (authCheckLoading || isAuthenticated) return null;
 
   return (
     <div className="min-h-screen flex">
       <AuthSidebar />
-      <div className="flex-1 flex flex-col justify-center p-8 lg:p-16 relative bg-warm-50 dark:bg-[
+      <div className="flex-1 flex flex-col justify-center p-8 lg:p-16 relative bg-warm-50 dark:bg-[#0a0a0a]">
         <div className="absolute top-6 right-6 flex items-center space-x-3">
           <LanguageSelector />
           <ThemeToggle />

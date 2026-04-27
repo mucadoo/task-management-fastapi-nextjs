@@ -1,10 +1,8 @@
 'use client';
 import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 
-export function useAuth(requireAuth: boolean = true) {
-  const router = useRouter();
+export function useAuth() {
   const { isAuthenticated, user, fetchMe, isLoading, isInitializing } = useAuthStore();
   const hasFetched = useRef(false);
 
@@ -13,21 +11,7 @@ export function useAuth(requireAuth: boolean = true) {
       fetchMe();
       hasFetched.current = true;
     }
-    
-  }, []);
-
-  useEffect(() => {
-    
-    
-    
-    if (!isInitializing) {
-      if (requireAuth && !isAuthenticated) {
-        router.replace('/login');
-      } else if (!requireAuth && isAuthenticated) {
-        router.replace('/app');
-      }
-    }
-  }, [isAuthenticated, isInitializing, router, requireAuth]);
+  }, [fetchMe]);
 
   return {
     isAuthenticated,

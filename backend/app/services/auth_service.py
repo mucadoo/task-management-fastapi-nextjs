@@ -55,8 +55,8 @@ class AuthService:
             return None
 
     def create_user_tokens(self, user: User):
-        access_token = self.create_access_token({"sub": user.email})
-        refresh_token_str = self.create_refresh_token({"sub": user.email})
+        access_token = self.create_access_token({"sub": str(user.id)})
+        refresh_token_str = self.create_refresh_token({"sub": str(user.id)})
         expires_at = datetime.now(timezone.utc) + timedelta(days=self.refresh_expire_days)
         self.auth_repo.create_token(user.id, refresh_token_str, expires_at)
         self.auth_repo.commit()

@@ -6,9 +6,9 @@ import { useTranslation } from 'react-i18next';
 
 export default function AppDashboardPage() {
   const { t } = useTranslation();
-  const { isLoading, isAuthenticated } = useAuth(true);
+  const { isLoading, isAuthenticated } = useAuth();
 
-  if (isLoading || !isAuthenticated) {
+  if (isLoading) {
     return (
       <main className="min-h-screen flex items-center justify-center p-4">
         <div className="animate-pulse flex flex-col items-center gap-2">
@@ -17,6 +17,10 @@ export default function AppDashboardPage() {
         </div>
       </main>
     );
+  }
+
+  if (!isAuthenticated && !isLoading) {
+    return null;
   }
 
   return (

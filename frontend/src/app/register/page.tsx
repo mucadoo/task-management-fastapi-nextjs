@@ -31,7 +31,7 @@ export default function RegisterPage() {
     isLoading: authCheckLoading,
     isActionLoading: authActionLoading,
     isAuthenticated,
-  } = useAuth(false);
+  } = useAuth();
 
   const {
     register,

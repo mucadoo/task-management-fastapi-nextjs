@@ -12,6 +12,7 @@ from .services.task_service import TaskService
 from .config import get_settings
 from .models.user import User
 from .exceptions import UnauthorizedError
+import uuid
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 settings = get_settings()
@@ -69,7 +70,13 @@ def get_current_user(
     payload = auth_service.decode_token(token)
     if not payload or "sub" not in payload:
         raise UnauthorizedError("errors.invalid_token")
-    user = user_repo.get_by_email(payload["sub"])
+
+    try:
+        user_id = uuid.UUID(payload["sub"])
+    except ValueError:
+        raise UnauthorizedError("errors.invalid_token")
+
+    user = user_repo.get_by_id(user_id)
     if not user:
         raise UnauthorizedError("errors.user_not_found")
     return user
