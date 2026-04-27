@@ -99,7 +99,7 @@ export async function request<T>(
             if (retryResponse.ok) {
               resolve(retryResponse.json());
             } else {
-              reject(new ApiError(retryResponse.status, 'Retry failed after refresh'));
+              reject(new ApiError(retryResponse.status, i18n.t('errors.retry_failed')));
             }
           } catch (e) {
             reject(e);
@@ -110,11 +110,11 @@ export async function request<T>(
   }
 
   if (!response.ok) {
-    let message = 'An error occurred';
+    let message = i18n.t('common.error');
     try {
       const errorData = await response.json();
       const rawMessage = errorData.error || errorData.detail || message;
-      message = typeof rawMessage === 'string' ? i18n.t(rawMessage) : 'An error occurred';
+      message = typeof rawMessage === 'string' ? i18n.t(rawMessage) : i18n.t('common.error');
     } catch {}
     throw new ApiError(response.status, message);
   }

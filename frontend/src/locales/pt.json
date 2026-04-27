@@ -36,6 +36,10 @@
     "clear": "Limpar",
     "close": "Fechar"
   },
+  "metadata": {
+    "title": "TaskFlow | Gerenciamento de Tarefas Moderno",
+    "description": "Gerencie suas tarefas de forma eficiente com uma interface bonita."
+  },
   "errors": {
     "invalid_token": "Token inválido",
     "user_not_found": "Usuário não encontrado",
@@ -46,7 +50,8 @@
     "password_required_new": "A senha atual é necessária para definir uma nova senha",
     "incorrect_password": "Senha atual incorreta",
     "task_not_found": "Tarefa não encontrada",
-    "validation_failed": "Falha na validação"
+    "validation_failed": "Falha na validação",
+    "retry_failed": "Falha na tentativa após a atualização"
   },
   "auth": {
     "login": "Entrar",

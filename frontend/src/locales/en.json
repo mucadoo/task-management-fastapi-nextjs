@@ -36,6 +36,10 @@
     "clear": "Clear",
     "close": "Close"
   },
+  "metadata": {
+    "title": "TaskFlow | Modern Task Management",
+    "description": "Manage your tasks efficiently with a beautiful interface."
+  },
   "errors": {
     "invalid_token": "Invalid token",
     "user_not_found": "User not found",
@@ -46,7 +50,8 @@
     "password_required_new": "Current password is required to set a new password",
     "incorrect_password": "Incorrect current password",
     "task_not_found": "Task not found",
-    "validation_failed": "Validation failed"
+    "validation_failed": "Validation failed",
+    "retry_failed": "Retry failed after refresh"
   },
   "auth": {
     "login": "Login",
