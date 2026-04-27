@@ -7,8 +7,7 @@ import { Controller } from 'react-hook-form';
 import LoadingSpinner from './ui/LoadingSpinner';
 import { DateTimePicker } from './ui/DateTimePicker';
 import { useTaskForm } from '../hooks/useTaskForm';
-import { FormControl } from './ui/FormControl';
-import { Select } from './ui/Select';
+import { FormField } from './ui/FormField';
 import { getStatusOptions, getPriorityOptions } from '../lib/constants';
 import {
   Dialog,
@@ -48,53 +47,56 @@ export default function TaskForm({
           <div className="rule-brand w-8 h-1" />
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4 py-4">
-          <FormControl id="title" label={t('common.title')} error={errors.title?.message} required>
-            <input
-              id="title"
+          <FormField
+            name="title"
+            label={t('common.title')}
+            error={errors.title?.message}
+            required
+          >
+            <Input
               {...register('title')}
               placeholder={t('tasks.placeholder_title')}
               disabled={isSubmitting}
-              className={cn("input-base", errors.title && "border-red-500 focus:ring-red-500/20")}
             />
-          </FormControl>
+          </FormField>
 
-          <FormControl id="description" label={t('tasks.description')} error={errors.description?.message}>
-            <textarea
-              id="description"
+          <FormField
+            name="description"
+            label={t('tasks.description')}
+            error={errors.description?.message}
+          >
+            <Textarea
               {...register('description')}
-              rows={3}
-              className="input-base resize-none"
               placeholder={t('tasks.placeholder_description')}
               disabled={isSubmitting}
             />
-          </FormControl>
+          </FormField>
 
           <div className="grid grid-cols-2 gap-4">
-            <FormControl id="status" label={t('tasks.status')}>
+            <FormField name="status" label={t('tasks.status')}>
               <Select
-                id="status"
                 {...register('status')}
                 disabled={isSubmitting}
                 options={getStatusOptions(t)}
               />
-            </FormControl>
+            </FormField>
 
-            <FormControl id="priority" label={t('tasks.priority')}>
+            <FormField name="priority" label={t('tasks.priority')}>
               <Select
-                id="priority"
                 {...register('priority')}
                 disabled={isSubmitting}
                 options={getPriorityOptions(t)}
               />
-            </FormControl>
+            </FormField>
           </div>
 
-          <FormControl label={t('tasks.due_date')}>
+          <FormControl label={t('tasks.due_date')} id="due_date">
             <Controller
               control={control}
               name="due_date"
               render={({ field }) => (
                 <DateTimePicker
+                  id="due_date"
                   date={field.value}
                   setDate={field.onChange}
                   hasTime={watch('due_date_has_time')}

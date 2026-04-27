@@ -32,7 +32,7 @@ def read_tasks(
     ),
     sort_dir: str = Query("desc", pattern="^(asc|desc)$"),
 ):
-    items, total = service.get_tasks(
+    return service.get_tasks(
         user_id=current_user.id,
         page=page,
         page_size=page_size,
@@ -42,7 +42,6 @@ def read_tasks(
         sort_by=sort_by,
         sort_dir=sort_dir,
     )
-    return {"items": items, "total": total, "page": page, "page_size": page_size}
 
 
 @router.get("/{task_id}", response_model=TaskResponse)

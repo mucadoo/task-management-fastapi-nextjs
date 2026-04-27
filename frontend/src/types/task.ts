@@ -26,9 +26,3 @@ export interface TaskUpdate {
   due_date?: string;
   due_date_has_time?: boolean;
 }
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  page_size: number;
-}

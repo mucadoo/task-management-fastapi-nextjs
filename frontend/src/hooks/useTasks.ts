@@ -6,12 +6,13 @@ import {
 } from '@tanstack/react-query';
 import { taskService } from '@/services/task-service';
 import { taskKeys } from '@/lib/query-keys';
+import { onMutateListUpdate, rollbackQueries } from '@/lib/query-utils';
+import { PaginatedResponse } from '@/types/common';
 import {
   TaskCreate,
   TaskUpdate,
   TaskStatus,
   TaskPriority,
-  PaginatedResponse,
   Task,
 } from '@/types/task';
 import { useToastStore } from '@/store/useToastStore';
@@ -41,41 +42,6 @@ export function useTasks(filters: {
   });
 }
 
-/**
- * Helper to handle optimistic updates for paginated lists
- */
-async function onMutateListUpdate<T>(
-  queryClient: QueryClient,
-  updateFn: (page: PaginatedResponse<T>) => PaginatedResponse<T>
-) {
-  // Cancel any outgoing refetches
-  await queryClient.cancelQueries({ queryKey: taskKeys.lists() });
-
-  // Snapshot previous value
-  const previousQueries = queryClient.getQueriesData({ queryKey: taskKeys.lists() });
-
-  // Optimistically update all list queries
-  queryClient.setQueriesData({ queryKey: taskKeys.lists() }, (old: any) => {
-    if (!old) return old;
-    return {
-      ...old,
-      pages: old.pages.map(updateFn),
-    };
-  });
-
-  return { previousQueries };
-}
-
-/**
- * Helper to rollback optimistic updates on error
- */
-function rollbackQueries(queryClient: QueryClient, context: any) {
-  if (context?.previousQueries) {
-    context.previousQueries.forEach(([queryKey, data]: any) => {
-      queryClient.setQueryData(queryKey, data);
-    });
-  }
-}
 
 export function useCreateTask() {
   const queryClient = useQueryClient();
@@ -112,7 +78,7 @@ export function useToggleTaskStatus() {
   return useMutation({
     mutationFn: (id: string) => taskService.toggleTaskStatus(id),
     onMutate: (id: string) => 
-      onMutateListUpdate<Task>(queryClient, (page) => ({
+      onMutateListUpdate<Task>(queryClient, taskKeys.lists(), (page) => ({
         ...page,
         items: page.items.map((task) => {
           if (task.id === id) {
@@ -140,7 +106,7 @@ export function useDeleteTask() {
   return useMutation({
     mutationFn: (id: string) => taskService.deleteTask(id),
     onMutate: (id: string) => 
-      onMutateListUpdate<Task>(queryClient, (page) => ({
+      onMutateListUpdate<Task>(queryClient, taskKeys.lists(), (page) => ({
         ...page,
         items: page.items.filter((task) => task.id !== id),
         total: page.total - 1,

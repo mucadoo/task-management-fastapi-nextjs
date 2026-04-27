@@ -1,6 +1,6 @@
 import { request } from '../lib/api-client';
+import { PaginatedResponse } from '@/types/common';
 import {
-  PaginatedResponse,
   Task,
   TaskCreate,
   TaskUpdate,

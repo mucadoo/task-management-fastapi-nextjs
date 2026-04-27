@@ -23,16 +23,12 @@ class TaskRepository(BaseRepository[Task]):
         q: Optional[str] = None,
         sort_by: str = "created_at",
         sort_dir: str = "desc",
-    ) -> Tuple[List[Task], int]:
+    ) -> dict:
         query = self.db.query(Task).filter(Task.owner_id == user_id)
         query = self._apply_filters(query, status, priority, q)
+        query = self.apply_sorting(query, sort_by, sort_dir)
 
-        total = query.count()
-
-        query = self._apply_sorting(query, sort_by, sort_dir)
-        items = query.offset((page - 1) * page_size).limit(page_size).all()
-
-        return items, total
+        return self.paginate(query, page, page_size)
 
     def _apply_filters(self, query, status, priority, q):
         if status:
@@ -46,22 +42,13 @@ class TaskRepository(BaseRepository[Task]):
             )
         return query
 
-    def _apply_sorting(self, query, sort_by, sort_dir):
-        sort_col = getattr(Task, sort_by, Task.created_at)
-        if sort_dir == "asc":
-            return query.order_by(sort_col.asc().nulls_last())
-        return query.order_by(sort_col.desc().nulls_last())
-
     def create_with_owner(self, user_id: uuid.UUID, task_data: TaskCreate) -> Task:
-        return super().create({**task_data.model_dump(), "owner_id": user_id})
+        return super().create_with_owner(user_id, task_data)
 
     def update_task(
         self, user_id: uuid.UUID, task_id: uuid.UUID, task_data: TaskUpdate
     ) -> Optional[Task]:
-        db_task = self.get_by_id(user_id, task_id)
-        if not db_task:
-            return None
-        return super().update(db_task, task_data.model_dump(exclude_unset=True))
+        return super().update_scoped(task_id, user_id, task_data)
 
     def delete_task(self, user_id: uuid.UUID, task_id: uuid.UUID) -> bool:
         return super().delete_scoped(task_id, user_id)
