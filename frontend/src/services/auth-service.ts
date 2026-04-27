@@ -1,12 +1,6 @@
 import { request } from '@/lib/api-client';
 import { tokenManager } from '@/lib/token';
-import { 
-  TokenResponse, 
-  User, 
-  LoginData, 
-  RegisterData, 
-  UpdateMeData 
-} from '@/types/auth';
+import { TokenResponse, User, LoginData, RegisterData, UpdateMeData } from '@/types/auth';
 
 export const authService = {
   login: async (data: LoginData) => {

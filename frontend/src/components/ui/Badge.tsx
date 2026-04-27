@@ -9,12 +9,7 @@ interface BadgeProps {
   className?: string;
 }
 
-export function Badge({
-  children,
-  variant = 'gray',
-  showDot = false,
-  className,
-}: BadgeProps) {
+export function Badge({ children, variant = 'gray', showDot = false, className }: BadgeProps) {
   const variants = {
     blue: {
       bg: 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300',
@@ -43,14 +38,12 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider",
+        'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider',
         selectedVariant.bg,
-        className
+        className,
       )}
     >
-      {showDot && (
-        <span className={cn("w-1.5 h-1.5 rounded-full", selectedVariant.dot)} />
-      )}
+      {showDot && <span className={cn('w-1.5 h-1.5 rounded-full', selectedVariant.dot)} />}
       {children}
     </span>
   );

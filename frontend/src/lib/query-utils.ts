@@ -7,7 +7,7 @@ import { PaginatedResponse } from '@/types/common';
 export async function onMutateListUpdate<T>(
   queryClient: QueryClient,
   queryKey: any[],
-  updateFn: (page: PaginatedResponse<T>) => PaginatedResponse<T>
+  updateFn: (page: PaginatedResponse<T>) => PaginatedResponse<T>,
 ) {
   // Cancel any outgoing refetches
   await queryClient.cancelQueries({ queryKey });

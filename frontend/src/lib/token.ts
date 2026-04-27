@@ -1,6 +1,8 @@
 export const tokenManager = {
-  getAccessToken: () => (typeof window !== 'undefined' ? localStorage.getItem('access_token') : null),
-  getRefreshToken: () => (typeof window !== 'undefined' ? localStorage.getItem('refresh_token') : null),
+  getAccessToken: () =>
+    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null,
+  getRefreshToken: () =>
+    typeof window !== 'undefined' ? localStorage.getItem('refresh_token') : null,
   setTokens: (access: string, refresh: string) => {
     if (typeof window === 'undefined') return;
     localStorage.setItem('access_token', access);

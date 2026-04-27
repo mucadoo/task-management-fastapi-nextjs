@@ -24,13 +24,13 @@ export default function Error({
         <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 text-red-600 rounded-full flex items-center justify-center mb-6">
           <AlertTriangle className="w-8 h-8" />
         </div>
-        
+
         <h2 className="text-2xl font-bold text-warm-900 dark:text-gray-100 mb-2">
           {t('common.error')}
         </h2>
-        
+
         <p className="text-warm-500 dark:text-gray-400 mb-8">
-          {error.message || "An unexpected error occurred."}
+          {error.message || 'An unexpected error occurred.'}
         </p>
 
         <Button

@@ -39,9 +39,7 @@ export default function ConfirmDialog({
           <AlertDialogTitle className="text-center text-xl font-bold text-gray-900 dark:text-white mb-2">
             {t('common.confirm_action')}
           </AlertDialogTitle>
-          <p className="text-center text-gray-500 dark:text-gray-400">
-            {message}
-          </p>
+          <p className="text-center text-gray-500 dark:text-gray-400">{message}</p>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex flex-col gap-3 mt-8">
           <AlertDialogAction
@@ -61,7 +59,7 @@ export default function ConfirmDialog({
               </>
             )}
           </AlertDialogAction>
-          <AlertDialogCancel 
+          <AlertDialogCancel
             disabled={isLoading}
             className="w-full h-12 text-gray-700 dark:text-gray-300 font-bold bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-[0.98]"
           >

@@ -10,22 +10,25 @@ export const notify = {
   success: (key: string) => {
     useToastStore.getState().addToast(i18n.t(key), 'success');
   },
-  
+
   error: (error: any, fallbackKey: string) => {
     const rawMessage = getErrorMessage(error);
-    const message = (rawMessage === 'common.error_unknown' || rawMessage === 'Error') 
-      ? i18n.t(fallbackKey) 
-      : (rawMessage.includes('common.') || rawMessage.includes('auth.') || rawMessage.includes('tasks.') 
-        ? i18n.t(rawMessage) 
-        : rawMessage);
+    const message =
+      rawMessage === 'common.error_unknown' || rawMessage === 'Error'
+        ? i18n.t(fallbackKey)
+        : rawMessage.includes('common.') ||
+            rawMessage.includes('auth.') ||
+            rawMessage.includes('tasks.')
+          ? i18n.t(rawMessage)
+          : rawMessage;
     useToastStore.getState().addToast(message, 'error');
   },
-  
+
   info: (key: string) => {
     useToastStore.getState().addToast(i18n.t(key), 'info');
   },
-  
+
   warn: (key: string) => {
     useToastStore.getState().addToast(i18n.t(key), 'warning');
-  }
+  },
 };

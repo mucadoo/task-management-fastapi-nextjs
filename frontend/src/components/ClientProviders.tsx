@@ -18,9 +18,7 @@ export default function ClientProviders({ children }: { children: React.ReactNod
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <I18nextProvider i18n={i18n}>
           <TooltipProvider>
-            <ErrorBoundary>
-              {children}
-            </ErrorBoundary>
+            <ErrorBoundary>{children}</ErrorBoundary>
           </TooltipProvider>
         </I18nextProvider>
       </ThemeProvider>

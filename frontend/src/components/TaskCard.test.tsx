@@ -42,7 +42,7 @@ const renderWithProviders = (ui: React.ReactElement) => {
   return render(
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>{ui}</TooltipProvider>
-    </QueryClientProvider>
+    </QueryClientProvider>,
   );
 };
 describe('TaskCard', () => {
@@ -50,12 +50,7 @@ describe('TaskCard', () => {
   const onDelete = vi.fn();
   it('renders task details correctly', () => {
     renderWithProviders(
-      <TaskCard
-        task={mockTask}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        isDeleting={false}
-      />,
+      <TaskCard task={mockTask} onEdit={onEdit} onDelete={onDelete} isDeleting={false} />,
     );
     expect(screen.getByText('Test Task')).toBeInTheDocument();
     expect(screen.getByText('Test Description')).toBeInTheDocument();
@@ -64,48 +59,28 @@ describe('TaskCard', () => {
   });
   it('calls onEdit when Edit button is clicked', () => {
     renderWithProviders(
-      <TaskCard
-        task={mockTask}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        isDeleting={false}
-      />,
+      <TaskCard task={mockTask} onEdit={onEdit} onDelete={onDelete} isDeleting={false} />,
     );
     fireEvent.click(screen.getByRole('button', { name: /edit/i }));
     expect(onEdit).toHaveBeenCalledWith(mockTask);
   });
   it('calls onDelete when Delete button is clicked', () => {
     renderWithProviders(
-      <TaskCard
-        task={mockTask}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        isDeleting={false}
-      />,
+      <TaskCard task={mockTask} onEdit={onEdit} onDelete={onDelete} isDeleting={false} />,
     );
     fireEvent.click(screen.getByRole('button', { name: /delete/i }));
     expect(onDelete).toHaveBeenCalledWith(mockTask.id);
   });
   it('calls toggleStatus when Status cycle button is clicked', () => {
     renderWithProviders(
-      <TaskCard
-        task={mockTask}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        isDeleting={false}
-      />,
+      <TaskCard task={mockTask} onEdit={onEdit} onDelete={onDelete} isDeleting={false} />,
     );
     fireEvent.click(screen.getByRole('button', { name: /mark_completed/i }));
     expect(mockMutate).toHaveBeenCalledWith(mockTask.id);
   });
   it('disables buttons when isDeleting is true', () => {
     renderWithProviders(
-      <TaskCard
-        task={mockTask}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        isDeleting={true}
-      />,
+      <TaskCard task={mockTask} onEdit={onEdit} onDelete={onDelete} isDeleting={true} />,
     );
     expect(screen.getByRole('button', { name: /edit/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: /mark_completed/i })).toBeDisabled();
@@ -159,12 +134,7 @@ describe('TaskCard', () => {
   it('renders correctly without description', () => {
     const taskWithoutDesc = { ...mockTask, description: '' };
     renderWithProviders(
-      <TaskCard
-        task={taskWithoutDesc}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        isDeleting={false}
-      />,
+      <TaskCard task={taskWithoutDesc} onEdit={onEdit} onDelete={onDelete} isDeleting={false} />,
     );
     expect(screen.getByText('no_description')).toBeInTheDocument();
   });
@@ -173,12 +143,7 @@ describe('TaskCard', () => {
     priorities.forEach((priority) => {
       const taskWithPriority = { ...mockTask, priority };
       const { unmount } = renderWithProviders(
-        <TaskCard
-          task={taskWithPriority}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          isDeleting={false}
-        />,
+        <TaskCard task={taskWithPriority} onEdit={onEdit} onDelete={onDelete} isDeleting={false} />,
       );
       expect(screen.getByText(new RegExp(priority, 'i'))).toBeInTheDocument();
       unmount();
@@ -187,12 +152,7 @@ describe('TaskCard', () => {
   it('renders correctly when task is completed', () => {
     const completedTask = { ...mockTask, status: 'completed' as const };
     renderWithProviders(
-      <TaskCard
-        task={completedTask}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        isDeleting={false}
-      />,
+      <TaskCard task={completedTask} onEdit={onEdit} onDelete={onDelete} isDeleting={false} />,
     );
     expect(screen.getByText('Test Task')).toHaveClass('line-through');
   });

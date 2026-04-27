@@ -19,9 +19,9 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
         <select
           ref={ref}
           className={cn(
-            "input-base appearance-none pr-10 cursor-pointer",
-            error && "border-red-500 focus:ring-red-500/20",
-            className
+            'input-base appearance-none pr-10 cursor-pointer',
+            error && 'border-red-500 focus:ring-red-500/20',
+            className,
           )}
           {...props}
         >
@@ -34,7 +34,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400 pointer-events-none" />
       </div>
     );
-  }
+  },
 );
 
 Select.displayName = 'Select';

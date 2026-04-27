@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import TaskBoard from '../../components/TaskBoard';
 import { useAuth } from '../../hooks/useAuth';

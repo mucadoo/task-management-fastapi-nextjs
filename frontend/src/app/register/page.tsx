@@ -24,8 +24,10 @@ type RegisterForm = z.infer<ReturnType<typeof getRegisterSchema>>;
 export default function RegisterPage() {
   const { t } = useTranslation();
   const { register: registerUser, isLoading: authActionLoading } = useAuthStore();
-  const [emailStatus, setEmailStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
-  
+  const [emailStatus, setEmailStatus] = useState<
+    'idle' | 'checking' | 'available' | 'taken' | 'invalid'
+  >('idle');
+
   const router = useRouter();
   const { isLoading: authCheckLoading } = useAuth(false);
 
@@ -107,17 +109,20 @@ export default function RegisterPage() {
                       id="name"
                       {...register('name')}
                       type="text"
-                      className={cn("input-base pl-10", errors.name && "border-red-500")}
+                      className={cn('input-base pl-10', errors.name && 'border-red-500')}
                       placeholder={t('auth.name')}
                       disabled={authActionLoading}
                     />
                   </div>
                 </FormControl>
 
-                <FormControl 
-                  id="email" 
-                  label={t('auth.email')} 
-                  error={errors.email?.message || (emailStatus === 'taken' ? t('profile.email_taken') : undefined)}
+                <FormControl
+                  id="email"
+                  label={t('auth.email')}
+                  error={
+                    errors.email?.message ||
+                    (emailStatus === 'taken' ? t('profile.email_taken') : undefined)
+                  }
                 >
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
@@ -126,50 +131,74 @@ export default function RegisterPage() {
                       {...register('email')}
                       type="email"
                       className={cn(
-                        "input-base pl-10 pr-10",
-                        errors.email || emailStatus === 'taken' ? 'border-red-500 focus:ring-red-500/20' : emailStatus === 'available' ? 'border-emerald-500 focus:ring-emerald-500/20' : ''
+                        'input-base pl-10 pr-10',
+                        errors.email || emailStatus === 'taken'
+                          ? 'border-red-500 focus:ring-red-500/20'
+                          : emailStatus === 'available'
+                            ? 'border-emerald-500 focus:ring-emerald-500/20'
+                            : '',
                       )}
                       placeholder={t('auth.email')}
                       disabled={authActionLoading}
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      {emailStatus === 'checking' && <Loader2 className="h-4 w-4 text-warm-400 animate-spin" />}
-                      {emailStatus === 'available' && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
-                      {(emailStatus === 'taken' || errors.email) && <AlertCircle className="h-4 w-4 text-red-500" />}
+                      {emailStatus === 'checking' && (
+                        <Loader2 className="h-4 w-4 text-warm-400 animate-spin" />
+                      )}
+                      {emailStatus === 'available' && (
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                      )}
+                      {(emailStatus === 'taken' || errors.email) && (
+                        <AlertCircle className="h-4 w-4 text-red-500" />
+                      )}
                     </div>
                   </div>
                 </FormControl>
 
-                <FormControl id="password" label={t('auth.password')} error={errors.password?.message}>
+                <FormControl
+                  id="password"
+                  label={t('auth.password')}
+                  error={errors.password?.message}
+                >
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
                     <input
                       id="password"
                       {...register('password')}
                       type="password"
-                      className={cn("input-base pl-10", errors.password && "border-red-500")}
+                      className={cn('input-base pl-10', errors.password && 'border-red-500')}
                       placeholder={t('auth.password')}
                       disabled={authActionLoading}
                     />
                   </div>
                 </FormControl>
 
-                <FormControl id="confirmPassword" label={t('auth.confirm_password')} error={errors.confirmPassword?.message}>
+                <FormControl
+                  id="confirmPassword"
+                  label={t('auth.confirm_password')}
+                  error={errors.confirmPassword?.message}
+                >
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
                     <input
                       id="confirmPassword"
                       {...register('confirmPassword')}
                       type="password"
-                      className={cn("input-base pl-10", errors.confirmPassword && "border-red-500")}
+                      className={cn('input-base pl-10', errors.confirmPassword && 'border-red-500')}
                       placeholder={t('auth.confirm_password')}
                       disabled={authActionLoading}
                     />
                   </div>
                 </FormControl>
               </div>
-              <button type="submit" disabled={authActionLoading || emailStatus === 'taken'} className="btn-primary w-full mt-2">
-                {authActionLoading ? <LoadingSpinner size="sm" className="text-white" /> : (
+              <button
+                type="submit"
+                disabled={authActionLoading || emailStatus === 'taken'}
+                className="btn-primary w-full mt-2"
+              >
+                {authActionLoading ? (
+                  <LoadingSpinner size="sm" className="text-white" />
+                ) : (
                   <>
                     {t('auth.register')}
                     <ArrowRight className="ml-2 h-4 w-4" />

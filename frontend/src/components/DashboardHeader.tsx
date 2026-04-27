@@ -30,15 +30,17 @@ export default function DashboardHeader({
         <div className="p-1.5 bg-brand-500 rounded">
           <CheckSquareIcon className="h-4 w-4 text-white" />
         </div>
-        <span className="font-semibold text-sm text-warm-900 dark:text-gray-100">{t('common.app_name')}</span>
+        <span className="font-semibold text-sm text-warm-900 dark:text-gray-100">
+          {t('common.app_name')}
+        </span>
         <span className="mx-2 text-warm-200 dark:text-white/10">·</span>
         <span className="text-xs text-warm-600 dark:text-gray-500">
-          <Trans 
-            i18nKey="tasks.tasks_count" 
+          <Trans
+            i18nKey="tasks.tasks_count"
             values={{ count: totalTasks }}
-            components={{ 
-              bold: <span className="font-bold text-warm-900 dark:text-gray-100" /> 
-            }} 
+            components={{
+              bold: <span className="font-bold text-warm-900 dark:text-gray-100" />,
+            }}
           />
         </span>
       </div>
@@ -50,11 +52,7 @@ export default function DashboardHeader({
         <UserMenu onProfileOpen={onProfileOpen} />
       </div>
 
-      <ProfileModal
-        isOpen={isProfileOpen}
-        onClose={onProfileClose}
-        initialTab={profileTab}
-      />
+      <ProfileModal isOpen={isProfileOpen} onClose={onProfileClose} initialTab={profileTab} />
     </div>
   );
 }

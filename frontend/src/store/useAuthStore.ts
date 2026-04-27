@@ -70,11 +70,11 @@ export const useAuthStore = create<AuthState>()(
       fetchMe: async (force = false) => {
         if (!tokenManager.isAuthenticated()) {
           if (get().user || get().isAuthenticated) {
-             set({ user: null, isAuthenticated: false });
+            set({ user: null, isAuthenticated: false });
           }
           return;
         }
-        
+
         // Skip if we already have a user and aren't forcing a refresh
         if (get().user && !force) return;
 
@@ -106,6 +106,6 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'auth-storage',
       partialize: (state) => ({ isAuthenticated: state.isAuthenticated }),
-    }
-  )
+    },
+  ),
 );

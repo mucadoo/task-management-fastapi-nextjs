@@ -1,21 +1,37 @@
-import { defineConfig, globalIgnores } from 'eslint/config';
-import nextVitals from 'eslint-config-next/core-web-vitals';
-import nextTs from 'eslint-config-next/typescript';
-import eslintConfigPrettier from 'eslint-config-prettier';
-import prettierPlugin from 'eslint-plugin-prettier';
+import nextConfig from "eslint-config-next";
+import prettierConfig from "eslint-config-prettier";
+import prettierPlugin from "eslint-plugin-prettier";
+import tsEslint from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
 
-const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
-  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
+export default [
   {
+    ignores: [".next/*", "out/*", "build/*", "next-env.d.ts", "public/*", "node_modules/*"],
+  },
+  ...nextConfig.map((config) => ({
+    ...config,
+    files: ["**/*.{js,ts,tsx}"],
+  })),
+  {
+    files: ["**/*.{js,ts,tsx}"],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+        ecmaVersion: 2020,
+        sourceType: "module",
+      },
+    },
     plugins: {
+      "@typescript-eslint": tsEslint,
       prettier: prettierPlugin,
     },
     rules: {
-      'prettier/prettier': 'error',
+      "prettier/prettier": "error",
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-explicit-any": "warn",
+      "no-console": ["warn", { allow: ["warn", "error"] }],
     },
   },
-  eslintConfigPrettier,
-]);
-export default eslintConfig;
+  prettierConfig,
+];

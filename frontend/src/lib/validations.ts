@@ -15,7 +15,10 @@ const getPasswordSchema = (t: any) =>
 
 export const getTaskSchema = (t: any) =>
   z.object({
-    title: z.string().min(1, t('common.error_required', { field: t('common.title') })).max(100),
+    title: z
+      .string()
+      .min(1, t('common.error_required', { field: t('common.title') }))
+      .max(100),
     description: z.string().max(1000).optional(),
     status: z.enum(['pending', 'in_progress', 'completed']),
     priority: z.enum(['low', 'medium', 'high']),
@@ -28,15 +31,16 @@ export const getLoginSchema = (t: any) =>
     identifier: z
       .string()
       .min(1, t('common.error_required', { field: t('auth.email_or_username') })),
-    password: z
-      .string()
-      .min(1, t('common.error_required', { field: t('auth.password') })),
+    password: z.string().min(1, t('common.error_required', { field: t('auth.password') })),
   });
 
 export const getRegisterSchema = (t: any) =>
   z
     .object({
-      name: z.string().min(1, t('common.error_required', { field: t('auth.name') })).max(100),
+      name: z
+        .string()
+        .min(1, t('common.error_required', { field: t('auth.name') }))
+        .max(100),
       email: z.string().email(t('auth.invalid_email')).max(255),
       password: getPasswordSchema(t),
       confirmPassword: z

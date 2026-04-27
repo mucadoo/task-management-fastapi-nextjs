@@ -11,16 +11,9 @@ interface FormControlProps {
   required?: boolean;
 }
 
-export function FormControl({
-  label,
-  error,
-  children,
-  className,
-  id,
-  required,
-}: FormControlProps) {
+export function FormControl({ label, error, children, className, id, required }: FormControlProps) {
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn('space-y-2', className)}>
       {label && (
         <label
           htmlFor={id}

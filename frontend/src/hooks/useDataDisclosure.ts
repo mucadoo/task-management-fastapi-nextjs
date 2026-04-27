@@ -23,13 +23,13 @@ export function useDataDisclosure<T>(initialData: T | null = null) {
     setIsOpen((prev) => !prev);
   }, []);
 
-  return { 
-    isOpen, 
-    data, 
-    setData, 
-    onOpen, 
-    onClose, 
-    onToggle, 
-    setIsOpen 
+  return {
+    isOpen,
+    data,
+    setData,
+    onOpen,
+    onClose,
+    onToggle,
+    setIsOpen,
   };
 }

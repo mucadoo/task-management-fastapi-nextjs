@@ -42,6 +42,6 @@ export const useTaskStore = create<TaskUIState>()(
     }),
     {
       name: 'task-ui-storage',
-    }
-  )
+    },
+  ),
 );

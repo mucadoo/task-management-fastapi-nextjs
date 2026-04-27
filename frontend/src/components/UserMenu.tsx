@@ -28,11 +28,11 @@ export default function UserMenu({ onProfileOpen }: UserMenuProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-warm-100 dark:hover:bg-white/5 transition-colors group">
-          <Avatar 
-            name={user?.name} 
-            username={user?.username} 
-            email={user?.email} 
-            className="group-hover:scale-105 transition-transform" 
+          <Avatar
+            name={user?.name}
+            username={user?.username}
+            email={user?.email}
+            className="group-hover:scale-105 transition-transform"
           />
           <div className="hidden sm:flex flex-col items-start text-left">
             <span className="text-xs font-bold text-warm-900 dark:text-gray-100 leading-none">

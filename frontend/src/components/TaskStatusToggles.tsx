@@ -21,15 +21,19 @@ export function TaskStatusToggles({
   viewMode = 'gallery',
 }: TaskStatusTogglesProps) {
   const { t } = useTranslation();
-  
+
   const isCompleted = status === 'completed';
   const isInProgress = status === 'in_progress';
 
   return (
-    <div className={cn(
-      "flex items-center gap-1",
-      viewMode === 'gallery' ? "bg-warm-50 dark:bg-white/5 p-1 rounded-lg border border-warm-200 dark:border-white/10" : ""
-    )}>
+    <div
+      className={cn(
+        'flex items-center gap-1',
+        viewMode === 'gallery'
+          ? 'bg-warm-50 dark:bg-white/5 p-1 rounded-lg border border-warm-200 dark:border-white/10'
+          : '',
+      )}
+    >
       {/* Completion Toggle */}
       <Tooltip>
         <TooltipTrigger asChild>
@@ -38,16 +42,18 @@ export function TaskStatusToggles({
             disabled={isToggling || isDeleting}
             aria-label={isCompleted ? t('tasks.mark_pending') : t('tasks.mark_completed')}
             className={cn(
-              "p-1 rounded-md transition-colors", 
-              isCompleted ? "text-emerald-600" : "text-warm-400 dark:text-gray-500 hover:text-emerald-600 hover:bg-warm-100 dark:hover:bg-white/5"
+              'p-1 rounded-md transition-colors',
+              isCompleted
+                ? 'text-emerald-600'
+                : 'text-warm-400 dark:text-gray-500 hover:text-emerald-600 hover:bg-warm-100 dark:hover:bg-white/5',
             )}
           >
             {isToggling ? (
               <LoadingSpinner size="sm" />
             ) : isCompleted ? (
-              <CheckCircle2 className={viewMode === 'list' ? "h-5 w-5" : "h-4 w-4"} />
+              <CheckCircle2 className={viewMode === 'list' ? 'h-5 w-5' : 'h-4 w-4'} />
             ) : (
-              <Circle className={viewMode === 'list' ? "h-5 w-5" : "h-4 w-4"} />
+              <Circle className={viewMode === 'list' ? 'h-5 w-5' : 'h-4 w-4'} />
             )}
           </button>
         </TooltipTrigger>
@@ -65,15 +71,13 @@ export function TaskStatusToggles({
               disabled={isToggling || isDeleting}
               aria-label={isInProgress ? t('tasks.mark_pending') : t('tasks.mark_in_progress')}
               className={cn(
-                "p-1 rounded-md transition-colors", 
-                isInProgress ? "text-amber-600" : "text-warm-400 dark:text-gray-500 hover:text-amber-600 hover:bg-warm-100 dark:hover:bg-white/5"
+                'p-1 rounded-md transition-colors',
+                isInProgress
+                  ? 'text-amber-600'
+                  : 'text-warm-400 dark:text-gray-500 hover:text-amber-600 hover:bg-warm-100 dark:hover:bg-white/5',
               )}
             >
-              {isInProgress ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
+              {isInProgress ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
             </button>
           </TooltipTrigger>
           <TooltipContent side="top">

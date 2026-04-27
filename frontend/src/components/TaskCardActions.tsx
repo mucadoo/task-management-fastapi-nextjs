@@ -32,7 +32,7 @@ export function TaskCardActions({
   const { t } = useTranslation();
 
   return (
-    <div className={cn("flex items-center gap-1.5", className)}>
+    <div className={cn('flex items-center gap-1.5', className)}>
       <Tooltip>
         <TooltipTrigger asChild>
           <IconButton
@@ -48,7 +48,7 @@ export function TaskCardActions({
         </TooltipTrigger>
         <TooltipContent side="top">{t('common.edit')}</TooltipContent>
       </Tooltip>
-      
+
       <Tooltip>
         <TooltipTrigger asChild>
           <IconButton
@@ -76,16 +76,12 @@ export function TaskCardActions({
               disabled={isDeleting}
               aria-label={isInProgress ? t('tasks.mark_pending') : t('tasks.mark_in_progress')}
               className={cn(
-                isInProgress 
-                  ? "text-amber-600" 
-                  : "text-warm-400 dark:text-gray-500 hover:text-amber-600"
+                isInProgress
+                  ? 'text-amber-600'
+                  : 'text-warm-400 dark:text-gray-500 hover:text-amber-600',
               )}
             >
-              {isInProgress ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
+              {isInProgress ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
             </IconButton>
           </TooltipTrigger>
           <TooltipContent side="top">

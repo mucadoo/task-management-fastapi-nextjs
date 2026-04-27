@@ -9,7 +9,7 @@ interface StatusBadgeProps {
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
   const { t } = useTranslation();
-  
+
   const variants: Record<TaskStatus, 'blue' | 'amber' | 'emerald'> = {
     pending: 'blue',
     in_progress: 'amber',

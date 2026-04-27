@@ -6,7 +6,10 @@ export interface SelectOption<T = string> {
   label: string;
 }
 
-export const getStatusOptions = (t: TFunction, includeAll = false): SelectOption<TaskStatus | 'all'>[] => {
+export const getStatusOptions = (
+  t: TFunction,
+  includeAll = false,
+): SelectOption<TaskStatus | 'all'>[] => {
   const options: SelectOption<TaskStatus>[] = [
     { value: 'pending', label: t('tasks.pending') },
     { value: 'in_progress', label: t('tasks.in_progress') },
@@ -18,7 +21,10 @@ export const getStatusOptions = (t: TFunction, includeAll = false): SelectOption
   return options;
 };
 
-export const getPriorityOptions = (t: TFunction, includeAll = false): SelectOption<TaskPriority | 'all'>[] => {
+export const getPriorityOptions = (
+  t: TFunction,
+  includeAll = false,
+): SelectOption<TaskPriority | 'all'>[] => {
   const options: SelectOption<TaskPriority>[] = [
     { value: 'low', label: t('tasks.low') },
     { value: 'medium', label: t('tasks.medium') },

@@ -1,12 +1,6 @@
 import { request } from '../lib/api-client';
 import { PaginatedResponse } from '@/types/common';
-import {
-  Task,
-  TaskCreate,
-  TaskUpdate,
-  TaskStatus,
-  TaskPriority,
-} from '../types/task';
+import { Task, TaskCreate, TaskUpdate, TaskStatus, TaskPriority } from '../types/task';
 
 export const taskService = {
   getTasks: (params?: {

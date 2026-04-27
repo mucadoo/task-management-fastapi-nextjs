@@ -11,14 +11,14 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       <textarea
         ref={ref}
         className={cn(
-          "input-base min-h-[100px] resize-none",
-          error && "border-red-500 focus:ring-red-500/20",
-          className
+          'input-base min-h-[100px] resize-none',
+          error && 'border-red-500 focus:ring-red-500/20',
+          className,
         )}
         {...props}
       />
     );
-  }
+  },
 );
 
 Textarea.displayName = 'Textarea';

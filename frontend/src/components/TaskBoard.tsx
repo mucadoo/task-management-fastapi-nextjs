@@ -17,7 +17,7 @@ import { AppLayout } from './AppLayout';
 
 export default function TaskBoard() {
   const { t } = useTranslation();
-  
+
   const {
     tasks,
     total,
@@ -63,30 +63,30 @@ export default function TaskBoard() {
             {t('tasks.title')}
           </h1>
         </div>
-        
+
         <div className="flex gap-1 p-1 bg-warm-100 dark:bg-white/5 rounded-lg border border-warm-200 dark:border-white/5">
           <TooltipSimple content={t('tasks.view_gallery')} side="bottom">
             <button
               onClick={() => setViewMode('gallery')}
               className={cn(
-                "h-8 w-8 rounded-md flex items-center justify-center transition-all",
-                viewMode === 'gallery' 
-                  ? "bg-white dark:bg-white/10 text-brand-500 shadow-sm" 
-                  : "text-warm-500 hover:text-warm-900 dark:hover:text-gray-100"
+                'h-8 w-8 rounded-md flex items-center justify-center transition-all',
+                viewMode === 'gallery'
+                  ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm'
+                  : 'text-warm-500 hover:text-warm-900 dark:hover:text-gray-100',
               )}
             >
               <LayoutGrid className="h-4 w-4" />
             </button>
           </TooltipSimple>
-          
+
           <TooltipSimple content={t('tasks.view_list')} side="bottom">
             <button
               onClick={() => setViewMode('list')}
               className={cn(
-                "h-8 w-8 rounded-md flex items-center justify-center transition-all",
-                viewMode === 'list' 
-                  ? "bg-white dark:bg-white/10 text-brand-500 shadow-sm" 
-                  : "text-warm-500 hover:text-warm-900 dark:hover:text-gray-100"
+                'h-8 w-8 rounded-md flex items-center justify-center transition-all',
+                viewMode === 'list'
+                  ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm'
+                  : 'text-warm-500 hover:text-warm-900 dark:hover:text-gray-100',
               )}
             >
               <List className="h-4 w-4" />
@@ -116,7 +116,7 @@ export default function TaskBoard() {
           className={cn(
             viewMode === 'gallery'
               ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3'
-              : 'space-y-3'
+              : 'space-y-3',
           )}
         >
           {[...Array(6)].map((_, i) => (
@@ -129,7 +129,7 @@ export default function TaskBoard() {
             className={cn(
               viewMode === 'gallery'
                 ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 animate-in fade-in duration-500'
-                : 'flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-500'
+                : 'flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-500',
             )}
           >
             {tasks.map((task) => (
@@ -159,19 +159,23 @@ export default function TaskBoard() {
       ) : (
         <EmptyState
           title={t('tasks.no_tasks')}
-          description={searchTerm || filters.status || filters.priority ? t('tasks.no_tasks_match') : t('tasks.get_started')}
-          action={!(searchTerm || filters.status || filters.priority) ? {
-            label: t('tasks.new_task'),
-            onClick: handleNewTask
-          } : undefined}
+          description={
+            searchTerm || filters.status || filters.priority
+              ? t('tasks.no_tasks_match')
+              : t('tasks.get_started')
+          }
+          action={
+            !(searchTerm || filters.status || filters.priority)
+              ? {
+                  label: t('tasks.new_task'),
+                  onClick: handleNewTask,
+                }
+              : undefined
+          }
         />
       )}
 
-      <TaskForm
-        isOpen={isFormOpen}
-        onClose={handleFormClose}
-        editingTask={editingTask}
-      />
+      <TaskForm isOpen={isFormOpen} onClose={handleFormClose} editingTask={editingTask} />
 
       <ConfirmDialog
         isOpen={deletingId !== null}

@@ -22,7 +22,7 @@ export default function LoginPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const { login, isLoading: authActionLoading } = useAuthStore();
-  
+
   const { isLoading: authCheckLoading } = useAuth(false);
 
   const {
@@ -69,7 +69,7 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
-          
+
           <div className="card-surface p-6">
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-4">
@@ -84,7 +84,7 @@ export default function LoginPage() {
                       id="identifier"
                       {...register('identifier')}
                       type="text"
-                      className={cn("input-base pl-10", errors.identifier && "border-red-500")}
+                      className={cn('input-base pl-10', errors.identifier && 'border-red-500')}
                       placeholder={t('auth.email_or_username')}
                       disabled={authActionLoading}
                     />
@@ -102,7 +102,7 @@ export default function LoginPage() {
                       id="password"
                       {...register('password')}
                       type="password"
-                      className={cn("input-base pl-10", errors.password && "border-red-500")}
+                      className={cn('input-base pl-10', errors.password && 'border-red-500')}
                       placeholder={t('auth.password')}
                       disabled={authActionLoading}
                     />

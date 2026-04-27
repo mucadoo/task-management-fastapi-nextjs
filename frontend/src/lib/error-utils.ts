@@ -14,7 +14,7 @@ export function getErrorMessage(error: any): string {
   if (!error) return 'common.error_unknown';
 
   const data = error.response?.data as ApiErrorResponse;
-  
+
   if (!data) {
     if (error.message === 'Network Error') return 'common.error_network';
     return error.message || 'common.error_unknown';
@@ -26,7 +26,7 @@ export function getErrorMessage(error: any): string {
 
   if (Array.isArray(data.detail)) {
     // Validation errors from FastAPI
-    return data.detail.map(err => `${err.loc.join('.')}: ${err.msg}`).join(', ');
+    return data.detail.map((err) => `${err.loc.join('.')}: ${err.msg}`).join(', ');
   }
 
   return data.message || data.error || 'common.error_unknown';
@@ -40,7 +40,7 @@ export function useApiError() {
 
   const getTranslatedError = (error: any, fallbackKey?: string) => {
     const message = getErrorMessage(error);
-    
+
     // If it's a translation key, translate it
     if (message.includes('common.') || message.includes('auth.') || message.includes('tasks.')) {
       return t(message);

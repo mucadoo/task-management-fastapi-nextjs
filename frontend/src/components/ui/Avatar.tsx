@@ -10,13 +10,7 @@ interface AvatarProps {
   className?: string;
 }
 
-export function Avatar({
-  name,
-  username,
-  email,
-  size = 'md',
-  className,
-}: AvatarProps) {
+export function Avatar({ name, username, email, size = 'md', className }: AvatarProps) {
   const initial = (name || username || email || 'U').charAt(0).toUpperCase();
 
   const sizes = {
@@ -28,9 +22,9 @@ export function Avatar({
   return (
     <div
       className={cn(
-        "flex items-center justify-center bg-brand-500 text-white font-bold rounded-lg shadow-sm shrink-0",
+        'flex items-center justify-center bg-brand-500 text-white font-bold rounded-lg shadow-sm shrink-0',
         sizes[size],
-        className
+        className,
       )}
     >
       {initial}

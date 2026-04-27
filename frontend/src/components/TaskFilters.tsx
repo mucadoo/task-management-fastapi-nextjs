@@ -50,11 +50,7 @@ export default function TaskFilters({
   return (
     <div className="flex flex-col md:flex-row md:items-center gap-3 mb-8">
       <div className="flex-[2]">
-        <SearchInput
-          placeholder={t('tasks.search')}
-          value={searchTerm}
-          onChange={onSearchChange}
-        />
+        <SearchInput placeholder={t('tasks.search')} value={searchTerm} onChange={onSearchChange} />
       </div>
       <div className="flex flex-1 items-center gap-3">
         <Select
