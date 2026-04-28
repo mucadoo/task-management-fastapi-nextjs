@@ -102,7 +102,7 @@ export function useUpdateTaskStatus() {
         }),
       }));
     },
-    onError: (err: ApiError, { id, status }, context) => {
+    onError: (err: ApiError, _variables, context) => {
       rollbackQueries(queryClient, context);
       notify.error(err, 'tasks.status_update_failed');
     },
