@@ -196,6 +196,21 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 | `EC2_SSH_KEY` | Conteúdo da sua chave `.pem` |
 | `IMAGE_TAG` | Tag da imagem (usado via github.sha) |
 
+### Instruções de Deploy (AWS)
+
+A arquitetura de produção utiliza:
+- **EC2 Ubuntu 22.04:** Servidor de aplicação rodando Docker Compose, com PostgreSQL em container.
+- **GitHub Actions:** Pipeline automatizado que executa testes, gera imagens Docker, faz o push para o Docker Hub e atualiza a aplicação via SSH.
+
+**Passos para o primeiro deploy:**
+1. Provisionar as credenciais da AWS (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`) com permissões para criar EC2 e Security Groups.
+2. Criar um par de chaves SSH na AWS e salvar o nome da chave.
+3. Adicionar os **GitHub Secrets** listados acima no repositório.
+4. Após o commit e push do código para a branch `main`, o pipeline de CI/CD (GitHub Actions) irá automaticamente:
+   - Provisionar a infraestrutura (EC2 e Security Groups) via Terraform.
+   - Construir e enviar as imagens Docker.
+   - Implantar a aplicação na EC2.
+
 ### Recursos de Segurança
 
 - **Assuntos de JWT Imutáveis**: UUIDs de usuário são utilizados em vez de e-mails nos tokens, garantindo que atualizações de e-mail não interrompam sessões ativas.
@@ -217,6 +232,8 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 - **Segurança com JWT + Argon2:** Uso do algoritmo Argon2 (via `pwdlib`) para hashing de senhas, considerado o estado da arte em segurança contra ataques de brute-force e rainbow tables.
 
 - **Next.js App Router & Server Components:** Otimização do carregamento inicial através de SSR em páginas críticas, enquanto Client Components são usados apenas onde a interatividade é necessária.
+
+- **CI/CD e Deploy Automatizado:** Fluxo automatizado via GitHub Actions que executa a suíte de testes, constrói imagens Docker e realiza o deploy em instâncias AWS EC2 via SSH, garantindo que apenas código validado chegue à produção.
 
 ### O que Melhoraria com Mais Tempo
 
@@ -241,21 +258,3 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 **Limitações:**
 - Ausência de HTTPS nativo (necessário configurar Certbot/ACM).
 
----
-
-## Parte 5 - Extra
-
-### Deploy (AWS)
-
-A arquitetura de produção utiliza:
-- **EC2 Ubuntu 22.04:** Servidor de aplicação rodando Docker Compose, com PostgreSQL em container.
-- **GitHub Actions:** Pipeline automatizado que executa testes, gera imagens Docker, faz o push para o Docker Hub e atualiza a aplicação via SSH.
-
-**Passos para o primeiro deploy:**
-1. Provisionar as credenciais da AWS (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`) com permissões para criar EC2 e Security Groups.
-2. Criar um par de chaves SSH na AWS e salvar o nome da chave.
-3. Adicionar os **GitHub Secrets** listados abaixo no repositório.
-4. Após o commit e push do código para a branch `main`, o pipeline de CI/CD (GitHub Actions) irá automaticamente:
-   - Provisionar a infraestrutura (EC2 e Security Groups) via Terraform.
-   - Construir e enviar as imagens Docker.
-   - Implantar a aplicação na EC2.
