@@ -186,9 +186,9 @@ jobs:
             if [ -z "$API_URL" ]; then API_URL="http://${{ needs.terraform.outputs.instance_ip }}/api/v1"; fi
 
             echo "ENVIRONMENT=production" > .env
-            echo "DATABASE_URL=$DB_URL" >> .env
-            echo "JWT_SECRET=$JWT_SEC" >> .env
-            echo "NEXT_PUBLIC_API_URL=$API_URL" >> .env
+            printf "DATABASE_URL=%s\n" "$DB_URL" >> .env
+            printf "JWT_SECRET=%s\n" "$JWT_SEC" >> .env
+            printf "NEXT_PUBLIC_API_URL=%s\n" "$API_URL" >> .env
             echo "DOCKER_IMAGE_BASE=ghcr.io/${{ github.repository_owner }}" >> .env
             echo "IMAGE_TAG=${{ github.sha }}" >> .env
             echo "SEED_DB=${{ secrets.SEED_DB || 'false' }}" >> .env
