@@ -84,7 +84,6 @@
   }
 }
 
-/* React Datepicker Custom Styling */
 .react-datepicker-wrapper {
   width: 100%;
 }
@@ -143,7 +142,6 @@
   @apply !text-warm-400 dark:!text-gray-600 opacity-50;
 }
 
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }

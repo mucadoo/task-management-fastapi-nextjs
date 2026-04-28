@@ -36,7 +36,6 @@ export function TaskStatusToggles({
           : '',
       )}
     >
-      {/* Completion Toggle */}
       <Tooltip>
         <TooltipTrigger asChild>
           <button
@@ -64,7 +63,6 @@ export function TaskStatusToggles({
         </TooltipContent>
       </Tooltip>
 
-      {/* In Progress Toggle */}
       {!isCompleted && (
         <Tooltip>
           <TooltipTrigger asChild>

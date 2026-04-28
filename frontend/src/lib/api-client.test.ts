@@ -113,17 +113,14 @@ describe('api-client', () => {
     it('attempts to refresh token on 401', async () => {
       vi.mocked(tokenManager.getRefreshToken).mockReturnValue('refresh-token');
 
-      // Initial 401 response
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 401,
         json: () => Promise.resolve({ detail: 'Unauthorized' }),
       } as Response);
 
-      // Successful refresh mock
       mockAuthService.refresh.mockResolvedValue({ access_token: 'new-token' });
 
-      // Retry response
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         status: 200,

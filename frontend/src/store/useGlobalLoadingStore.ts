@@ -33,7 +33,7 @@ export const useGlobalLoadingStore = create<GlobalLoadingState>((set, get) => ({
         const { progress } = get();
         if (progress < 90) {
           const inc = Math.random() * 3;
-          set({ progress: Math.min(90, progress + inc) }); // Cap at 90%
+          set({ progress: Math.min(90, progress + inc) }); 
         }
       }, 400);
     }

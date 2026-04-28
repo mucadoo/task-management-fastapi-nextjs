@@ -168,12 +168,9 @@ jobs:
           ssh ubuntu@${{ needs.terraform.outputs.instance_ip }} << 'EOF'
             cd ~/task-manager
             
-            # --- INTELLIGENT ENV GENERATION ---
-            # If JWT_SECRET is not provided, generate a random hex string
             JWT_SEC="${{ secrets.JWT_SECRET }}"
             if [ -z "$JWT_SEC" ]; then JWT_SEC=$(openssl rand -hex 32); fi
             
-            # Auto-construct URLs if missing
             DB_URL="${{ secrets.DATABASE_URL }}"
             if [ -z "$DB_URL" ]; then DB_URL="postgresql://user:password@db:5432/taskdb"; fi
             
@@ -193,7 +190,6 @@ jobs:
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
             
-            # Health check
             SUCCESS=0
             for i in 1 2 3 4 5; do
               if curl -sf http://localhost/api/health; then

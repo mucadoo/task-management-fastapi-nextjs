@@ -26,7 +26,6 @@ export function AppLayout({
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">{children}</main>
 
-      {/* ProfileModal is rendered here at the root level of the app layout to avoid stacking context issues from sticky headers */}
       <ProfileModal isOpen={isProfileOpen} onClose={onProfileClose} initialTab={profileTab} />
     </div>
   );
