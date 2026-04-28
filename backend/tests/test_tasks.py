@@ -168,8 +168,10 @@ def test_task_ownership_isolation(client, auth_headers, second_user_auth_headers
     assert response.status_code == 404
 
     
-    response = client.post(
-        f"/api/v1/tasks/{task_id}/toggle", headers=second_user_auth_headers
+    response = client.patch(
+        f"/api/v1/tasks/{task_id}/status",
+        json={"status": "completed"},
+        headers=second_user_auth_headers
     )
     assert response.status_code == 404
 

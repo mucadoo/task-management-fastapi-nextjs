@@ -90,8 +90,8 @@ function analisarNumeros(dados: any[]): { somaPares: number; mediaImpares: numbe
 | GET    | /api/v1/tasks/               | Listar tarefas (paginado, filtrado) | Sim   |
 | GET    | /api/v1/tasks/{id}           | Buscar tarefa por ID                | Sim   |
 | PUT    | /api/v1/tasks/{id}           | Atualizar tarefa                    | Sim   |
+| PATCH  | /api/v1/tasks/{id}/status    | Atualizar status                    | Sim   |
 | DELETE | /api/v1/tasks/{id}           | Deletar tarefa                      | Sim   |
-| POST   | /api/v1/tasks/{id}/toggle    | Alternar status (Pendente/Concluída)| Sim   |
 
 ### 🧪 Testes
 ```bash
@@ -207,7 +207,7 @@ graph TD
 - **Arquitetura Base (Backend):** Uso de **BaseService** e **BaseRepository** genéricos. Essa abstração centraliza lógica repetitiva de CRUD, garante tratamento de erros padronizado (como `get_or_404`) e facilita a implementação de multi-tenancy através de métodos "scoped" que exigem sempre o `owner_id`.
 - **Padrão Repository + Service:** Separação clara de responsabilidades. O Repository lida exclusivamente com consultas SQLAlchemy, enquanto o Service gerencia regras de negócio e transações, mantendo os Controllers (Routers) focados apenas na interface HTTP.
 - **FastAPI (Pydantic v2) & Injeção de Dependência:** Escolhido pela performance assíncrona, documentação automática (Swagger/OpenAPI) e validação rigorosa. Utiliza padrões modernos de `Annotated` para injeção de dependência, garantindo um código limpo, testável e desacoplado.
-- **API Orientada a Ações:** Além do CRUD tradicional, a API implementa endpoints específicos para ações de negócio (como `toggle_task`), reduzindo o número de requisições e a complexidade lógica no frontend.
+- **API Orientada a Ações:** Além do CRUD tradicional, a API implementa endpoints específicos para ações de negócio (como a atualização de status via `PATCH`), reduzindo o payload de rede e a complexidade lógica no frontend ao evitar o envio de todo o objeto da tarefa para alterações simples.
 - **Gerenciamento de Estado Híbrido (Frontend):** 
   - **React Query:** Gerencia o estado do servidor, cache e sincronização, eliminando a necessidade de `useEffect` complexos para busca de dados.
   - **Zustand:** Gerencia o estado global UI (autenticação, preferências) de forma leve e performática.
