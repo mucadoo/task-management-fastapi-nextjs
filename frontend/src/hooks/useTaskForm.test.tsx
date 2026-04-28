@@ -52,10 +52,10 @@ describe('useTaskForm', () => {
 
   it('calls create mutation on submit when not editing', async () => {
     const { result } = renderHook(() => useTaskForm({ editingTask: null, isOpen: true, onClose: mockOnClose }));
-    
+
     result.current.form.setValue('title', 'New Task');
     await result.current.onSubmit();
-    
+
     expect(mockCreateMutateAsync).toHaveBeenCalled();
     expect(mockOnClose).toHaveBeenCalled();
   });

@@ -13,17 +13,17 @@ vi.mock('@/components/profile/ProfileModal', () => ({
 describe('AppLayout', () => {
   it('renders children and layout components', () => {
     render(
-      <AppLayout 
-        totalTasks={0} 
-        onProfileOpen={vi.fn()} 
-        isProfileOpen={false} 
-        onProfileClose={vi.fn()} 
+      <AppLayout
+        totalTasks={0}
+        onProfileOpen={vi.fn()}
+        isProfileOpen={false}
+        onProfileClose={vi.fn()}
         profileTab="personal"
       >
         <div data-testid="child">Child Content</div>
       </AppLayout>
     );
-    
+
     expect(screen.getByTestId('dashboard-header')).toBeInTheDocument();
     expect(screen.getByTestId('profile-modal')).toBeInTheDocument();
     expect(screen.getByTestId('child')).toBeInTheDocument();

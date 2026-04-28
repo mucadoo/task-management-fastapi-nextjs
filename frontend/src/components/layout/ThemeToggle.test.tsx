@@ -32,7 +32,7 @@ describe('ThemeToggle', () => {
     } as any);
 
     render(<ThemeToggle />);
-    
+
     fireEvent.click(screen.getByRole('button'));
     expect(setTheme).toHaveBeenCalledWith('dark');
   });
@@ -45,7 +45,7 @@ describe('ThemeToggle', () => {
     } as any);
 
     render(<ThemeToggle />);
-    
+
     fireEvent.click(screen.getByRole('button'));
     expect(setTheme).toHaveBeenCalledWith('light');
   });

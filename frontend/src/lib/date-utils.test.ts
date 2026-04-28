@@ -18,7 +18,7 @@ describe('date-utils', () => {
 
   it('detects due today task without time', () => {
     const today = new Date();
-    // Use an ISO string with time to ensure it's the same day regardless of parsing
+
     expect(getTaskDateStatus(today.toISOString(), false, false)).toEqual({ isOverdue: false, isDueToday: true });
   });
 

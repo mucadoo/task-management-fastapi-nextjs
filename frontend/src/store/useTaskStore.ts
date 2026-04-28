@@ -14,7 +14,7 @@ export const useTaskStore = create<TaskUIState>()(
     }),
     {
       name: 'task-ui-storage',
-      // Only persist viewMode
+
       partialize: (state) => ({ viewMode: state.viewMode }),
     },
   ),

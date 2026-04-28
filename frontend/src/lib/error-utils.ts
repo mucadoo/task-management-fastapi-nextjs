@@ -6,10 +6,6 @@ export interface ApiErrorResponse {
   error?: string;
 }
 
-/**
- * Extracts a human-readable error message from an API error response.
- * Handles FastAPI's default detail format as well as custom AppError formats.
- */
 export function getErrorMessage(error: unknown): string {
   if (!error) return 'common.error_unknown';
 
@@ -32,9 +28,6 @@ export function getErrorMessage(error: unknown): string {
   return data.message || data.error || 'common.error_unknown';
 }
 
-/**
- * Hook to get translated error messages.
- */
 export function useApiError() {
   const { t } = useTranslation();
 

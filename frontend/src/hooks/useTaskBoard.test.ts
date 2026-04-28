@@ -39,7 +39,7 @@ describe('useTaskBoard', () => {
     vi.mocked(useRouter).mockReturnValue(mockRouter as any);
     vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
     vi.mocked(usePathname).mockReturnValue(mockPathname);
-    
+
     vi.mocked(useTasks).mockReturnValue({
       data: { pages: [{ items: [], total: 0 }] },
       isLoading: false,
@@ -53,7 +53,7 @@ describe('useTaskBoard', () => {
   it('initializes with default filters', () => {
     mockSearchParams.get.mockReturnValue(null);
     const { result } = renderHook(() => useTaskBoard());
-    
+
     expect(result.current.filters.q).toBe('');
     expect(result.current.filters.sort_by).toBe('due_date');
   });
@@ -61,13 +61,13 @@ describe('useTaskBoard', () => {
   it('updates search term and filters', () => {
     mockSearchParams.get.mockReturnValue(null);
     const { result } = renderHook(() => useTaskBoard());
-    
+
     act(() => {
       result.current.setSearchTerm('test');
     });
-    
+
     expect(result.current.searchTerm).toBe('test');
-    // Debounce is mocked to be instant
+
     expect(mockRouter.replace).toHaveBeenCalledWith(expect.stringContaining('q=test'));
   });
 });

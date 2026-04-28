@@ -11,10 +11,6 @@ interface FormFieldProps {
   className?: string;
 }
 
-/**
- * FormField wraps an input with a label and error message.
- * It automatically passes 'id' and 'error' (boolean) props to its child.
- */
 export function FormField({ label, name, error, required, children, className }: FormFieldProps) {
   const child = React.Children.only(children);
 

@@ -63,16 +63,16 @@ describe('LoginPage', () => {
 
   it('calls login on submit with valid data', async () => {
     render(<LoginPage />);
-    
+
     fireEvent.change(screen.getByPlaceholderText('auth.email_or_username'), {
       target: { value: 'testuser' },
     });
     fireEvent.change(screen.getByPlaceholderText('auth.password'), {
       target: { value: 'password123' },
     });
-    
+
     fireEvent.click(screen.getByRole('button', { name: /auth.login/i }));
-    
+
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith({
         identifier: 'testuser',
@@ -83,11 +83,9 @@ describe('LoginPage', () => {
 
   it('shows validation errors for empty fields', async () => {
     render(<LoginPage />);
-    
+
     fireEvent.click(screen.getByRole('button', { name: /auth.login/i }));
-    
-    // Zod validation messages are translated via t('common.error_required') in validations.ts
-    // In our mock t returns the key
+
     await waitFor(() => {
       expect(screen.getAllByText('common.error_required')).toHaveLength(2);
     });

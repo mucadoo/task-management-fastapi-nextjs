@@ -43,7 +43,7 @@ describe('UserMenu', () => {
 
   it('renders user information', () => {
     render(<UserMenu onProfileOpen={mockOnProfileOpen} />);
-    // Use getAllByText because name and email appear in both the trigger and the label
+
     expect(screen.getAllByText('Test User').length).toBeGreaterThan(0);
     expect(screen.getAllByText('@testuser').length).toBeGreaterThan(0);
   });

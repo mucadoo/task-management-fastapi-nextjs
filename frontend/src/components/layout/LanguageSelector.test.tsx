@@ -30,13 +30,13 @@ describe('LanguageSelector', () => {
 
   it('opens dropdown and changes language', () => {
     render(<LanguageSelector />);
-    
+
     const trigger = screen.getByLabelText('common.select_language');
     fireEvent.click(trigger);
-    
+
     const portugueseOption = screen.getByText('common.portuguese');
     fireEvent.click(portugueseOption);
-    
+
     expect(mockChangeLanguage).toHaveBeenCalledWith('pt');
   });
 });

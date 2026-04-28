@@ -49,15 +49,15 @@ describe('useProfileForm', () => {
 
   it('calls updateMe on submit for personal tab', async () => {
     const { result } = renderHook(() => useProfileForm({ activeTab: 'personal', isOpen: true }));
-    
+
     act(() => {
       result.current.form.setValue('name', 'New Name');
     });
-    
+
     await act(async () => {
       await result.current.onSubmit();
     });
-    
+
     expect(mockUpdateMe).toHaveBeenCalledWith(expect.objectContaining({
       name: 'New Name',
     }));
@@ -65,14 +65,13 @@ describe('useProfileForm', () => {
 
   it('checks username availability when changed', async () => {
     vi.mocked(authService.checkUsername).mockResolvedValue({ available: true });
-    
+
     const { result } = renderHook(() => useProfileForm({ activeTab: 'personal', isOpen: true }));
-    
+
     await act(async () => {
       result.current.form.setValue('username', 'newuser');
     });
-    
-    // In our test, useEffect should trigger
+
     expect(authService.checkUsername).toHaveBeenCalledWith('newuser');
   });
 });

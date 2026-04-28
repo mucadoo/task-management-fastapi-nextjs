@@ -137,7 +137,7 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
       const rawMessage = errorData.error || errorData.detail || message;
       message = typeof rawMessage === 'string' ? i18n.t(rawMessage) : i18n.t('common.error');
     } catch {
-      // Ignore error data parsing failure
+
     }
     throw new ApiError(response.status, message);
   }

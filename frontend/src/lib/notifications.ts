@@ -2,10 +2,6 @@ import { useToastStore } from '@/store/useToastStore';
 import i18n from '@/lib/i18n';
 import { getErrorMessage } from './error-utils';
 
-/**
- * Centralized notification utility to reduce boilerplate for toast messages.
- * Can be used in components, hooks, and Zustand stores.
- */
 export const notify = {
   success: (key: string) => {
     useToastStore.getState().addToast(i18n.t(key), 'success');

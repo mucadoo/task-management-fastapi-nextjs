@@ -43,7 +43,7 @@ export default function LoginPage() {
     try {
       await login(data);
     } catch {
-      // Error is handled by the auth store
+
     }
   };
 

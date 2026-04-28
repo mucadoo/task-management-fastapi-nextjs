@@ -30,7 +30,7 @@ vi.mock('@/lib/notifications', () => ({
 describe('useAuthStore', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Reset store state
+
     useAuthStore.setState({
       user: null,
       isAuthenticated: false,

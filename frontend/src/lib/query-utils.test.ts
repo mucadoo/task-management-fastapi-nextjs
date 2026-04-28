@@ -14,10 +14,10 @@ describe('query-utils', () => {
     it('cancels queries and returns previous data', async () => {
       const cancelQueriesSpy = vi.spyOn(queryClient, 'cancelQueries');
       const getQueriesDataSpy = vi.spyOn(queryClient, 'getQueriesData');
-      
+
       const queryKey = ['tasks'];
       await onMutateListUpdate(queryClient, queryKey, (page) => page);
-      
+
       expect(cancelQueriesSpy).toHaveBeenCalledWith({ queryKey });
       expect(getQueriesDataSpy).toHaveBeenCalledWith({ queryKey });
     });
@@ -29,9 +29,9 @@ describe('query-utils', () => {
       const queryKey = ['tasks'];
       const previousData = 'old data';
       const context = { previousQueries: [[queryKey, previousData]] };
-      
+
       rollbackQueries(queryClient, context);
-      
+
       expect(setQueryDataSpy).toHaveBeenCalledWith(queryKey, previousData);
     });
 

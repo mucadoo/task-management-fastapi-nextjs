@@ -98,7 +98,7 @@ describe('validations', () => {
     it('fails if username contains invalid characters', () => {
       const invalidReg = {
         name: 'John Doe',
-        username: 'john-doe', // only letters and underscores allowed according to regex in validations.ts
+        username: 'john-doe',
         email: 'john@example.com',
         password: 'Password123!',
         confirmPassword: 'Password123!',

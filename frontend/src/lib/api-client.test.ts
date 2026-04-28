@@ -9,7 +9,6 @@ vi.mock('./token', () => ({
   },
 }));
 
-// We need to mock fetch globally for vitest
 global.fetch = vi.fn();
 
 describe('api-client', () => {
@@ -79,23 +78,18 @@ describe('api-client', () => {
 
   describe('token refresh', () => {
     beforeEach(() => {
-      // Ensure we are in a browser-like environment for refresh logic
+
       vi.stubGlobal('window', {});
     });
 
     it('attempts to refresh token on 401', async () => {
       vi.mocked(tokenManager.getRefreshToken).mockReturnValue('refresh-token');
-      
-      // First call fails with 401
+
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 401,
       } as Response);
 
-      // Refresh call succeeds
-      // Note: we need to mock the dynamic import of authService or wait for it.
-      // Since it's a dynamic import in the code, it's tricky.
-      // Let's mock the whole module it might be easier if we can.
     });
   });
 });

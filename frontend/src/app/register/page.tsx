@@ -79,7 +79,7 @@ export default function RegisterPage() {
         password: data.password,
       });
     } catch {
-      // Error is handled by the auth store
+
     }
   };
 

@@ -71,15 +71,15 @@ describe('RegisterPage', () => {
 
   it('calls register on submit with valid data', async () => {
     render(<RegisterPage />);
-    
+
     fireEvent.change(screen.getByPlaceholderText('auth.name'), { target: { value: 'Test User' } });
     fireEvent.change(screen.getByPlaceholderText('auth.username'), { target: { value: 'testuser' } });
     fireEvent.change(screen.getByPlaceholderText('auth.email'), { target: { value: 'test@example.com' } });
     fireEvent.change(screen.getByPlaceholderText('auth.password'), { target: { value: 'Password123!' } });
     fireEvent.change(screen.getByPlaceholderText('auth.confirm_password'), { target: { value: 'Password123!' } });
-    
+
     fireEvent.click(screen.getByRole('button', { name: /auth.register/i }));
-    
+
     await waitFor(() => {
       expect(mockRegister).toHaveBeenCalledWith({
         name: 'Test User',
@@ -92,10 +92,10 @@ describe('RegisterPage', () => {
 
   it('checks email availability', async () => {
     render(<RegisterPage />);
-    
+
     const emailInput = screen.getByPlaceholderText('auth.email');
     fireEvent.change(emailInput, { target: { value: 'taken@example.com' } });
-    
+
     await waitFor(() => {
       expect(authService.checkEmail).toHaveBeenCalledWith('taken@example.com');
     });
