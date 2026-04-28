@@ -4,10 +4,9 @@ import nextPlugin from "@next/eslint-plugin-next";
 import unusedImports from "eslint-plugin-unused-imports";
 import prettierRecommended from "eslint-plugin-prettier/recommended";
 import globals from "globals";
-import { globalIgnores } from "eslint/config";
 
 export default tseslint.config(
-  globalIgnores([
+  { ignores: [
     "eslint.config.mjs",
     "postcss.config.mjs",
     ".next/**",
@@ -17,7 +16,7 @@ export default tseslint.config(
     "next-env.d.ts",
     "public/**",
     "coverage/**",
-  ]),
+  ]},
 
   js.configs.recommended,
 
@@ -48,6 +47,7 @@ export default tseslint.config(
     rules: {
       "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": "off",
+
       "unused-imports/no-unused-imports": "error",
       "unused-imports/no-unused-vars": [
         "warn",
