@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -29,6 +29,10 @@ export default function ProfileModal({
 }: ProfileModalProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'personal' | 'security'>(initialTab);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
 
   const {
     form: {
