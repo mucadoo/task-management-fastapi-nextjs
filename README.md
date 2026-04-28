@@ -179,61 +179,61 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 | `POSTGRES_DB` | Nome do banco de dados | `taskdb` |
 | `DATABASE_URL` | URL de conexão (Docker usa interna) | `postgresql://user:pass@db:5432/taskdb` |
 | `JWT_SECRET` | Chave secreta para assinar tokens | `sua-chave-ultra-secreta` |
-| `JWT_EXPIRE_MINUTES` | Tempo de expiração do token | `60` |
+| `JWT_EXPIRE_MINUTES` | Tempo de expiração do Access Token | `60` |
+| `JWT_REFRESH_EXPIRE_DAYS` | Expiração do Refresh Token (dias) | `7` |
 
 #### Frontend
 | Variável | Descrição | Exemplo |
 |----------|-----------|---------|
-| `NEXT_PUBLIC_API_URL` | URL base da API para o browser | `http://localhost/api` |
+| `NEXT_PUBLIC_API_URL` | URL base da API para o browser | `http://localhost/api/v1` |
 
 #### CI/CD & Produção (GitHub Secrets)
-| Variável | Descrição |
-|----------|-----------|
-| `DOCKER_USERNAME` | Seu usuário no Docker Hub |
-| `DOCKER_PASSWORD` | Access Token do Docker Hub |
-| `EC2_HOST` | IP público da sua instância EC2 |
-| `EC2_USER` | Usuário SSH (geralmente `ubuntu`) |
-| `EC2_SSH_KEY` | Conteúdo da sua chave `.pem` |
-| `IMAGE_TAG` | Tag da imagem (usado via github.sha) |
+
+| Variável | Descrição | Exemplo / Fonte |
+|----------|-----------|-----------------|
+| `GITHUB_TOKEN` | Token automático do GitHub | Gerado pelo GitHub Actions |
+| `AWS_ACCESS_KEY_ID` | ID da chave de acesso AWS | IAM User com permissões EC2/VPC |
+| `AWS_SECRET_ACCESS_KEY` | Chave secreta AWS | IAM User com permissões EC2/VPC |
+| `EC2_HOST` | IP público da instância | Output do Terraform |
+| `EC2_USER` | Usuário SSH | `ubuntu` |
+| `EC2_SSH_KEY` | Conteúdo da chave `.pem` | Chave privada para acesso SSH |
+| `DATABASE_URL` | URL do banco em prod | `postgresql://user:pass@db:5432/taskdb` |
+| `JWT_SECRET` | Chave secreta (Prod) | String aleatória segura |
 
 ### Instruções de Deploy (AWS)
 
 A arquitetura de produção utiliza:
-- **EC2 Ubuntu 22.04:** Servidor de aplicação rodando Docker Compose, com PostgreSQL em container.
-- **GitHub Actions:** Pipeline automatizado que executa testes, gera imagens Docker, faz o push para o Docker Hub e atualiza a aplicação via SSH.
+- **EC2 Ubuntu 22.04:** Servidor de aplicação rodando Docker Compose.
+- **GitHub Container Registry (GHCR):** Armazenamento das imagens Docker do projeto.
+- **GitHub Actions:** Pipeline automatizado que executa testes, gera imagens Docker, faz o push para o GHCR e atualiza a aplicação via SSH.
 
 **Passos para o primeiro deploy:**
-1. Provisionar as credenciais da AWS (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`) com permissões para criar EC2 e Security Groups.
-2. Criar um par de chaves SSH na AWS e salvar o nome da chave.
-3. Adicionar os **GitHub Secrets** listados acima no repositório.
-4. Após o commit e push do código para a branch `main`, o pipeline de CI/CD (GitHub Actions) irá automaticamente:
-   - Provisionar a infraestrutura (EC2 e Security Groups) via Terraform.
-   - Construir e enviar as imagens Docker.
-   - Implantar a aplicação na EC2.
+1. Provisionar as credenciais da AWS (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`) com permissões para gerenciar EC2 e VPC.
+2. Adicionar os **GitHub Secrets** listados acima no repositório.
+3. Após o push para `main`, o workflow `CI/CD Pipeline` irá:
+   - Provisionar infraestrutura via Terraform.
+   - Construir e publicar imagens no GHCR.
+   - Conectar via SSH à EC2 para atualizar o `docker-compose.prod.yml` e reiniciar os serviços.
 
 ### Recursos de Segurança
 
-- **Assuntos de JWT Imutáveis**: UUIDs de usuário são utilizados em vez de e-mails nos tokens, garantindo que atualizações de e-mail não interrompam sessões ativas.
-- **Tokens de Atualização sem Estado**: A rotação e a revogação automatizada de tokens são implementadas para maior segurança.
-- **Defesa em Profundidade**: A validação de dados é realizada em múltiplos níveis: Banco de Dados (Constraints), API (Pydantic) e Frontend (Zod).
+- **Tokens de Atualização (Refresh Tokens) com Rotação**: Implementação de *Refresh Token Rotation*. Ao solicitar um novo *Access Token*, o *Refresh Token* antigo é revogado e um novo é emitido, mitigando riscos de interceptação.
+- **Assuntos de JWT Imutáveis**: O campo `sub` do JWT contém o UUID do usuário, garantindo que mudanças de e-mail ou username não invalidem a sessão ou causem inconsistências.
+- **UUIDs como Chave Primária**: Uso de UUID v4 em vez de IDs sequenciais para evitar enumeração de recursos e aumentar a segurança.
+- **Segurança com JWT + Argon2**: Uso do algoritmo **Argon2** (vencedor do Password Hashing Competition) via `pwdlib` para hashing de senhas, oferecendo proteção superior contra ataques de GPU e *side-channel*.
+- **Defesa em Profundidade**: Validação tripla: Banco de Dados (Constraints), API (Pydantic v2) e Frontend (Zod + React Hook Form).
 
 ### Decisões Técnicas
 
-- **Arquitetura em Camadas (Backend):** Implementação do padrão **Repository + Service**. Os Repositories isolam o acesso ao banco (SQLAlchemy), enquanto os Services concentram a lógica de negócio, garantindo que os Routers (FastAPI) permaneçam magros e focados apenas em I/O e validação.
-
-- **FastAPI (Pydantic v2):** Escolhido pela performance assíncrona e tipagem rigorosa. A integração nativa com o Swagger facilita o contrato entre Backend e Frontend.
-
+- **Arquitetura Base (Backend):** Uso de **BaseService** e **BaseRepository** genéricos. Essa abstração centraliza lógica repetitiva de CRUD, garante tratamento de erros padronizado (como `get_or_404`) e facilita a implementação de multi-tenancy através de métodos "scoped" que exigem sempre o `owner_id`.
+- **Padrão Repository + Service:** Separação clara de responsabilidades. O Repository lida exclusivamente com consultas SQLAlchemy, enquanto o Service gerencia regras de negócio e transações, mantendo os Controllers (Routers) focados apenas na interface HTTP.
+- **FastAPI (Pydantic v2):** Escolhido pela performance assíncrona, documentação automática (Swagger/OpenAPI) e validação de tipos rigorosa que reduz bugs em tempo de execução.
 - **Gerenciamento de Estado Híbrido (Frontend):** 
-  - **React Query:** Utilizado para o estado do servidor (cache, loading, sincronização), reduzindo drasticamente a complexidade de busca de dados.
-  - **Zustand:** Utilizado para estado global da aplicação (autenticação, temas), por ser mais leve e menos verboso que Redux.
-
-- **Migrations com Alembic:** Garantia de que o esquema do banco de dados é versionado, permitindo rollbacks seguros e consistência entre ambientes (Dev/Prod).
-
-- **Segurança com JWT + Argon2:** Uso do algoritmo Argon2 (via `pwdlib`) para hashing de senhas, considerado o estado da arte em segurança contra ataques de brute-force e rainbow tables.
-
-- **Next.js App Router & Server Components:** Otimização do carregamento inicial através de SSR em páginas críticas, enquanto Client Components são usados apenas onde a interatividade é necessária.
-
-- **CI/CD e Deploy Automatizado:** Fluxo automatizado via GitHub Actions que executa a suíte de testes, constrói imagens Docker e realiza o deploy em instâncias AWS EC2 via SSH, garantindo que apenas código validado chegue à produção.
+  - **React Query:** Gerencia o estado do servidor, cache e sincronização, eliminando a necessidade de `useEffect` complexos para busca de dados.
+  - **Zustand:** Gerencia o estado global UI (autenticação, preferências) de forma leve e performática.
+- **Migrations com Alembic:** Controle de versão do esquema do banco de dados, permitindo evoluções seguras e reprodutíveis entre ambientes de desenvolvimento, teste e produção.
+- **Next.js App Router:** Aproveitamento de *Server Components* para redução do bundle enviado ao cliente e *Client Components* apenas onde a interatividade é necessária.
+- **CI/CD com GitHub Actions & Terraform:** Automação completa do ciclo de vida da aplicação, desde a criação da infraestrutura na AWS até o deploy contínuo, garantindo que o ambiente de produção seja sempre um reflexo fiel do código aprovado.
 
 ### O que Melhoraria com Mais Tempo
 
@@ -250,11 +250,17 @@ A arquitetura de produção utiliza:
 ### Pontos Fortes e Limitações
 
 **Pontos fortes:**
-- Tipagem rigorosa em todo o fluxo (Backend e Frontend).
-- CI/CD robusto com validação obrigatória por testes.
-- Arquitetura multi-tenant: Isolamento rigoroso de dados na camada de repositório, garantindo que usuários acessem apenas suas próprias tarefas.
-- Arquitetura limpa e desacoplada.
+- **Robustez Arquitetural:** Uso de padrões profissionais (Repository/Service, Base Classes) que facilitam a manutenção e escalabilidade.
+- **Segurança Avançada:** Implementação de Argon2, Refresh Token Rotation e isolamento de dados por usuário (Multi-tenancy).
+- **Tipagem End-to-End:** Uso extensivo de TypeScript no Frontend e Pydantic no Backend, garantindo contratos de API sólidos.
+- **DevEx (Developer Experience):** Ambiente Dockerizado, Makefile com comandos atalhos e documentação Swagger completa.
+- **Automação Total:** Pipeline de CI/CD que integra testes, linting, provisionamento de infra (Terraform) e deploy.
+- **UX Consistente:** Tratamento global de erros, estados de carregamento (Skeleton/Spinners) e feedbacks via Toast.
 
 **Limitações:**
-- Ausência de HTTPS nativo (necessário configurar Certbot/ACM).
+- **Single Point of Failure (DB):** No estágio atual, o banco de dados roda em container na mesma EC2 (melhoraria com RDS).
+- **SSL/TLS Externo:** O HTTPS não está configurado nativamente no Nginx do projeto (requer Certbot ou Load Balancer).
+- **Ausência de Cache Distribuído:** Consultas repetitivas batem sempre no DB (melhoraria com Redis).
+- **Observabilidade Limitada:** Logs são gerenciados pelo Docker; falta centralização em serviços como CloudWatch ou ELK.
+- **Ausência de Testes de Integração e E2E:** O projeto conta atualmente apenas com testes unitários, o que representa uma limitação na validação de fluxos completos de ponta a ponta e integrações complexas.
 
