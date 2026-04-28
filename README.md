@@ -220,16 +220,15 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 
 ### O que Melhoraria com Mais Tempo
 
-- **Rate Limiting** para proteger endpoints sensíveis contra brute-force.
-- **Soft Delete** nas tarefas para permitir recuperação de dados.
-- Testes de ponta a ponta (E2E) com **Playwright**.
-- Logs estruturados e monitoramento via CloudWatch.
-- Camada de Cache com **Redis** para queries frequentes.
-
-### Infraestrutura e Terraform
-
-- **Gerenciamento de Estado:** Atualmente, o estado do Terraform é armazenado localmente para simplificar o projeto.
-- **Nota para Produção:** Em um ambiente corporativo, deve-se configurar um **Backend Remoto (S3 + DynamoDB)** para garantir o bloqueio de estado (*state locking*) e a colaboração segura entre múltiplos desenvolvedores, evitando a corrupção do arquivo de estado.
+- **Visualização Kanban:** Implementação de um quadro Kanban no frontend para proporcionar uma gestão visual do fluxo de trabalho.
+- **Categorização e Projetos:** Criação de uma forma de organizar tarefas por projeto, categoria ou tópicos (tags).
+- **Testes de Integração e E2E:** Ampliação da cobertura com testes de integração no backend e testes de ponta a ponta (E2E) com **Playwright**.
+- **Infraestrutura e Segurança:** Desacoplamento do banco de dados para um serviço gerenciado, configuração de **SSL/TLS** e uso de domínio customizado.
+- **Múltiplos Ambientes:** Estruturação de ambientes distintos (pelo menos um de Desenvolvimento/Dev e outro de Produção) via Terraform, incluindo a configuração de um **Backend Remoto (S3 + DynamoDB)** para garantir o bloqueio de estado (*state locking*) em produção.
+- **Observabilidade:** Implementação de **Logs Estruturados** e centralização de logs para melhor monitoramento e depuração.
+- **Rate Limiting** para proteger endpoints sensíveis contra ataques de força bruta.
+- **Soft Delete** nas tarefas para permitir a recuperação de dados excluídos acidentalmente.
+- **Camada de Cache** com **Redis** para otimizar a performance de consultas frequentes.
 
 ### Pontos Fortes e Limitações
 
