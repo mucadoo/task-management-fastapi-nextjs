@@ -1,4 +1,5 @@
 'use client';
+import { useEffect } from 'react';
 import { useForm, Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Task } from '@/types/task';
@@ -14,7 +15,7 @@ interface UseTaskFormProps {
   onClose: () => void;
 }
 
-export function useTaskForm({ editingTask, onClose }: UseTaskFormProps) {
+export function useTaskForm({ editingTask, isOpen, onClose }: UseTaskFormProps) {
   const { t } = useTranslation();
   const createTaskMutation = useCreateTask();
   const updateTaskMutation = useUpdateTask();
@@ -26,26 +27,41 @@ export function useTaskForm({ editingTask, onClose }: UseTaskFormProps) {
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema) as unknown as Resolver<FormData>,
-    defaultValues: editingTask
-      ? {
-          title: editingTask.title,
-          description: editingTask.description || '',
-          status: editingTask.status,
-          priority: editingTask.priority,
-          due_date: editingTask.due_date ? new Date(editingTask.due_date) : null,
-          due_date_has_time: editingTask.due_date_has_time || false,
-        }
-      : {
-          title: '',
-          description: '',
-          status: 'pending',
-          priority: 'medium',
-          due_date: null,
-          due_date_has_time: false,
-        },
+    defaultValues: {
+      title: '',
+      description: '',
+      status: 'pending',
+      priority: 'medium',
+      due_date: null,
+      due_date_has_time: false,
+    },
   });
 
-  const { handleSubmit } = form;
+  const { handleSubmit, reset } = form;
+
+  useEffect(() => {
+    if (isOpen) {
+      reset(
+        editingTask
+          ? {
+              title: editingTask.title,
+              description: editingTask.description || '',
+              status: editingTask.status,
+              priority: editingTask.priority,
+              due_date: editingTask.due_date ? new Date(editingTask.due_date) : null,
+              due_date_has_time: editingTask.due_date_has_time || false,
+            }
+          : {
+              title: '',
+              description: '',
+              status: 'pending',
+              priority: 'medium',
+              due_date: null,
+              due_date_has_time: false,
+            },
+      );
+    }
+  }, [editingTask, isOpen, reset]);
 
   const onFormSubmit = async (data: FormData) => {
     try {
