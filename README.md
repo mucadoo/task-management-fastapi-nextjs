@@ -6,15 +6,16 @@ API REST de gerenciamento de tarefas com autenticação JWT, frontend em Next.js
 
 | Camada         | Tecnologia                                      |
 |----------------|-------------------------------------------------|
-| Backend        | Python 3.12, FastAPI, SQLAlchemy                |
-| Frontend       | Next.js 16, React 19, TypeScript, Tailwind CSS 4 |
+| Backend        | Python 3.12, FastAPI 0.111, SQLAlchemy 2.0      |
+| Frontend       | Next.js 16.2, React 19, TypeScript, Tailwind 4  |
 | Banco de Dados | PostgreSQL 16                                   |
-| Autenticação   | JWT (python-jose + passlib/bcrypt)              |
-| Migrations     | Alembic                                         |
+| Autenticação   | JWT (python-jose + pwdlib/argon2)               |
+| Ger. Estado    | Zustand (Global) + React Query (Server State)   |
+| Migrations     | Alembic 1.13                                    |
 | Containerização| Docker, Docker Compose                          |
 | Proxy reverso  | Nginx 1.27                                      |
 | CI/CD          | GitHub Actions                                  |
-| Infraestrutura | AWS EC2 (app)                                   |
+| Infraestrutura | AWS EC2 + Terraform                             |
 
 ## Pré-requisitos
 
@@ -75,16 +76,17 @@ Uma transação é uma unidade lógica de trabalho que deve ser executada totalm
 
 ### Endpoints da API
 
-| Método | Rota                    | Descrição                          | Auth? |
-|--------|-------------------------|------------------------------------|-------|
-| GET    | /api/health             | Health check                       | Não   |
-| POST   | /api/auth/register      | Cadastro de usuário                | Não   |
-| POST   | /api/auth/login         | Login (retorna JWT)                | Não   |
-| POST   | /api/tasks/             | Criar tarefa                       | Sim   |
-| GET    | /api/tasks/             | Listar tarefas (paginado, filtrado)| Sim   |
-| GET    | /api/tasks/{id}         | Buscar tarefa por ID               | Sim   |
-| PUT    | /api/tasks/{id}         | Atualizar tarefa                   | Sim   |
-| DELETE | /api/tasks/{id}         | Deletar tarefa                     | Sim   |
+| Método | Rota                         | Descrição                           | Auth? |
+|--------|------------------------------|-------------------------------------|-------|
+| GET    | /api/health                  | Health check                        | Não   |
+| POST   | /api/v1/auth/register        | Cadastro de usuário                 | Não   |
+| POST   | /api/v1/auth/login           | Login (retorna JWT)                 | Não   |
+| POST   | /api/v1/tasks/               | Criar tarefa                        | Sim   |
+| GET    | /api/v1/tasks/               | Listar tarefas (paginado, filtrado) | Sim   |
+| GET    | /api/v1/tasks/{id}           | Buscar tarefa por ID                | Sim   |
+| PUT    | /api/v1/tasks/{id}           | Atualizar tarefa                    | Sim   |
+| DELETE | /api/v1/tasks/{id}           | Deletar tarefa                      | Sim   |
+| POST   | /api/v1/tasks/{id}/toggle    | Alternar status (Pendente/Concluída)| Sim   |
 
 ### Rodando os Testes (Backend)
 
@@ -98,7 +100,7 @@ cd backend && export PYTHONPATH=$PYTHONPATH:. && ./venv/bin/pytest --cov=app tes
 (Implementado como diferencial)
 
 A listagem de tarefas suporta paginação e filtros via query parameters:
-`GET /api/tasks/?page=1&page_size=10&status=completed`
+`GET /api/v1/tasks/?page=1&page_size=10&status=completed`
 
 Exemplo de resposta:
 ```json
@@ -145,17 +147,27 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
     docker compose up --build
     ```
 
-4.  **Execute as migrations:**
+4.  **Execute as migrations e opcionalmente o seed:**
     ```bash
     make migrate
-    # ou
-    docker compose run --rm backend alembic upgrade head
+    make seed  # Popula o banco com dados iniciais (opcional)
     ```
 
 5.  **Acesse as aplicações:**
     - Frontend: [http://localhost](http://localhost)
-    - Health Check Backend: [http://localhost/api/health](http://localhost/api/health)
-    - Documentação da API (Swagger): [http://localhost/api/docs](http://localhost/api/docs)
+    - Swagger API: [http://localhost/api/docs](http://localhost/api/docs)
+    - Health Check: [http://localhost/api/health](http://localhost/api/health)
+
+### Principais Comandos (Makefile)
+
+| Comando | Descrição |
+|---------|-----------|
+| `make dev` | Inicia ambiente de desenvolvimento (Docker) |
+| `make test` | Executa testes do backend e frontend |
+| `make migrate` | Aplica migrações do banco de dados |
+| `make seed` | Popula o banco com dados de teste |
+| `make down` | Para todos os containers |
+| `make logs` | Exibe logs em tempo real |
 
 ### Variáveis de Ambiente
 
@@ -192,19 +204,19 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 
 ### Decisões Técnicas
 
-- **FastAPI sobre Django REST:** Escolhido pela performance assíncrona superior e tipagem nativa com Pydantic v2. A documentação automática via OpenAPI (Swagger) acelera o desenvolvimento e facilita a integração com o frontend.
+- **Arquitetura em Camadas (Backend):** Implementação do padrão **Repository + Service**. Os Repositories isolam o acesso ao banco (SQLAlchemy), enquanto os Services concentram a lógica de negócio, garantindo que os Routers (FastAPI) permaneçam magros e focados apenas em I/O e validação.
 
-- **SQLAlchemy + Alembic:** É o padrão de ouro para manipulação de bancos SQL em Python. O Alembic garante que o esquema do banco seja versionado como código, permitindo rollback e rastreabilidade total das mudanças.
+- **FastAPI (Pydantic v2):** Escolhido pela performance assíncrona e tipagem rigorosa. A integração nativa com o Swagger facilita o contrato entre Backend e Frontend.
 
-- **Repository Pattern:** Implementado para isolar a lógica de acesso a dados. Isso torna o código mais limpo e facilita a criação de mocks para testes unitários, além de permitir a troca do ORM no futuro com impacto mínimo nos routers.
+- **Gerenciamento de Estado Híbrido (Frontend):** 
+  - **React Query:** Utilizado para o estado do servidor (cache, loading, sincronização), reduzindo drasticamente a complexidade de busca de dados.
+  - **Zustand:** Utilizado para estado global da aplicação (autenticação, temas), por ser mais leve e menos verboso que Redux.
 
-- **Next.js App Router com SSR:** Utilizamos Server-Side Rendering no carregamento inicial da lista de tarefas para otimizar o tempo de resposta e performance percebida pelo usuário. Componentes Client-side são usados cirurgicamente para interatividade.
+- **Migrations com Alembic:** Garantia de que o esquema do banco de dados é versionado, permitindo rollbacks seguros e consistência entre ambientes (Dev/Prod).
 
-- **JWT Stateless:** Optamos por autenticação via JWT sem armazenamento em estado no servidor (Redis/DB). Isso simplifica a escalabilidade horizontal e reduz a complexidade da infraestrutura.
+- **Segurança com JWT + Argon2:** Uso do algoritmo Argon2 (via `pwdlib`) para hashing de senhas, considerado o estado da arte em segurança contra ataques de brute-force e rainbow tables.
 
-- **JWT Refresh Queue:** Implementação avançada de interceptadores no frontend que captura tokens expirados, enfileira as requisições em background, atualiza o token via Refresh Token e repete as chamadas silenciosamente, garantindo uma UX perfeita.
-
-- **Docker Compose em Produção:** Para este escopo, o uso de Docker Compose em uma EC2 é uma solução de excelente custo-benefício, fácil manutenção e que provê isolamento suficiente entre os serviços (Backend, Frontend, Nginx).
+- **Next.js App Router & Server Components:** Otimização do carregamento inicial através de SSR em páginas críticas, enquanto Client Components são usados apenas onde a interatividade é necessária.
 
 ### O que Melhoraria com Mais Tempo
 
