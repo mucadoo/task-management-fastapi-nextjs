@@ -7,7 +7,8 @@ import { cn } from '@/lib/utils';
 
 interface TaskStatusTogglesProps {
   status: 'pending' | 'in_progress' | 'completed';
-  onToggleStatus: () => void;
+  onToggleCompletion: () => void;
+  onToggleInProgress: () => void;
   isToggling: boolean;
   isDeleting: boolean;
   viewMode?: 'gallery' | 'list';
@@ -15,7 +16,8 @@ interface TaskStatusTogglesProps {
 
 export function TaskStatusToggles({
   status,
-  onToggleStatus,
+  onToggleCompletion,
+  onToggleInProgress,
   isToggling,
   isDeleting,
   viewMode = 'gallery',
@@ -38,7 +40,7 @@ export function TaskStatusToggles({
       <Tooltip>
         <TooltipTrigger asChild>
           <button
-            onClick={onToggleStatus}
+            onClick={onToggleCompletion}
             disabled={isToggling || isDeleting}
             aria-label={isCompleted ? t('tasks.mark_pending') : t('tasks.mark_completed')}
             className={cn(
@@ -48,7 +50,7 @@ export function TaskStatusToggles({
                 : 'text-warm-400 dark:text-gray-500 hover:text-emerald-600 hover:bg-warm-100 dark:hover:bg-white/5',
             )}
           >
-            {isToggling ? (
+            {isToggling && isCompleted ? (
               <LoadingSpinner size="sm" />
             ) : isCompleted ? (
               <CheckCircle2 className={viewMode === 'list' ? 'h-5 w-5' : 'h-4 w-4'} />
@@ -67,7 +69,7 @@ export function TaskStatusToggles({
         <Tooltip>
           <TooltipTrigger asChild>
             <button
-              onClick={onToggleStatus}
+              onClick={onToggleInProgress}
               disabled={isToggling || isDeleting}
               aria-label={isInProgress ? t('tasks.mark_pending') : t('tasks.mark_in_progress')}
               className={cn(
@@ -77,7 +79,13 @@ export function TaskStatusToggles({
                   : 'text-warm-400 dark:text-gray-500 hover:text-amber-600 hover:bg-warm-100 dark:hover:bg-white/5',
               )}
             >
-              {isInProgress ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+              {isToggling && isInProgress ? (
+                <LoadingSpinner size="sm" />
+              ) : isInProgress ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
             </button>
           </TooltipTrigger>
           <TooltipContent side="top">

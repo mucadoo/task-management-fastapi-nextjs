@@ -67,6 +67,10 @@ class TaskUpdate(BaseModel):
     )
 
 
+class TaskStatusUpdate(BaseModel):
+    status: TaskStatus = Field(..., description="The new status of the task")
+
+
 class TaskResponse(BaseResponseSchema, TaskBase, TimestampSchema):
     id: uuid.UUID = Field(..., description="Unique task identifier")
 

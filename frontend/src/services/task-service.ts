@@ -34,9 +34,10 @@ export const taskService = {
       body: JSON.stringify(data),
     }),
 
-  toggleTaskStatus: (id: string) =>
-    request<Task>(`/tasks/${id}/toggle`, {
-      method: 'POST',
+  updateTaskStatus: (id: string, status: TaskStatus) =>
+    request<Task>(`/tasks/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
     }),
 
   deleteTask: (id: string) =>

@@ -46,14 +46,9 @@ class TaskService(BaseService[Task, TaskRepository]):
     def delete_task(self, user_id: uuid.UUID, task_id: uuid.UUID) -> bool:
         return self.delete_with_commit(user_id, task_id)
 
-    def toggle_task(self, user_id: uuid.UUID, task_id: uuid.UUID) -> Task:
+    def update_task_status(
+        self, user_id: uuid.UUID, task_id: uuid.UUID, new_status: TaskStatus
+    ) -> Task:
         task = self.get_or_404(user_id, task_id)
-
-        new_status = (
-            TaskStatus.PENDING
-            if task.status == TaskStatus.COMPLETED
-            else TaskStatus.COMPLETED
-        )
-        
         task.status = new_status
         return self.repository.commit_and_refresh(task)

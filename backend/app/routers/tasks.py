@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status, Path
 from typing import Annotated
 import uuid
 from ..dependencies import CurrentUser, TaskServ
-from ..schemas.task import TaskCreate, TaskUpdate, TaskResponse, TaskListResponse
+from ..schemas.task import TaskCreate, TaskUpdate, TaskResponse, TaskListResponse, TaskStatusUpdate
 from ..schemas.task_filters import TaskFilterParams
 
 router = APIRouter()
@@ -54,6 +54,16 @@ def update_task(
     return service.update_task(current_user.id, task_id, task)
 
 
+@router.patch("/{task_id}/status", response_model=TaskResponse)
+def update_task_status(
+    task_id: Annotated[uuid.UUID, Path()],
+    status_update: TaskStatusUpdate,
+    current_user: CurrentUser,
+    service: TaskServ,
+):
+    return service.update_task_status(current_user.id, task_id, status_update.status)
+
+
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_task(
     task_id: Annotated[uuid.UUID, Path()],
@@ -62,12 +72,3 @@ def delete_task(
 ):
     service.delete_task(current_user.id, task_id)
     return None
-
-
-@router.post("/{task_id}/toggle", response_model=TaskResponse)
-def toggle_task(
-    task_id: Annotated[uuid.UUID, Path()],
-    current_user: CurrentUser,
-    service: TaskServ,
-):
-    return service.toggle_task(current_user.id, task_id)

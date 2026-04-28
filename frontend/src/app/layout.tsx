@@ -4,6 +4,7 @@ import NextTopLoader from 'nextjs-toploader';
 import './globals.css';
 import ClientProviders from '@/components/layout/ClientProviders';
 import ToastContainer from '@/components/ui/ToastContainer';
+import { GlobalLoadingBar } from '@/components/ui/GlobalLoadingBar';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,9 +34,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} min-h-full flex flex-col font-sans antialiased transition-colors duration-300`}
       >
         <NextTopLoader color="#3a5fa3" height={3} showSpinner={false} />
+        <GlobalLoadingBar />
         <ClientProviders>
           <div className="flex-grow flex flex-col">{children}</div>
-          <ToastContainer /> {/* Add ToastContainer here */}
+          <ToastContainer />
         </ClientProviders>
       </body>
     </html>

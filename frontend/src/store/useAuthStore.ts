@@ -5,6 +5,7 @@ import { authService } from '@/services/auth-service';
 import { tokenManager } from '@/lib/token';
 import i18n from '@/lib/i18n';
 import { notify } from '@/lib/notifications';
+import { useGlobalLoadingStore } from './useGlobalLoadingStore';
 
 interface AuthState {
   user: User | null;
@@ -34,7 +35,9 @@ export const useAuthStore = create<AuthState>()(
       },
 
       login: async (data) => {
+        const { startLoading, stopLoading } = useGlobalLoadingStore.getState();
         set({ isLoading: true, error: null });
+        startLoading();
         try {
           await authService.login(data);
           const user = await authService.getMe();
@@ -44,11 +47,15 @@ export const useAuthStore = create<AuthState>()(
           set({ error: message, isLoading: false, isAuthenticated: false });
           notify.error(err, 'auth.login_failed');
           throw err;
+        } finally {
+          stopLoading();
         }
       },
 
       register: async (data) => {
+        const { startLoading, stopLoading } = useGlobalLoadingStore.getState();
         set({ isLoading: true, error: null });
+        startLoading();
         try {
           await authService.register(data);
           const user = await authService.getMe();
@@ -59,6 +66,8 @@ export const useAuthStore = create<AuthState>()(
           set({ error: message, isLoading: false, isAuthenticated: false });
           notify.error(err, 'auth.register_failed');
           throw err;
+        } finally {
+          stopLoading();
         }
       },
 
@@ -83,18 +92,24 @@ export const useAuthStore = create<AuthState>()(
 
         if (get().user && !force) return;
 
+        const { startLoading, stopLoading } = useGlobalLoadingStore.getState();
         set({ isInitializing: true });
+        startLoading();
         try {
           const user = await authService.getMe();
           set({ user, isAuthenticated: true, isInitializing: false });
         } catch {
           authService.logout();
           set({ user: null, isAuthenticated: false, isInitializing: false });
+        } finally {
+          stopLoading();
         }
       },
 
       updateMe: async (data) => {
+        const { startLoading, stopLoading } = useGlobalLoadingStore.getState();
         set({ isLoading: true, error: null });
+        startLoading();
         try {
           const updatedUser = await authService.updateMe(data);
           set({ user: updatedUser, isLoading: false });
@@ -104,6 +119,8 @@ export const useAuthStore = create<AuthState>()(
           set({ error: message, isLoading: false });
           notify.error(err, 'profile.update_failed');
           throw err;
+        } finally {
+          stopLoading();
         }
       },
     }),

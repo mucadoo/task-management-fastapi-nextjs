@@ -3,7 +3,7 @@ import { memo, useMemo } from 'react';
 import { Task } from '@/types/task';
 import StatusBadge from './StatusBadge';
 import PriorityBadge from './PriorityBadge';
-import { useToggleTaskStatus } from '@/hooks/useTasks';
+import { useUpdateTaskStatus } from '@/hooks/useTasks';
 import { cn } from '@/lib/utils';
 import { getTaskDateStatus } from '@/lib/date-utils';
 import { TaskCardActions } from './TaskCardActions';
@@ -29,9 +29,9 @@ const TaskCard = memo(function TaskCard({
   isToggling: isTogglingProp,
 }: TaskCardProps) {
   const { t } = useTranslation();
-  const toggleStatusMutation = useToggleTaskStatus();
+  const updateStatusMutation = useUpdateTaskStatus();
 
-  const isToggling = isTogglingProp ?? toggleStatusMutation.isPending;
+  const isToggling = isTogglingProp ?? updateStatusMutation.isPending;
 
   const isCompleted = task.status === 'completed';
   const isInProgress = task.status === 'in_progress';
@@ -57,8 +57,14 @@ const TaskCard = memo(function TaskCard({
     }
   }, [isCompleted, isOverdue, isDueToday, task.priority]);
 
-  const toggleStatus = () => {
-    toggleStatusMutation.mutate(task.id);
+  const handleToggleCompletion = () => {
+    const newStatus = task.status === 'completed' ? 'pending' : 'completed';
+    updateStatusMutation.mutate({ id: task.id, status: newStatus });
+  };
+
+  const handleToggleInProgress = () => {
+    const newStatus = task.status === 'in_progress' ? 'pending' : 'in_progress';
+    updateStatusMutation.mutate({ id: task.id, status: newStatus });
   };
 
   const actions = (
@@ -66,18 +72,15 @@ const TaskCard = memo(function TaskCard({
       task={task}
       onEdit={onEdit}
       onDelete={onDelete}
-      onToggleStatus={toggleStatus}
       isDeleting={isDeleting}
-      isToggling={isToggling}
-      isCompleted={isCompleted}
-      isInProgress={isInProgress}
     />
   );
 
   const statusToggles = (
     <TaskStatusToggles
       status={task.status}
-      onToggleStatus={toggleStatus}
+      onToggleCompletion={handleToggleCompletion}
+      onToggleInProgress={handleToggleInProgress}
       isToggling={isToggling}
       isDeleting={isDeleting}
       viewMode={viewMode}
