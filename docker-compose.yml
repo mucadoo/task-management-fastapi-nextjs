@@ -8,19 +8,22 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
       POSTGRES_DB: ${POSTGRES_DB:-taskdb}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-user} -d ${POSTGRES_DB:-taskdb}"]
+      test:["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-user} -d ${POSTGRES_DB:-taskdb}"]
       interval: 5s
       timeout: 5s
       retries: 5
+      
   backend:
     build: ./backend
     environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
       POSTGRES_USER: ${POSTGRES_USER:-user}
-      POSTGRES_DB: ${POSTGRES_DB:-taskdb}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-taskdb}
-      CORS_ORIGINS: "*"
-      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
+      POSTGRES_DB: ${POSTRES_DB:-taskdb}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-taskdb}}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
       JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES:-60}
+      SEED_DB: ${SEED_DB:-true}
       WATCHPACK_POLLING: "true"
     volumes:
       - ./backend:/app
@@ -29,15 +32,16 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      test:["CMD", "curl", "-f", "http://localhost:8000/api/health"]
       interval: 10s
       timeout: 5s
       retries: 3
+      
   frontend:
     build: ./frontend
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost/api/v1}
-      INTERNAL_API_URL: http://backend:8000/api/v1
+      INTERNAL_API_URL: ${INTERNAL_API_URL:-http://backend:8000/api/v1}
       WATCHPACK_POLLING: "true"
       CHOKIDAR_USEPOLLING: "true"
     volumes:
@@ -47,6 +51,7 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+        
   nginx:
     image: nginx:1.27-alpine
     ports:
@@ -56,5 +61,6 @@ services:
     depends_on:
       - backend
       - frontend
+
 volumes:
   postgres_data:

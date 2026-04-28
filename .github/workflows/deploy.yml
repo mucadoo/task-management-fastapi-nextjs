@@ -67,24 +67,31 @@ jobs:
   terraform:
     name: Infrastructure Provisioning
     runs-on: ubuntu-latest
+    outputs:
+      instance_ip: ${{ steps.out.outputs.ip }}
+      private_key: ${{ steps.out.outputs.key }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.7.0"
-
       - name: Terraform Init
         run: cd terraform && terraform init
-
       - name: Terraform Apply
+        id: apply
         run: |
           cd terraform
-          terraform apply -auto-approve -var="key_name=${{ secrets.EC2_KEY_NAME }}" -var="aws_region=${{ secrets.AWS_REGION || 'us-east-1' }}"
-          echo "### Infrastructure Provisioned" >> $GITHUB_STEP_SUMMARY
-          echo "Instance Public IP: $(terraform output -raw instance_public_ip)" >> $GITHUB_STEP_SUMMARY
+          terraform apply -auto-approve -var="aws_region=${{ secrets.AWS_REGION || 'us-east-1' }}"
+      - name: Capture Outputs
+        id: out
+        run: |
+          cd terraform
+          echo "ip=$(terraform output -raw instance_public_ip)" >> $GITHUB_OUTPUT
+          echo "key<<EOF" >> $GITHUB_OUTPUT
+          terraform output -raw private_key >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -146,31 +153,47 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ needs.terraform.outputs.private_key }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ needs.terraform.outputs.instance_ip }} >> ~/.ssh/known_hosts
 
       - name: Copy configuration files
         run: |
-          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p ~/task-manager/nginx"
-          scp -i ~/.ssh/id_rsa nginx/nginx.conf ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/task-manager/nginx/nginx.conf
-          scp -i ~/.ssh/id_rsa docker-compose.prod.yml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/task-manager/docker-compose.prod.yml
+          ssh ubuntu@${{ needs.terraform.outputs.instance_ip }} "mkdir -p ~/task-manager/nginx"
+          scp -i ~/.ssh/id_rsa nginx/nginx.conf ubuntu@${{ needs.terraform.outputs.instance_ip }}:~/task-manager/nginx/nginx.conf
+          scp -i ~/.ssh/id_rsa docker-compose.prod.yml ubuntu@${{ needs.terraform.outputs.instance_ip }}:~/task-manager/docker-compose.prod.yml
 
       - name: Deploy via SSH
         run: |
-          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh ubuntu@${{ needs.terraform.outputs.instance_ip }} << 'EOF'
             cd ~/task-manager
-            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
-            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-            echo "JWT_EXPIRE_MINUTES=${{ secrets.JWT_EXPIRE_MINUTES }}" >> .env
-            echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> .env
+            
+            # --- INTELLIGENT ENV GENERATION ---
+            # If JWT_SECRET is not provided, generate a random hex string
+            JWT_SEC="${{ secrets.JWT_SECRET }}"
+            if [ -z "$JWT_SEC" ]; then JWT_SEC=$(openssl rand -hex 32); fi
+            
+            # Auto-construct URLs if missing
+            DB_URL="${{ secrets.DATABASE_URL }}"
+            if [ -z "$DB_URL" ]; then DB_URL="postgresql://user:password@db:5432/taskdb"; fi
+            
+            API_URL="${{ secrets.NEXT_PUBLIC_API_URL }}"
+            if [ -z "$API_URL" ]; then API_URL="http://${{ needs.terraform.outputs.instance_ip }}/api/v1"; fi
+
+            echo "ENVIRONMENT=production" > .env
+            echo "DATABASE_URL=$DB_URL" >> .env
+            echo "JWT_SECRET=$JWT_SEC" >> .env
+            echo "NEXT_PUBLIC_API_URL=$API_URL" >> .env
             echo "DOCKER_IMAGE_BASE=ghcr.io/${{ github.repository_owner }}" >> .env
             echo "IMAGE_TAG=${{ github.sha }}" >> .env
+            echo "SEED_DB=${{ secrets.SEED_DB || 'false' }}" >> .env
 
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            
+            # Health check
             SUCCESS=0
             for i in 1 2 3 4 5; do
               if curl -sf http://localhost/api/health; then
@@ -181,6 +204,7 @@ jobs:
               echo "Health check attempt $i failed, retrying in 10s..."
               sleep 10
             done
+            
             if [ $SUCCESS -eq 1 ]; then
               echo "Deploy successful, running migrations..."
               docker compose -f docker-compose.prod.yml exec -T backend alembic upgrade head

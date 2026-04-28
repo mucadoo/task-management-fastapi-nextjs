@@ -8,10 +8,22 @@ provider "aws" {
   region = var.aws_region
 }
 
+# Generate a fresh SSH key pair
+resource "tls_private_key" "deployer_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+# Register the public key with AWS
+resource "aws_key_pair" "generated_key" {
+  key_name   = "task-manager-deploy-key"
+  public_key = tls_private_key.deployer_key.public_key_openssh
+}
+
 resource "aws_instance" "app_server" {
-  ami           = "ami-04b70fa74e45c3917"
+  ami           = "ami-04b70fa74e45c3917" # Ubuntu 22.04
   instance_type = "t3.micro"
-  key_name      = var.key_name
+  key_name      = aws_key_pair.generated_key.key_name  # Use the generated key
 
   vpc_security_group_ids = [aws_security_group.app_sg.id]
 
@@ -33,4 +45,14 @@ resource "aws_instance" "app_server" {
   tags = {
     Name = "TaskManagerAppServer"
   }
+}
+
+# Add a sensitive output for the private key
+output "private_key" {
+  value     = tls_private_key.deployer_key.private_key_pem
+  sensitive = true
+}
+
+output "instance_public_ip" {
+  value = aws_instance.app_server.public_ip
 }
