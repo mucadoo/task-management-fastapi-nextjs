@@ -1,32 +1,50 @@
-# Task Manager
+# 📝 Task Manager
 
 API REST de gerenciamento de tarefas com autenticação JWT, frontend em Next.js e pipeline de CI/CD automatizado para AWS.
 
-## Stack Tecnológica
+---
 
-| Camada         | Tecnologia                                      |
-|----------------|-------------------------------------------------|
-| Backend        | Python 3.12, FastAPI 0.111, SQLAlchemy 2.0      |
-| Frontend       | Next.js 16.2, React 19, TypeScript, Tailwind 4  |
-| Banco de Dados | PostgreSQL 16                                   |
-| Autenticação   | JWT (python-jose + pwdlib/argon2)               |
-| Ger. Estado    | Zustand (Global) + React Query (Server State)   |
-| Migrations     | Alembic 1.13                                    |
-| Containerização| Docker, Docker Compose                          |
-| Proxy reverso  | Nginx 1.27                                      |
-| CI/CD          | GitHub Actions                                  |
-| Infraestrutura | AWS EC2 + Terraform                             |
-
-## Pré-requisitos
-
-- Docker e Docker Compose instalados
-- (Para produção) Conta AWS com EC2 provisionada
+![Next.js](https://img.shields.io/badge/Next.js-16.2-black?style=for-the-badge&logo=next.js)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=for-the-badge&logo=fastapi)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql)
+![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker)
+![Terraform](https://img.shields.io/badge/Terraform-Infrastructure-7B42BC?style=for-the-badge&logo=terraform)
 
 ---
 
-## Parte 1 - Lógica e Fundamentos
+## 📌 Índice
+- [🚀 Stack Tecnológica](#-stack-tecnológica)
+- [🧩 Parte 1 - Lógica e Fundamentos](#-parte-1---lógica-e-fundamentos)
+- [⚙️ Parte 2 - Backend](#-parte-2---backend)
+- [💻 Parte 3 - Frontend](#-parte-3---frontend)
+- [🛠️ Parte 4 - Integração e Qualidade](#-parte-4---integração-e-qualidade)
+- [🧱 Arquitetura](#-arquitetura)
+- [💡 Decisões Técnicas](#-decisões-técnicas)
+- [🏆 Pontos Fortes e Limitações](#-pontos-fortes-e-limitações)
 
-### 1. Lógica
+---
+
+## 🚀 Stack Tecnológica
+
+| Camada         | Tecnologia                                      |
+|----------------|-------------------------------------------------|
+| **Backend**    | ![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python) ![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=flat-square&logo=fastapi) |
+| **Frontend**   | ![Next.js](https://img.shields.io/badge/Next.js-16.2-000000?style=flat-square&logo=next.js) ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react) |
+| **Database**   | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=flat-square&logo=postgresql) ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-red?style=flat-square) |
+| **DevOps**     | ![Docker](https://img.shields.io/badge/Docker-Container-2496ED?style=flat-square&logo=docker) ![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?style=flat-square&logo=terraform) |
+| **CI/CD**      | ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-Automated-2088FF?style=flat-square&logo=github-actions) |
+| **Proxy**      | ![Nginx](https://img.shields.io/badge/Nginx-API_Gateway-009639?style=flat-square&logo=nginx) |
+
+## 📋 Pré-requisitos
+
+- ✅ **Docker e Docker Compose** instalados
+- ☁️ **Conta AWS** com EC2 provisionada (para produção)
+
+---
+
+## 🧩 Parte 1 - Lógica e Fundamentos
+
+### 1️⃣ Lógica
 Implementação da função que recebe uma lista de números inteiros e retorna a soma dos pares e a média dos ímpares, ignorando valores inválidos.
 
 **Algoritmo:**
@@ -53,7 +71,7 @@ function analisarNumeros(dados: any[]): { somaPares: number; mediaImpares: numbe
 
 ---
 
-### 2. Conceitos
+### 2️⃣ Conceitos
 
 **2.1 Diferença entre REST e GraphQL**
 **REST** é baseado em recursos acessíveis via endpoints fixos e métodos HTTP (GET, POST, etc.). A estrutura da resposta é definida pelo servidor.
@@ -72,9 +90,9 @@ Uma transação é uma unidade lógica de trabalho que deve ser executada totalm
 
 ---
 
-## Parte 2 - Backend
+## ⚙️ Parte 2 - Backend
 
-### Endpoints da API
+### 📡 Endpoints da API
 
 | Método | Rota                         | Descrição                           | Auth? |
 |--------|------------------------------|-------------------------------------|-------|
@@ -88,7 +106,7 @@ Uma transação é uma unidade lógica de trabalho que deve ser executada totalm
 | DELETE | /api/v1/tasks/{id}           | Deletar tarefa                      | Sim   |
 | POST   | /api/v1/tasks/{id}/toggle    | Alternar status (Pendente/Concluída)| Sim   |
 
-### Rodando os Testes (Backend)
+### 🧪 Rodando os Testes (Backend)
 
 ```bash
 make test
@@ -98,7 +116,7 @@ cd backend && export PYTHONPATH=$PYTHONPATH:. && ./venv/bin/pytest --cov=app tes
 
 **Cobertura Mínima:** 80% (Configurado em `pytest.ini`)
 
-### Paginação e Filtros
+### 📄 Paginação e Filtros
 (Implementado como diferencial)
 
 A listagem de tarefas suporta paginação e filtros via query parameters:
@@ -116,20 +134,21 @@ Exemplo de resposta:
 
 ---
 
-## Parte 3 - Frontend
+## 💻 Parte 3 - Frontend
 
 A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**.
-- **Gerenciamento de Estado:** Utiliza React Hooks (`useState`, `useEffect`, `useCallback`) para controle de tarefas e autenticação.
-- **SSR & Client Components:** Renderização no servidor para performance inicial e componentes interativos no cliente.
-- **Responsividade:** Layout adaptável para dispositivos móveis e desktop.
-- **Feedback:** Loading states e tratamento de erros amigável.
-- **Testes Unitários:** Implementados com **Vitest** e **React Testing Library**, com cobertura mínima de **60%**.
+
+- 🔄 **Gerenciamento de Estado:** Utiliza React Hooks (`useState`, `useEffect`, `useCallback`) para controle de tarefas e autenticação.
+- ⚡ **SSR & Client Components:** Renderização no servidor para performance inicial e componentes interativos no cliente.
+- 📱 **Responsividade:** Layout adaptável para dispositivos móveis e desktop.
+- 🔔 **Feedback:** Loading states e tratamento de erros amigável com Toasts.
+- 🧪 **Testes Unitários:** Implementados com **Vitest** e **React Testing Library**, com cobertura mínima de **60%**.
 
 ---
 
-## Parte 4 - Integração e Qualidade
+## 🛠️ Parte 4 - Integração e Qualidade
 
-### Como Rodar Localmente
+### 🏠 Como Rodar Localmente
 
 1.  **Clone o repositório:**
     ```bash
@@ -161,7 +180,7 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
     - Swagger API: [http://localhost/api/docs](http://localhost/api/docs)
     - Health Check: [http://localhost/api/health](http://localhost/api/health)
 
-### Principais Comandos (Makefile)
+### ⌨️ Principais Comandos (Makefile)
 
 | Comando | Descrição |
 |---------|-----------|
@@ -172,7 +191,7 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 | `make down` | Para todos os containers |
 | `make logs` | Exibe logs em tempo real |
 
-### Variáveis de Ambiente
+### 🔐 Variáveis de Ambiente
 
 #### Backend & Database
 | Variável | Descrição | Exemplo |
@@ -203,7 +222,7 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 | `DATABASE_URL` | URL do banco em prod | `postgresql://user:pass@db:5432/taskdb` |
 | `JWT_SECRET` | Chave secreta (Prod) | String aleatória segura |
 
-### Instruções de Deploy (AWS)
+### ☁️ Instruções de Deploy (AWS)
 
 A arquitetura de produção utiliza:
 - **EC2 Ubuntu 22.04:** Servidor de aplicação rodando Docker Compose.
@@ -218,7 +237,7 @@ A arquitetura de produção utiliza:
    - Construir e publicar imagens no GHCR.
    - Conectar via SSH à EC2 para atualizar o `docker-compose.prod.yml` e reiniciar os serviços.
 
-### Recursos de Segurança
+### 🛡️ Recursos de Segurança
 
 - **Tokens de Atualização (Refresh Tokens) com Rotação**: Implementação de *Refresh Token Rotation*. Ao solicitar um novo *Access Token*, o *Refresh Token* antigo é revogado e um novo é emitido, mitigando riscos de interceptação.
 - **Assuntos de JWT Imutáveis**: O campo `sub` do JWT contém o UUID do usuário, garantindo que mudanças de e-mail ou username não invalidem a sessão ou causem inconsistências.
@@ -226,7 +245,7 @@ A arquitetura de produção utiliza:
 - **Segurança com JWT + Argon2**: Uso do algoritmo **Argon2** (vencedor do Password Hashing Competition) via `pwdlib` para hashing de senhas, oferecendo proteção superior contra ataques de GPU e *side-channel*.
 - **Defesa em Profundidade**: Validação tripla: Banco de Dados (Constraints), API (Pydantic v2) e Frontend (Zod + React Hook Form).
 
-### Decisões Técnicas
+### 💡 Decisões Técnicas
 
 - **Arquitetura Base (Backend):** Uso de **BaseService** e **BaseRepository** genéricos. Essa abstração centraliza lógica repetitiva de CRUD, garante tratamento de erros padronizado (como `get_or_404`) e facilita a implementação de multi-tenancy através de métodos "scoped" que exigem sempre o `owner_id`.
 - **Padrão Repository + Service:** Separação clara de responsabilidades. O Repository lida exclusivamente com consultas SQLAlchemy, enquanto o Service gerencia regras de negócio e transações, mantendo os Controllers (Routers) focados apenas na interface HTTP.
@@ -239,7 +258,21 @@ A arquitetura de produção utiliza:
 - **Next.js App Router & React 19:** Aproveitamento das últimas tecnologias do ecossistema React, incluindo *Server Components* para performance e as melhorias de renderização do React 19 e Tailwind CSS 4.
 - **CI/CD com GitHub Actions & Terraform:** Automação completa do ciclo de vida da aplicação, desde a criação da infraestrutura na AWS até o deploy contínuo, garantindo que o ambiente de produção seja sempre um reflexo fiel do código aprovado.
 
-### O que Melhoraria com Mais Tempo
+### 🏗️ Arquitetura
+
+```mermaid
+graph TD
+    User([Usuário]) -->|HTTP| Nginx[Nginx API Gateway]
+    Nginx -->|Proxy| Frontend[Frontend Next.js]
+    Nginx -->|Proxy /api| Backend[Backend FastAPI]
+    Backend -->|SQLAlchemy| DB[(PostgreSQL)]
+    Backend -.->|Alembic| DB
+    CI[GitHub Actions] -->|Terraform| AWS[AWS EC2]
+    CI -->|Push| GHCR[GHCR Docker Registry]
+    GHCR -->|Pull| AWS
+```
+
+### 🚀 O que Melhoraria com Mais Tempo
 
 - **Visualização Kanban:** Implementação de um quadro Kanban no frontend para proporcionar uma gestão visual do fluxo de trabalho.
 - **Categorização e Projetos:** Criação de uma forma de organizar tarefas por projeto, categoria ou tópicos (tags).
@@ -251,7 +284,7 @@ A arquitetura de produção utiliza:
 - **Soft Delete** nas tarefas para permitir a recuperação de dados excluídos acidentalmente.
 - **Camada de Cache** com **Redis** para otimizar a performance de consultas frequentes.
 
-### Pontos Fortes e Limitações
+### 🏆 Pontos Fortes e Limitações
 
 **Pontos fortes:**
 - **Robustez Arquitetural:** Uso de padrões profissionais (Repository/Service, Base Classes) que facilitam a manutenção e escalabilidade.
