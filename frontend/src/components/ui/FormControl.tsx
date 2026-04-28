@@ -24,7 +24,7 @@ export function FormControl({ label, error, children, className, id, required }:
       )}
       {children}
       {error && (
-        <p className="text-[10px] text-red-500 font-medium ml-1 animate-in fade-in slide-in-from-top-1 duration-200">
+        <p className="text-xs text-red-500 font-medium ml-1 animate-in fade-in slide-in-from-top-1 duration-200">
           {error}
         </p>
       )}
