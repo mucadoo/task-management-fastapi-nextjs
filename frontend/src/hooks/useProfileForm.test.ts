@@ -2,7 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useProfileForm } from './useProfileForm';
 import { useAuthStore } from '@/store/useAuthStore';
-import { authService } from '@/services/auth-service';
+
+class MockApiError extends Error {
+  constructor(public status: number, message: string, public code?: string) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+vi.stubGlobal('ApiError', MockApiError);
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -65,15 +72,39 @@ describe('useProfileForm', () => {
     );
   });
 
-  it('checks username availability when changed', () => {
-    vi.mocked(authService.checkUsername).mockResolvedValue({ available: true });
-
+  it('handles updateMe error for personal tab', async () => {
+    mockUpdateMe.mockRejectedValue(new Error('Update failed'));
     const { result } = renderHook(() => useProfileForm({ activeTab: 'personal', isOpen: true }));
 
-    act(() => {
-      result.current.form.setValue('username', 'newuser');
+    await act(async () => {
+      try {
+        await result.current.onSubmit();
+      } catch (e) {
+        // Expected
+      }
     });
 
-    expect(authService.checkUsername).toHaveBeenCalledWith('newuser');
+    expect(mockUpdateMe).toHaveBeenCalled();
+  });
+
+  it('calls updateMe on submit for security tab', async () => {
+    const { result } = renderHook(() => useProfileForm({ activeTab: 'security', isOpen: true }));
+
+    act(() => {
+      result.current.form.setValue('current_password', 'OldPass123!');
+      result.current.form.setValue('password', 'NewPass123!');
+      result.current.form.setValue('confirmPassword', 'NewPass123!');
+    });
+
+    await act(async () => {
+      await result.current.onSubmit();
+    });
+
+    expect(mockUpdateMe).toHaveBeenCalledWith(
+      expect.objectContaining({
+        current_password: 'OldPass123!',
+        password: 'NewPass123!',
+      }),
+    );
   });
 });

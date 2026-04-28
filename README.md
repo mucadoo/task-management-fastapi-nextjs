@@ -260,3 +260,4 @@ graph TD
 - **Ausência de Cache Distribuído:** Consultas repetitivas batem sempre no DB (melhoraria com Redis).
 - **Observabilidade Limitada:** Logs são gerenciados pelo Docker; falta centralização em serviços como CloudWatch ou ELK.
 - **Ausência de Testes de Integração e E2E:** O projeto conta atualmente apenas com testes unitários, o que representa uma limitação na validação de fluxos completos de ponta a ponta e integrações complexas.
+- **Cobertura de Testes no Frontend:** A cobertura atual de testes unitários no frontend é de **60%**, o que representa um ponto de atenção e uma oportunidade de melhoria para garantir maior estabilidade.

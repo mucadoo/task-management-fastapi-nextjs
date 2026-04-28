@@ -101,6 +101,24 @@ describe('useAuthStore', () => {
       expect(useAuthStore.getState().isAuthenticated).toBe(true);
       expect(notify.success).toHaveBeenCalledWith('auth.register_success');
     });
+
+    it('handles register failure', async () => {
+      const error = new Error('Already exists');
+      vi.mocked(authService.register).mockRejectedValue(error);
+
+      await expect(
+        useAuthStore.getState().register({
+          name: 'Test',
+          username: 'test',
+          email: 'test@example.com',
+          password: 'pass',
+          confirmPassword: 'pass',
+        }),
+      ).rejects.toThrow('Already exists');
+
+      expect(useAuthStore.getState().isAuthenticated).toBe(false);
+      expect(notify.error).toHaveBeenCalledWith(error, 'auth.register_failed');
+    });
   });
 
   describe('logout', () => {
@@ -131,6 +149,17 @@ describe('useAuthStore', () => {
       expect(authService.getMe).toHaveBeenCalled();
       expect(useAuthStore.getState().user).toEqual(mockUser);
     });
+
+    it('handles fetchMe failure by logging out', async () => {
+      vi.mocked(tokenManager.isAuthenticated).mockReturnValue(true);
+      vi.mocked(authService.getMe).mockRejectedValue(new Error('Auth expired'));
+
+      await useAuthStore.getState().fetchMe();
+
+      expect(authService.logout).toHaveBeenCalled();
+      expect(useAuthStore.getState().user).toBeNull();
+      expect(useAuthStore.getState().isAuthenticated).toBe(false);
+    });
   });
 
   describe('updateMe', () => {
@@ -141,6 +170,17 @@ describe('useAuthStore', () => {
       await useAuthStore.getState().updateMe({ name: 'New Name' });
 
       expect(useAuthStore.getState().user).toEqual(updatedUser);
+    });
+
+    it('handles updateMe failure', async () => {
+      const error = new Error('Update failed');
+      vi.mocked(authService.updateMe).mockRejectedValue(error);
+
+      await expect(useAuthStore.getState().updateMe({ name: 'New Name' })).rejects.toThrow(
+        'Update failed',
+      );
+
+      expect(useAuthStore.getState().error).toBe('Update failed');
     });
   });
 });
