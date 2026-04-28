@@ -166,7 +166,7 @@ jobs:
             echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> .env
             echo "DOCKER_IMAGE_BASE=ghcr.io/${{ github.repository_owner }}" >> .env
             echo "IMAGE_TAG=${{ github.sha }}" >> .env
-            
+
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             docker compose -f docker-compose.prod.yml pull

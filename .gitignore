@@ -34,7 +34,6 @@ Thumbs.db
 *.db-wal
 /.junie/
 
-# Testing and coverage
 .coverage
 .coverage.*
 htmlcov/
@@ -46,7 +45,6 @@ coverage.xml
 .nox/
 .hypothesis/
 
-# Linting and Type Checking
 .mypy_cache/
 .ruff_cache/
 .pyre/
