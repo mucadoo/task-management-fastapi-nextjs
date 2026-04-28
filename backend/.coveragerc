@@ -1,0 +1,6 @@
+[run]
+omit =
+    app/scripts/*
+    app/main.py
+    app/database.py
+    app/config.py
