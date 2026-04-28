@@ -136,8 +136,8 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
       const errorData = (await response.json()) as { error?: string; detail?: string };
       const rawMessage = errorData.error || errorData.detail || message;
       message = typeof rawMessage === 'string' ? i18n.t(rawMessage) : i18n.t('common.error');
-    } catch {
-
+    } catch (error) {
+      console.warn('Failed to parse error response:', error);
     }
     throw new ApiError(response.status, message);
   }

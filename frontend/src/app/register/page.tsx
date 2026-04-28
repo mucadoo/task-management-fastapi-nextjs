@@ -78,8 +78,8 @@ export default function RegisterPage() {
         username: data.username,
         password: data.password,
       });
-    } catch {
-
+    } catch (error) {
+      console.error('Registration failed:', error);
     }
   };
 

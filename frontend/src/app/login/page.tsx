@@ -42,8 +42,8 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     try {
       await login(data);
-    } catch {
-
+    } catch (error) {
+      console.error('Login failed:', error);
     }
   };
 
