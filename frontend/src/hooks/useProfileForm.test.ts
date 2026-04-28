@@ -81,11 +81,7 @@ describe('useProfileForm', () => {
     const { result } = renderHook(() => useProfileForm({ activeTab: 'personal', isOpen: true }));
 
     await act(async () => {
-      try {
-        await result.current.onSubmit();
-      } catch (e) {
-        // Expected
-      }
+      await result.current.onSubmit().catch(() => {});
     });
 
     expect(mockUpdateMe).toHaveBeenCalled();
