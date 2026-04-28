@@ -64,6 +64,7 @@
     "email_or_username": "E-mail ou Nome de usuário",
     "password": "Senha",
     "name": "Nome Completo",
+    "username": "Nome de usuário",
     "confirm_password": "Confirmar Senha",
     "already_registered": "Já tem uma conta? Entre",
     "no_account": "Não tem uma conta? Cadastre-se",
