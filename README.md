@@ -226,6 +226,7 @@ graph TD
 ### 🚀 O que Melhoraria com Mais Tempo
 
 - **Visualização Kanban:** Implementação de um quadro Kanban no frontend para proporcionar uma gestão visual do fluxo de trabalho.
+- **DateTimePicker Style:** Refinar e padronizar o estilo do Date Time Picker para garantir total consistência com o design system da aplicação.
 - **Categorização e Projetos:** Criação de uma forma de organizar tarefas por projeto, categoria ou tópicos (tags).
 - **Testes de Integração e E2E:** Ampliação da cobertura com testes de integração no backend e testes de ponta a ponta (E2E) com **Playwright**.
 - **Infraestrutura e Segurança:** Desacoplamento do banco de dados para um serviço gerenciado, configuração de **SSL/TLS** e uso de domínio customizado.
