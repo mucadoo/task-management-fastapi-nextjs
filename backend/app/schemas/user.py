@@ -7,7 +7,7 @@ from .common import BaseResponseSchema, TimestampSchema
 
 def validate_username_logic(v: str) -> str:
     if not re.match(r"^[a-zA-Z_]+$", v):
-        raise ValueError("Username must contain only letters and underscores")
+        raise ValueError("errors.username_invalid")
     return v.lower()
 
 
@@ -15,7 +15,7 @@ def validate_password_logic(v: Optional[str]) -> Optional[str]:
     if v is None:
         return v
     if len(v) < 8:
-        raise ValueError("Password must be at least 8 characters")
+        raise ValueError("errors.password_min")
     return v
 
 

@@ -23,6 +23,7 @@
     "copyright": "TaskFlow",
     "app_name": "TaskFlow",
     "confirm_action": "Confirmar Ação",
+    "confirm_action_description": "Esta ação não pode ser desfeita.",
     "light_mode": "Modo Claro",
     "dark_mode": "Modo Escuro",
     "toggle_theme": "Alternar tema",
@@ -51,7 +52,10 @@
     "incorrect_password": "Senha atual incorreta",
     "task_not_found": "Tarefa não encontrada",
     "validation_failed": "Falha na validação",
-    "retry_failed": "Falha na tentativa após a atualização"
+    "retry_failed": "Falha na tentativa após a atualização",
+    "username_required": "O nome de usuário é obrigatório",
+    "username_invalid": "O nome de usuário deve conter apenas letras e sublinhados",
+    "password_min": "A senha deve ter pelo menos 8 caracteres"
   },
   "auth": {
     "login": "Entrar",
@@ -104,6 +108,7 @@
     "click_to_toggle": "Clique para alternar o status",
     "create_task": "Criar Tarefa",
     "edit_task": "Editar Tarefa",
+    "form_description_sr_only": "Preencha o formulário abaixo para gerenciar sua tarefa.",
     "description": "Descrição",
     "status": "Status",
     "priority": "Prioridade",

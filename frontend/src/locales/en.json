@@ -23,6 +23,7 @@
     "copyright": "TaskFlow",
     "app_name": "TaskFlow",
     "confirm_action": "Confirm Action",
+    "confirm_action_description": "This action cannot be undone.",
     "light_mode": "Light Mode",
     "dark_mode": "Dark Mode",
     "toggle_theme": "Toggle theme",
@@ -51,7 +52,10 @@
     "incorrect_password": "Incorrect current password",
     "task_not_found": "Task not found",
     "validation_failed": "Validation failed",
-    "retry_failed": "Retry failed after refresh"
+    "retry_failed": "Retry failed after refresh",
+    "username_required": "Username is required",
+    "username_invalid": "Username must contain only letters and underscores",
+    "password_min": "Password must be at least 8 characters"
   },
   "auth": {
     "login": "Login",
@@ -104,6 +108,7 @@
     "click_to_toggle": "Click to toggle status",
     "create_task": "Create Task",
     "edit_task": "Edit Task",
+    "form_description_sr_only": "Fill out the form below to manage your task.",
     "description": "Description",
     "status": "Status",
     "priority": "Priority",
