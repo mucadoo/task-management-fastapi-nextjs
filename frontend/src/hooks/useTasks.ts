@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { taskService } from '@/services/task-service';
 import { taskKeys } from '@/lib/query-keys';
 import { onMutateListUpdate, rollbackQueries } from '@/lib/query-utils';
@@ -27,6 +27,8 @@ export function useTasks(filters: {
       return lastPage.page < totalPages ? lastPage.page + 1 : undefined;
     },
     initialPageParam: 1,
+    placeholderData: keepPreviousData,
+    staleTime: 5000,
   });
 }
 

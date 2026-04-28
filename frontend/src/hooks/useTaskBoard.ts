@@ -54,7 +54,7 @@ export function useTaskBoard() {
         }
       });
 
-      router.replace(`${pathname}?${params.toString()}`);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     },
     [searchParams, router, pathname],
   );
@@ -65,10 +65,8 @@ export function useTaskBoard() {
     }
   }, [debouncedSearchTerm, filters.q, setFilters]);
 
-  const lastFiltersRef = useRef(filters.q);
   useEffect(() => {
-    if (filters.q !== lastFiltersRef.current) {
-      lastFiltersRef.current = filters.q;
+    if (filters.q !== searchTerm && filters.q !== debouncedSearchTerm) {
       setSearchTerm(filters.q);
     }
   }, [filters.q]);

@@ -1,5 +1,4 @@
 'use client';
-import { useState } from 'react';
 import { Search } from 'lucide-react';
 interface SearchInputProps {
   value: string;
@@ -13,16 +12,8 @@ export default function SearchInput({
   placeholder,
   className = '',
 }: SearchInputProps) {
-  const [localValue, setLocalValue] = useState(value);
-
-  if (value !== localValue) {
-    setLocalValue(value);
-  }
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVal = e.target.value;
-    setLocalValue(newVal);
-    onChange(newVal);
+    onChange(e.target.value);
   };
   return (
     <div className={`relative ${className}`}>
@@ -30,7 +21,7 @@ export default function SearchInput({
       <input
         type="text"
         placeholder={placeholder}
-        value={localValue}
+        value={value}
         onChange={handleChange}
         className="h-10 w-full pl-9 pr-4 bg-white dark:bg-[#141414] border border-warm-200 dark:border-white/10 rounded-lg text-sm text-warm-900 dark:text-gray-100 placeholder:text-warm-400 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500/5 focus:border-brand-500 transition-all"
       />
