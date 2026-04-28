@@ -79,11 +79,19 @@ jobs:
           terraform_version: "1.7.0"
       - name: Terraform Init
         run: cd terraform && terraform init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
       - name: Terraform Apply
         id: apply
         run: |
           cd terraform
           terraform apply -auto-approve -var="aws_region=${{ secrets.AWS_REGION || 'us-east-1' }}" -var="key_name=${{ secrets.KEY_NAME }}"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
       - name: Capture Outputs
         id: out
         run: |
