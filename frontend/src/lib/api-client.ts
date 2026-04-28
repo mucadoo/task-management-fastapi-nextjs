@@ -106,11 +106,17 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
                   let message = i18n.t('errors.retry_failed');
                   let code: string | undefined;
                   try {
-                    const errData = await retryResponse.json();
+                    const errData = (await retryResponse.json()) as {
+                      error?: unknown;
+                      detail?: unknown;
+                      code?: string;
+                    };
                     const rawMessage = errData.error || errData.detail || message;
                     message = typeof rawMessage === 'string' ? i18n.t(rawMessage) : message;
                     code = errData.code;
-                  } catch (e) {}
+                  } catch {
+
+                  }
                   reject(new ApiError(retryResponse.status, message, code));
                 }
               } catch (e) {
@@ -148,8 +154,8 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
     let code: string | undefined;
     try {
       const errorData = (await response.json()) as {
-        error?: string;
-        detail?: string;
+        error?: unknown;
+        detail?: unknown;
         code?: string;
       };
       const rawMessage = errorData.error || errorData.detail || message;

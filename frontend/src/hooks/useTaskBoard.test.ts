@@ -68,6 +68,8 @@ describe('useTaskBoard', () => {
 
     expect(result.current.searchTerm).toBe('test');
 
-    expect(mockRouter.replace).toHaveBeenCalledWith(expect.stringContaining('q=test'));
+    expect(mockRouter.replace).toHaveBeenCalledWith(expect.stringContaining('q=test'), {
+      scroll: false,
+    });
   });
 });

@@ -125,8 +125,12 @@ export function useProfileForm({ activeTab }: UseProfileFormProps) {
       } else {
         notify.success('profile.update_success');
       }
-    } catch (err: any) {
-      if (activeTab === 'security' && err.code === 'INCORRECT_PASSWORD') {
+    } catch (err: unknown) {
+      if (
+        activeTab === 'security' &&
+        err instanceof ApiError &&
+        err.code === 'INCORRECT_PASSWORD'
+      ) {
         form.setError('current_password', {
           type: 'manual',
           message: t('errors.incorrect_password'),

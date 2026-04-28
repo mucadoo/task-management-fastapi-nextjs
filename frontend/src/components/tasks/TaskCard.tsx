@@ -9,7 +9,6 @@ import { getTaskDateStatus } from '@/lib/date-utils';
 import { TaskCardActions } from './TaskCardActions';
 import { TaskDateBadge } from './TaskDateBadge';
 import { TaskStatusToggles } from './TaskStatusToggles';
-import { useTranslation } from 'react-i18next';
 
 interface TaskCardProps {
   task: Task;
@@ -28,13 +27,11 @@ const TaskCard = memo(function TaskCard({
   viewMode = 'gallery',
   isToggling: isTogglingProp,
 }: TaskCardProps) {
-  const { t } = useTranslation();
   const updateStatusMutation = useUpdateTaskStatus();
 
   const isToggling = isTogglingProp ?? updateStatusMutation.isPending;
 
   const isCompleted = task.status === 'completed';
-  const isInProgress = task.status === 'in_progress';
 
   const { isOverdue, isDueToday } = useMemo(
     () => getTaskDateStatus(task.due_date, isCompleted, task.due_date_has_time || false),

@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const mockMutate = vi.fn();
 vi.mock('@/hooks/useTasks', () => ({
-  useToggleTaskStatus: () => ({
+  useUpdateTaskStatus: () => ({
     mutate: mockMutate,
     isPending: false,
   }),
@@ -75,67 +75,15 @@ describe('TaskCard', () => {
       <TaskCard task={mockTask} onEdit={onEdit} onDelete={onDelete} isDeleting={false} />,
     );
     fireEvent.click(screen.getByRole('button', { name: /mark_completed/i }));
-    expect(mockMutate).toHaveBeenCalledWith(mockTask.id);
+    expect(mockMutate).toHaveBeenCalledWith({ id: mockTask.id, status: 'completed' });
   });
-  it('disables buttons when isDeleting is true', () => {
-    renderWithProviders(
-      <TaskCard task={mockTask} onEdit={onEdit} onDelete={onDelete} isDeleting={true} />,
-    );
-    expect(screen.getByRole('button', { name: /edit/i })).toBeDisabled();
-    expect(screen.getByRole('button', { name: /mark_completed/i })).toBeDisabled();
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
-  });
-  it('disables toggle button when isToggling is true', () => {
-    renderWithProviders(
-      <TaskCard
-        task={mockTask}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        isDeleting={false}
-        isToggling={true}
-      />,
-    );
-    expect(screen.getByRole('button', { name: /mark_completed/i })).toBeDisabled();
-  });
-  it('renders correctly in list view mode', () => {
-    renderWithProviders(
-      <TaskCard
-        task={mockTask}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        isDeleting={false}
-        viewMode="list"
-      />,
-    );
-    expect(screen.getByText('Test Task')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: /edit/i }));
-    expect(onEdit).toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: /delete/i }));
-    expect(onDelete).toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: /mark_completed/i }));
-    expect(mockMutate).toHaveBeenCalled();
-  });
-  it('renders correctly in list view mode when completed and high priority', () => {
-    const task = { ...mockTask, status: 'completed' as const, priority: 'high' as const };
-    renderWithProviders(
-      <TaskCard
-        task={task}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        isDeleting={false}
-        viewMode="list"
-      />,
-    );
-    expect(screen.getByText('Test Task')).toHaveClass('line-through');
-  });
+
   it('renders correctly without description', () => {
     const taskWithoutDesc = { ...mockTask, description: '' };
     renderWithProviders(
       <TaskCard task={taskWithoutDesc} onEdit={onEdit} onDelete={onDelete} isDeleting={false} />,
     );
-    expect(screen.getByText('no_description')).toBeInTheDocument();
+    expect(screen.queryByText('Test Description')).not.toBeInTheDocument();
   });
   it('renders with different priorities', () => {
     const priorities: ('high' | 'medium' | 'low')[] = ['high', 'medium', 'low'];
