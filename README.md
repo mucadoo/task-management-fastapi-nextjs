@@ -96,6 +96,8 @@ make test
 cd backend && export PYTHONPATH=$PYTHONPATH:. && ./venv/bin/pytest --cov=app tests/ -v
 ```
 
+**Cobertura Mínima:** 80% (Configurado em `pytest.ini`)
+
 ### Paginação e Filtros
 (Implementado como diferencial)
 
@@ -121,6 +123,7 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 - **SSR & Client Components:** Renderização no servidor para performance inicial e componentes interativos no cliente.
 - **Responsividade:** Layout adaptável para dispositivos móveis e desktop.
 - **Feedback:** Loading states e tratamento de erros amigável.
+- **Testes Unitários:** Implementados com **Vitest** e **React Testing Library**, com cobertura mínima de **60%**.
 
 ---
 
@@ -253,8 +256,11 @@ A arquitetura de produção utiliza:
 - **Robustez Arquitetural:** Uso de padrões profissionais (Repository/Service, Base Classes) que facilitam a manutenção e escalabilidade.
 - **Segurança Avançada:** Implementação de Argon2, Refresh Token Rotation e isolamento de dados por usuário (Multi-tenancy).
 - **Tipagem End-to-End:** Uso extensivo de TypeScript no Frontend e Pydantic no Backend, garantindo contratos de API sólidos.
-- **DevEx (Developer Experience):** Ambiente Dockerizado, Makefile com comandos atalhos e documentação Swagger completa.
-- **Automação Total:** Pipeline de CI/CD que integra testes, linting, provisionamento de infra (Terraform) e deploy.
+- **UX Fluida (Optimistic Updates):** Implementação de **Optimistic Updates** via React Query, permitindo que a interface responda instantaneamente às ações do usuário enquanto a sincronização ocorre em background.
+- **Arquitetura de Componentes UI:** Separação rigorosa entre componentes de interface (UI) e lógica de negócio, utilizando componentes altamente desacoplados, reutilizáveis e baseados em Radix UI.
+- **DevEx Superior com Makefile:** Ambiente totalmente dockerizado com um **Makefile** que centraliza todos os comandos essenciais (build, dev, test, migrate, seed), simplificando o fluxo de trabalho.
+- **Qualidade Assegurada no CI/CD:** O pipeline de CI/CD impõe padrões rigorosos de qualidade, executando obrigatoriamente testes com cobertura mínima (**80% no Backend**, **60% no Frontend**) e ferramentas de linting como **Ruff** (Backend) e ESLint (Frontend) antes de qualquer deploy.
+- **Automação de Infraestrutura:** Uso de **Terraform** para provisionamento reprodutível de recursos na AWS.
 - **UX Consistente:** Tratamento global de erros, estados de carregamento (Skeleton/Spinners) e feedbacks via Toast.
 
 **Limitações:**
