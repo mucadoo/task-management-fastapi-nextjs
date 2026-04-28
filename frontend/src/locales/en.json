@@ -155,6 +155,7 @@
     "email_taken": "Email is already taken",
     "email_available": "Email is available",
     "update_success": "Profile information updated successfully!",
+    "password_change_success": "Password changed successfully!",
     "password_success": "Password updated successfully!",
     "password_min": "Password must be at least 8 characters",
     "password_uppercase": "Password must contain at least one uppercase letter",

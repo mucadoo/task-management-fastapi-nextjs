@@ -5,7 +5,7 @@ from jose import jwt, JWTError
 from ..models.user import User
 from ..repositories.auth_repository import AuthRepository
 from ..repositories.user_repository import UserRepository
-from ..exceptions import UnauthorizedError, AppError, ConflictError
+from ..exceptions import UnauthorizedError, AppError, ConflictError, BusinessError
 from ..utils.security import hash_password, verify_password
 
 if TYPE_CHECKING:
@@ -124,7 +124,7 @@ class AuthService:
             raise AppError("errors.password_required_new", code="BAD_REQUEST")
             
         if not self.verify_password(current_password, current_user.hashed_password):
-            raise UnauthorizedError("errors.incorrect_password")
+            raise BusinessError("errors.incorrect_password", code="INCORRECT_PASSWORD")
             
         return self.hash_password(new_password)
 

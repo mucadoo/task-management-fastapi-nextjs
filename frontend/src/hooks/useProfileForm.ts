@@ -121,12 +121,22 @@ export function useProfileForm({ activeTab }: UseProfileFormProps) {
 
       if (activeTab === 'security') {
         reset({ ...form.getValues(), current_password: '', password: '', confirmPassword: '' });
+        notify.success('profile.password_change_success');
+      } else {
+        notify.success('profile.update_success');
       }
-    } catch (err) {
-      notify.error(
-        err,
-        activeTab === 'personal' ? 'profile.update_failed' : 'profile.change_password_failed',
-      );
+    } catch (err: any) {
+      if (activeTab === 'security' && err.code === 'INCORRECT_PASSWORD') {
+        form.setError('current_password', { 
+          type: 'manual', 
+          message: t('errors.incorrect_password') 
+        });
+      } else {
+        notify.error(
+          err,
+          activeTab === 'personal' ? 'profile.update_failed' : 'profile.change_password_failed',
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }

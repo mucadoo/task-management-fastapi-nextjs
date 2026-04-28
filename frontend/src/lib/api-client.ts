@@ -10,6 +10,7 @@ export class ApiError extends Error {
   constructor(
     public status: number,
     message: string,
+    public code?: string,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -90,22 +91,7 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
   ) {
     const refreshToken = tokenManager.getRefreshToken();
     if (refreshToken) {
-      if (!isRefreshing) {
-        isRefreshing = true;
-        const { authService } = await import('../services/auth-service');
-        try {
-          const tokenRes = await authService.refresh(refreshToken);
-          isRefreshing = false;
-          onTokenRefreshed(null, tokenRes.access_token);
-        } catch (error) {
-          isRefreshing = false;
-          authService.logout();
-          onTokenRefreshed(error, null);
-          throw error;
-        }
-      }
-
-      return new Promise<T>((resolve, reject) => {
+      const retryPromise = new Promise<T>((resolve, reject) => {
         refreshSubscribers.push({
           resolve: (newToken) => {
             void (async () => {
@@ -117,7 +103,15 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
                 if (retryResponse.ok) {
                   resolve((await getResponseData(retryResponse)) as T);
                 } else {
-                  reject(new ApiError(retryResponse.status, i18n.t('errors.retry_failed')));
+                  let message = i18n.t('errors.retry_failed');
+                  let code: string | undefined;
+                  try {
+                    const errData = (await retryResponse.json()) as any;
+                    const rawMessage = errData.error || errData.detail || message;
+                    message = typeof rawMessage === 'string' ? i18n.t(rawMessage) : message;
+                    code = errData.code;
+                  } catch (e) {}
+                  reject(new ApiError(retryResponse.status, message, code));
                 }
               } catch (e) {
                 reject(e instanceof Error ? e : new Error(String(e)));
@@ -127,19 +121,40 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
           reject: (err) => reject(err instanceof Error ? err : new Error(String(err))),
         });
       });
+
+      if (!isRefreshing) {
+        isRefreshing = true;
+        void (async () => {
+          try {
+            const { authService } = await import('../services/auth-service');
+            const tokenRes = await authService.refresh(refreshToken);
+            isRefreshing = false;
+            onTokenRefreshed(null, tokenRes.access_token);
+          } catch (error) {
+            isRefreshing = false;
+            const { authService } = await import('../services/auth-service');
+            authService.logout();
+            onTokenRefreshed(error, null);
+          }
+        })();
+      }
+
+      return retryPromise;
     }
   }
 
   if (!response.ok) {
     let message = i18n.t('common.error');
+    let code: string | undefined;
     try {
-      const errorData = (await response.json()) as { error?: string; detail?: string };
+      const errorData = (await response.json()) as { error?: string; detail?: string; code?: string };
       const rawMessage = errorData.error || errorData.detail || message;
       message = typeof rawMessage === 'string' ? i18n.t(rawMessage) : i18n.t('common.error');
+      code = errorData.code;
     } catch (error) {
       console.warn('Failed to parse error response:', error);
     }
-    throw new ApiError(response.status, message);
+    throw new ApiError(response.status, message, code);
   }
 
   return getResponseData(response) as Promise<T>;

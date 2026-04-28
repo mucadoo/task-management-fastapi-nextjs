@@ -113,11 +113,9 @@ export const useAuthStore = create<AuthState>()(
         try {
           const updatedUser = await authService.updateMe(data);
           set({ user: updatedUser, isLoading: false });
-          notify.success('profile.update_success');
         } catch (err: unknown) {
           const message = (err as { message?: string }).message || i18n.t('profile.update_failed');
           set({ error: message, isLoading: false });
-          notify.error(err, 'profile.update_failed');
           throw err;
         } finally {
           stopLoading();

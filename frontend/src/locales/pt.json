@@ -155,6 +155,7 @@
     "email_taken": "E-mail já está em uso",
     "email_available": "E-mail disponível",
     "update_success": "Informações do perfil atualizadas com sucesso!",
+    "password_change_success": "Senha alterada com sucesso!",
     "password_success": "Senha atualizada com sucesso!",
     "password_min": "A senha deve ter pelo menos 8 caracteres",
     "password_uppercase": "A senha deve conter pelo menos uma letra maiúscula",
