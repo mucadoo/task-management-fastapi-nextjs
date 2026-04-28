@@ -148,7 +148,7 @@ describe('useTasks', () => {
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(notify.error).toHaveBeenCalled();
-    
+
     const { rollbackQueries } = await import('@/lib/query-utils');
     expect(rollbackQueries).toHaveBeenCalled();
   });

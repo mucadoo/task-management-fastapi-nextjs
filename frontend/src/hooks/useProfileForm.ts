@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { authService } from '@/services/auth-service';
 import { getPersonalSchema, getSecuritySchema } from '@/lib/validations';
 import { notify } from '@/lib/notifications';
+import { ApiError } from '@/lib/api-client';
 import * as z from 'zod';
 
 interface UseProfileFormProps {
