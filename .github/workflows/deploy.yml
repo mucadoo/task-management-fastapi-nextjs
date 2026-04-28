@@ -83,7 +83,7 @@ jobs:
         id: apply
         run: |
           cd terraform
-          terraform apply -auto-approve -var="aws_region=${{ secrets.AWS_REGION || 'us-east-1' }}"
+          terraform apply -auto-approve -var="aws_region=${{ secrets.AWS_REGION || 'us-east-1' }}" -var="key_name=${{ secrets.KEY_NAME }}"
       - name: Capture Outputs
         id: out
         run: |
