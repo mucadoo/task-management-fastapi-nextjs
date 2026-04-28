@@ -21,8 +21,8 @@ describe('error-utils', () => {
     it('returns string detail from response data', () => {
       const error = {
         response: {
-          data: { detail: 'Custom error detail' }
-        }
+          data: { detail: 'Custom error detail' },
+        },
       };
       expect(getErrorMessage(error)).toBe('Custom error detail');
     });
@@ -33,12 +33,14 @@ describe('error-utils', () => {
           data: {
             detail: [
               { loc: ['body', 'username'], msg: 'field required' },
-              { loc: ['body', 'password'], msg: 'too short' }
-            ]
-          }
-        }
+              { loc: ['body', 'password'], msg: 'too short' },
+            ],
+          },
+        },
       };
-      expect(getErrorMessage(error)).toBe('body.username: field required, body.password: too short');
+      expect(getErrorMessage(error)).toBe(
+        'body.username: field required, body.password: too short',
+      );
     });
 
     it('returns message or error property as fallback', () => {
@@ -50,12 +52,16 @@ describe('error-utils', () => {
   describe('useApiError', () => {
     it('translates known error keys', () => {
       const { result } = renderHook(() => useApiError());
-      expect(result.current.getTranslatedError({ message: 'auth.login_failed' })).toBe('auth.login_failed');
+      expect(result.current.getTranslatedError({ message: 'auth.login_failed' })).toBe(
+        'auth.login_failed',
+      );
     });
 
     it('returns raw message for unknown keys', () => {
       const { result } = renderHook(() => useApiError());
-      expect(result.current.getTranslatedError({ message: 'Something went wrong' })).toBe('Something went wrong');
+      expect(result.current.getTranslatedError({ message: 'Something went wrong' })).toBe(
+        'Something went wrong',
+      );
     });
 
     it('uses fallback key if provided and message is unknown', () => {

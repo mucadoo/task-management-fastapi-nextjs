@@ -1,7 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useTasks, useCreateTask, useUpdateTask, useToggleTaskStatus, useDeleteTask } from './useTasks';
+import {
+  useTasks,
+  useCreateTask,
+  useUpdateTask,
+  useToggleTaskStatus,
+  useDeleteTask,
+} from './useTasks';
 import { taskService } from '@/services/task-service';
 import { ReactNode } from 'react';
 
@@ -81,7 +87,10 @@ describe('useTasks', () => {
   });
 
   it('handles toggle task status', async () => {
-    vi.mocked(taskService.toggleTaskStatus).mockResolvedValue({ id: '1', status: 'completed' } as any);
+    vi.mocked(taskService.toggleTaskStatus).mockResolvedValue({
+      id: '1',
+      status: 'completed',
+    } as any);
 
     const { result } = renderHook(() => useToggleTaskStatus(), { wrapper });
 
@@ -92,7 +101,7 @@ describe('useTasks', () => {
   });
 
   it('handles delete task success', async () => {
-    vi.mocked(taskService.deleteTask).mockResolvedValue(undefined as any);
+    vi.mocked(taskService.deleteTask).mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useDeleteTask(), { wrapper });
 

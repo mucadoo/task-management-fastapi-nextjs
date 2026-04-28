@@ -13,4 +13,3 @@ export const taskKeys = {
   details: () => [...taskKeys.all, 'detail'] as const,
   detail: (id: string) => [...taskKeys.details(), id] as const,
 };
-

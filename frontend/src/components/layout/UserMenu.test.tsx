@@ -22,7 +22,9 @@ vi.mock('@/components/ui/DropdownMenu', () => ({
   DropdownMenuTrigger: ({ children }: any) => <div>{children}</div>,
   DropdownMenuContent: ({ children }: any) => <div>{children}</div>,
   DropdownMenuItem: ({ children, onClick }: any) => (
-    <div data-testid="menu-item" onClick={onClick}>{children}</div>
+    <div data-testid="menu-item" onClick={onClick}>
+      {children}
+    </div>
   ),
   DropdownMenuLabel: ({ children }: any) => <div>{children}</div>,
   DropdownMenuSeparator: () => <hr />,
@@ -38,7 +40,7 @@ describe('UserMenu', () => {
     vi.mocked(useAuthStore).mockReturnValue({
       user: mockUser,
       logout: mockLogout,
-    } as any);
+    });
   });
 
   it('renders user information', () => {

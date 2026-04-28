@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { notify } from './notifications';
-import { useToastStore } from '@/store/useToastStore';
 
 const mockAddToast = vi.fn();
 

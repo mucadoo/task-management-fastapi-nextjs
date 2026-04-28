@@ -14,7 +14,7 @@ vi.mock('@/hooks/useProfileForm', () => ({
 }));
 
 vi.mock('@/components/ui/Dialog', () => ({
-  Dialog: ({ children, open }: any) => open ? <div>{children}</div> : null,
+  Dialog: ({ children, open }: any) => (open ? <div>{children}</div> : null),
   DialogContent: ({ children }: any) => <div>{children}</div>,
   DialogHeader: ({ children }: any) => <div>{children}</div>,
   DialogTitle: ({ children }: any) => <div>{children}</div>,
@@ -24,12 +24,19 @@ vi.mock('@/components/ui/Dialog', () => ({
 vi.mock('@/components/ui/Tabs', () => ({
   Tabs: ({ children, value }: any) => <div data-active-tab={value}>{children}</div>,
   TabsList: ({ children }: any) => <div>{children}</div>,
-  TabsTrigger: ({ children, value, onClick }: any) => <button onClick={onClick}>{children}</button>,
+  TabsTrigger: ({ children, value: _value, onClick }: any) => (
+    <button onClick={onClick}>{children}</button>
+  ),
   TabsContent: ({ children, value }: any) => <div data-tab-content={value}>{children}</div>,
 }));
 
 vi.mock('@/components/ui/FormField', () => ({
-  FormField: ({ children, label }: any) => <div>{label}{children}</div>,
+  FormField: ({ children, label }: any) => (
+    <div>
+      {label}
+      {children}
+    </div>
+  ),
 }));
 
 vi.mock('@/components/ui/Input', () => ({
@@ -37,7 +44,11 @@ vi.mock('@/components/ui/Input', () => ({
 }));
 
 vi.mock('@/components/ui/Button', () => ({
-  Button: ({ children, onClick, type }: any) => <button type={type} onClick={onClick}>{children}</button>,
+  Button: ({ children, onClick, type }: any) => (
+    <button type={type} onClick={onClick}>
+      {children}
+    </button>
+  ),
 }));
 
 describe('ProfileModal', () => {

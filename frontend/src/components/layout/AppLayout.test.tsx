@@ -21,7 +21,7 @@ describe('AppLayout', () => {
         profileTab="personal"
       >
         <div data-testid="child">Child Content</div>
-      </AppLayout>
+      </AppLayout>,
     );
 
     expect(screen.getByTestId('dashboard-header')).toBeInTheDocument();

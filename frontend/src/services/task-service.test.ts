@@ -19,18 +19,24 @@ describe('taskService', () => {
       const params = { status: 'pending' as const, priority: 'high' as const, q: 'test' };
       const result = await taskService.getTasks(params);
 
-      expect(request).toHaveBeenCalledWith('/tasks/', expect.objectContaining({
-        params: { status: 'pending', priority: 'high', q: 'test' },
-      }));
+      expect(request).toHaveBeenCalledWith(
+        '/tasks/',
+        expect.objectContaining({
+          params: { status: 'pending', priority: 'high', q: 'test' },
+        }),
+      );
       expect(result).toEqual(mockResponse);
     });
 
     it('passes token if provided', async () => {
       vi.mocked(request).mockResolvedValue({ items: [] });
       await taskService.getTasks({ token: 'test-token' });
-      expect(request).toHaveBeenCalledWith('/tasks/', expect.objectContaining({
-        token: 'test-token',
-      }));
+      expect(request).toHaveBeenCalledWith(
+        '/tasks/',
+        expect.objectContaining({
+          token: 'test-token',
+        }),
+      );
     });
   });
 
@@ -48,16 +54,23 @@ describe('taskService', () => {
 
   describe('createTask', () => {
     it('calls request with POST and body', async () => {
-      const taskData = { title: 'New Task', status: 'pending' as const, priority: 'medium' as const };
+      const taskData = {
+        title: 'New Task',
+        status: 'pending' as const,
+        priority: 'medium' as const,
+      };
       const mockTask = { id: '2', ...taskData };
       vi.mocked(request).mockResolvedValue(mockTask);
 
       const result = await taskService.createTask(taskData);
 
-      expect(request).toHaveBeenCalledWith('/tasks/', expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify(taskData),
-      }));
+      expect(request).toHaveBeenCalledWith(
+        '/tasks/',
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify(taskData),
+        }),
+      );
       expect(result).toEqual(mockTask);
     });
   });
@@ -70,10 +83,13 @@ describe('taskService', () => {
 
       const result = await taskService.updateTask('1', updateData);
 
-      expect(request).toHaveBeenCalledWith('/tasks/1', expect.objectContaining({
-        method: 'PUT',
-        body: JSON.stringify(updateData),
-      }));
+      expect(request).toHaveBeenCalledWith(
+        '/tasks/1',
+        expect.objectContaining({
+          method: 'PUT',
+          body: JSON.stringify(updateData),
+        }),
+      );
       expect(result).toEqual(mockTask);
     });
   });
@@ -85,9 +101,12 @@ describe('taskService', () => {
 
       const result = await taskService.toggleTaskStatus('1');
 
-      expect(request).toHaveBeenCalledWith('/tasks/1/toggle', expect.objectContaining({
-        method: 'POST',
-      }));
+      expect(request).toHaveBeenCalledWith(
+        '/tasks/1/toggle',
+        expect.objectContaining({
+          method: 'POST',
+        }),
+      );
       expect(result).toEqual(mockTask);
     });
   });
@@ -98,9 +117,12 @@ describe('taskService', () => {
 
       await taskService.deleteTask('1');
 
-      expect(request).toHaveBeenCalledWith('/tasks/1', expect.objectContaining({
-        method: 'DELETE',
-      }));
+      expect(request).toHaveBeenCalledWith(
+        '/tasks/1',
+        expect.objectContaining({
+          method: 'DELETE',
+        }),
+      );
     });
   });
 });

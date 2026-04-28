@@ -14,7 +14,7 @@ vi.mock('@/hooks/useTaskForm', () => ({
 }));
 
 vi.mock('@/components/ui/Dialog', () => ({
-  Dialog: ({ children, open }: any) => open ? <div>{children}</div> : null,
+  Dialog: ({ children, open }: any) => (open ? <div>{children}</div> : null),
   DialogContent: ({ children }: any) => <div>{children}</div>,
   DialogHeader: ({ children }: any) => <div>{children}</div>,
   DialogTitle: ({ children }: any) => <div>{children}</div>,
@@ -23,7 +23,11 @@ vi.mock('@/components/ui/Dialog', () => ({
 }));
 
 vi.mock('@/components/ui/Button', () => ({
-  Button: ({ children, onClick, type }: any) => <button type={type} onClick={onClick}>{children}</button>,
+  Button: ({ children, onClick, type }: any) => (
+    <button type={type} onClick={onClick}>
+      {children}
+    </button>
+  ),
 }));
 
 vi.mock('@/components/ui/Input', () => ({
@@ -39,11 +43,21 @@ vi.mock('@/components/ui/Select', () => ({
 }));
 
 vi.mock('@/components/ui/FormField', () => ({
-  FormField: ({ children, label }: any) => <div>{label}{children}</div>,
+  FormField: ({ children, label }: any) => (
+    <div>
+      {label}
+      {children}
+    </div>
+  ),
 }));
 
 vi.mock('@/components/ui/FormControl', () => ({
-  FormControl: ({ children, label }: any) => <div>{label}{children}</div>,
+  FormControl: ({ children, label }: any) => (
+    <div>
+      {label}
+      {children}
+    </div>
+  ),
 }));
 
 vi.mock('@/components/ui/DateTimePicker', () => ({
@@ -54,7 +68,8 @@ vi.mock('react-hook-form', async () => {
   const actual = await vi.importActual('react-hook-form');
   return {
     ...actual,
-    Controller: ({ render, field }: any) => render({ field: { value: new Date(), onChange: vi.fn() } }),
+    Controller: ({ render, field: _field }: any) =>
+      render({ field: { value: new Date(), onChange: vi.fn() } }),
   };
 });
 

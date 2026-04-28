@@ -50,7 +50,11 @@ describe('useAuthStore', () => {
   describe('login', () => {
     it('handles successful login', async () => {
       const mockUser = { id: 1, email: 'test@example.com', name: 'Test' };
-      vi.mocked(authService.login).mockResolvedValue({ access_token: 'at', refresh_token: 'rt', token_type: 'bearer' });
+      vi.mocked(authService.login).mockResolvedValue({
+        access_token: 'at',
+        refresh_token: 'rt',
+        token_type: 'bearer',
+      });
       vi.mocked(authService.getMe).mockResolvedValue(mockUser);
 
       await useAuthStore.getState().login({ identifier: 'user', password: 'pass' });
@@ -64,8 +68,9 @@ describe('useAuthStore', () => {
       const error = new Error('Invalid credentials');
       vi.mocked(authService.login).mockRejectedValue(error);
 
-      await expect(useAuthStore.getState().login({ identifier: 'user', password: 'pass' }))
-        .rejects.toThrow('Invalid credentials');
+      await expect(
+        useAuthStore.getState().login({ identifier: 'user', password: 'pass' }),
+      ).rejects.toThrow('Invalid credentials');
 
       expect(useAuthStore.getState().user).toBeNull();
       expect(useAuthStore.getState().isAuthenticated).toBe(false);
@@ -77,11 +82,19 @@ describe('useAuthStore', () => {
   describe('register', () => {
     it('handles successful registration', async () => {
       const mockUser = { id: 1, email: 'test@example.com', name: 'Test' };
-      vi.mocked(authService.register).mockResolvedValue({ access_token: 'at', refresh_token: 'rt', token_type: 'bearer' });
+      vi.mocked(authService.register).mockResolvedValue({
+        access_token: 'at',
+        refresh_token: 'rt',
+        token_type: 'bearer',
+      });
       vi.mocked(authService.getMe).mockResolvedValue(mockUser);
 
       await useAuthStore.getState().register({
-        name: 'Test', username: 'test', email: 'test@example.com', password: 'pass', confirmPassword: 'pass'
+        name: 'Test',
+        username: 'test',
+        email: 'test@example.com',
+        password: 'pass',
+        confirmPassword: 'pass',
       });
 
       expect(useAuthStore.getState().user).toEqual(mockUser);

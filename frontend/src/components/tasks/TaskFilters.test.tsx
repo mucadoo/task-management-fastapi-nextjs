@@ -23,7 +23,9 @@ vi.mock('@/components/ui/Select', () => ({
   Select: ({ value, onChange, options }: any) => (
     <select data-testid="select" value={value} onChange={onChange}>
       {options.map((opt: any) => (
-        <option key={opt.value} value={opt.value}>{opt.label}</option>
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
+        </option>
       ))}
     </select>
   ),
@@ -41,7 +43,12 @@ describe('TaskFilters', () => {
   const mockOnSearchChange = vi.fn();
   const mockSetFilters = vi.fn();
   const mockOnNewTask = vi.fn();
-  const defaultFilters = { status: undefined, priority: undefined, sort_by: 'due_date', sort_dir: 'asc' };
+  const defaultFilters = {
+    status: undefined,
+    priority: undefined,
+    sort_by: 'due_date',
+    sort_dir: 'asc',
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -57,7 +64,7 @@ describe('TaskFilters', () => {
         viewMode="gallery"
         setViewMode={vi.fn()}
         onNewTask={mockOnNewTask}
-      />
+      />,
     );
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'test' } });
@@ -74,7 +81,7 @@ describe('TaskFilters', () => {
         viewMode="gallery"
         setViewMode={vi.fn()}
         onNewTask={mockOnNewTask}
-      />
+      />,
     );
 
     const selects = screen.getAllByTestId('select');
@@ -92,7 +99,7 @@ describe('TaskFilters', () => {
         viewMode="gallery"
         setViewMode={vi.fn()}
         onNewTask={mockOnNewTask}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByRole('button'));

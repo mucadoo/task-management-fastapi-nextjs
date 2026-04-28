@@ -38,7 +38,7 @@ describe('useProfileForm', () => {
     vi.mocked(useAuthStore).mockReturnValue({
       user: mockUser,
       updateMe: mockUpdateMe,
-    } as any);
+    });
   });
 
   it('initializes with user data', () => {
@@ -58,17 +58,19 @@ describe('useProfileForm', () => {
       await result.current.onSubmit();
     });
 
-    expect(mockUpdateMe).toHaveBeenCalledWith(expect.objectContaining({
-      name: 'New Name',
-    }));
+    expect(mockUpdateMe).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'New Name',
+      }),
+    );
   });
 
-  it('checks username availability when changed', async () => {
+  it('checks username availability when changed', () => {
     vi.mocked(authService.checkUsername).mockResolvedValue({ available: true });
 
     const { result } = renderHook(() => useProfileForm({ activeTab: 'personal', isOpen: true }));
 
-    await act(async () => {
+    act(() => {
       result.current.form.setValue('username', 'newuser');
     });
 

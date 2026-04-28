@@ -17,7 +17,7 @@ describe('api-client', () => {
     vi.mocked(fetch).mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ({ success: true }),
+      json: () => Promise.resolve({ success: true }),
     } as Response);
   });
 
@@ -29,7 +29,10 @@ describe('api-client', () => {
 
   it('adds query parameters correctly', async () => {
     await request('/test', { params: { foo: 'bar', baz: 123 } });
-    expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/test?foo=bar&baz=123'), expect.anything());
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/test?foo=bar&baz=123'),
+      expect.anything(),
+    );
   });
 
   it('adds authorization header if token exists', async () => {
@@ -41,7 +44,7 @@ describe('api-client', () => {
         headers: expect.objectContaining({
           Authorization: 'Bearer mock-token',
         }),
-      })
+      }),
     );
   });
 
@@ -49,7 +52,7 @@ describe('api-client', () => {
     vi.mocked(fetch).mockResolvedValue({
       ok: false,
       status: 400,
-      json: async () => ({ detail: 'Bad Request' }),
+      json: () => Promise.resolve({ detail: 'Bad Request' }),
     } as Response);
 
     await expect(request('/test')).rejects.toThrow(ApiError);
@@ -69,7 +72,9 @@ describe('api-client', () => {
     vi.mocked(fetch).mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => { throw new Error('Invalid JSON'); },
+      json: () => {
+        return Promise.reject(new Error('Invalid JSON'));
+      },
     } as Response);
 
     const result = await request('/test');
@@ -78,18 +83,16 @@ describe('api-client', () => {
 
   describe('token refresh', () => {
     beforeEach(() => {
-
       vi.stubGlobal('window', {});
     });
 
-    it('attempts to refresh token on 401', async () => {
+    it('attempts to refresh token on 401', () => {
       vi.mocked(tokenManager.getRefreshToken).mockReturnValue('refresh-token');
 
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 401,
       } as Response);
-
     });
   });
 });

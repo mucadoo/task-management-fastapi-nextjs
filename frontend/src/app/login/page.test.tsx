@@ -46,7 +46,7 @@ describe('LoginPage', () => {
     vi.clearAllMocks();
     vi.mocked(useAuthStore).mockReturnValue({
       login: mockLogin,
-    } as any);
+    });
     vi.mocked(useAuth).mockReturnValue({
       isLoading: false,
       isActionLoading: false,

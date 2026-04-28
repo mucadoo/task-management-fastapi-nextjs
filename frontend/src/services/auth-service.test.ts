@@ -34,10 +34,13 @@ describe('authService', () => {
       const loginData = { identifier: 'testuser', password: 'password123' };
       const result = await authService.login(loginData);
 
-      expect(request).toHaveBeenCalledWith('/auth/login', expect.objectContaining({
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      }));
+      expect(request).toHaveBeenCalledWith(
+        '/auth/login',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        }),
+      );
       expect(tokenManager.setTokens).toHaveBeenCalledWith('access-123', 'refresh-123');
       expect(result).toEqual(mockResponse);
     });
@@ -61,10 +64,13 @@ describe('authService', () => {
       };
       const result = await authService.register(regData);
 
-      expect(request).toHaveBeenCalledWith('/auth/register', expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify(regData),
-      }));
+      expect(request).toHaveBeenCalledWith(
+        '/auth/register',
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify(regData),
+        }),
+      );
       expect(tokenManager.setTokens).toHaveBeenCalledWith('access-reg', 'refresh-reg');
       expect(result).toEqual(mockResponse);
     });
@@ -108,11 +114,14 @@ describe('authService', () => {
 
       const result = await authService.refresh('old-refresh');
 
-      expect(request).toHaveBeenCalledWith('/auth/refresh', expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({ refresh_token: 'old-refresh' }),
-        skipRefresh: true,
-      }));
+      expect(request).toHaveBeenCalledWith(
+        '/auth/refresh',
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({ refresh_token: 'old-refresh' }),
+          skipRefresh: true,
+        }),
+      );
       expect(tokenManager.setTokens).toHaveBeenCalledWith('new-access', 'new-refresh');
       expect(result).toEqual(mockResponse);
     });
@@ -126,10 +135,13 @@ describe('authService', () => {
 
       const result = await authService.updateMe(updateData);
 
-      expect(request).toHaveBeenCalledWith('/auth/me', expect.objectContaining({
-        method: 'PATCH',
-        body: JSON.stringify(updateData),
-      }));
+      expect(request).toHaveBeenCalledWith(
+        '/auth/me',
+        expect.objectContaining({
+          method: 'PATCH',
+          body: JSON.stringify(updateData),
+        }),
+      );
       expect(result).toEqual(mockUser);
     });
   });
@@ -140,9 +152,12 @@ describe('authService', () => {
 
       const result = await authService.checkUsername('newuser');
 
-      expect(request).toHaveBeenCalledWith('/auth/check-username', expect.objectContaining({
-        params: { username: 'newuser' },
-      }));
+      expect(request).toHaveBeenCalledWith(
+        '/auth/check-username',
+        expect.objectContaining({
+          params: { username: 'newuser' },
+        }),
+      );
       expect(result).toEqual({ available: true });
     });
   });
@@ -153,9 +168,12 @@ describe('authService', () => {
 
       const result = await authService.checkEmail('test@example.com');
 
-      expect(request).toHaveBeenCalledWith('/auth/check-email', expect.objectContaining({
-        params: { email: 'test@example.com' },
-      }));
+      expect(request).toHaveBeenCalledWith(
+        '/auth/check-email',
+        expect.objectContaining({
+          params: { email: 'test@example.com' },
+        }),
+      );
       expect(result).toEqual({ available: false });
     });
   });
