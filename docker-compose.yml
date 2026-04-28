@@ -38,7 +38,9 @@ services:
       retries: 3
       
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      target: builder
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost/api/v1}
       INTERNAL_API_URL: ${INTERNAL_API_URL:-http://backend:8000/api/v1}
@@ -46,7 +48,6 @@ services:
       CHOKIDAR_USEPOLLING: "true"
     volumes:
       - ./frontend:/app
-      - /app/node_modules
     command: npm run dev
     depends_on:
       backend:
