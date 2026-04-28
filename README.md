@@ -144,6 +144,7 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
     - O backend aguarda o banco estar saudável.
     - **Alembic** executa as migrações para criar o esquema.
     - **Seeding** popula o banco com usuários e tarefas de teste (dev padrão).
+    - **Hot Reload:** O ambiente monitora mudanças no código do backend e frontend, reiniciando os containers automaticamente para refletir as alterações instantaneamente.
 
 - Frontend: [http://localhost](http://localhost) | API Docs: [http://localhost/api/docs](http://localhost/api/docs)
 
@@ -153,19 +154,31 @@ O deploy exige apenas **duas** configurações no GitHub (Secrets):
 2. `AWS_SECRET_ACCESS_KEY`
 
 O Terraform cuidará da criação da chave SSH, do Security Group e da instância. O pipeline injetará automaticamente o IP e gerará os segredos necessários.
+O pipeline de CI/CD monitora o repositório e, a cada push na branch principal, reconstrói e atualiza os containers na AWS automaticamente.
 
 ### 🔐 Configuração e Variáveis
 
-Embora o projeto use *fallbacks* automáticos, você pode sobrescrever qualquer comportamento via variáveis de ambiente no `.env` (local) ou GitHub Secrets (produção):
+Embora o projeto use *fallbacks* automáticos, você pode sobrescrever qualquer comportamento via variáveis de ambiente no `.env` (local) ou GitHub Secrets (produção). A tabela abaixo lista todas as variáveis de ambiente utilizadas no projeto, seus fallbacks e onde cada uma é aplicada:
 
-| Variável | Fallback / Auto-geração | Descrição |
-| :--- | :--- | :--- |
-| `ENVIRONMENT` | `development` | Use `production` para habilitar validações rigorosas de segurança. |
-| `SEED_DB` | `true` (dev) / `false` (prod) | Define se o script de dados de teste deve rodar se o banco estiver vazio. |
-| `JWT_SECRET` | Aleatório (64 chars) | Chave de assinatura dos tokens. Auto-gerada no servidor se ausente. |
-| `NEXT_PUBLIC_API_URL` | `/api/v1` (Relativo) | URL da API. O pipeline resolve o IP da AWS automaticamente. |
-| `POSTGRES_PASSWORD` | `password` | Senha do banco de dados PostgreSQL. |
-| `JWT_EXPIRE_MINUTES` | `60` | Tempo de vida do Access Token. |
+| Variável | Onde é usada | Fallback (Dev) / Default | Descrição |
+| :--- | :--- | :--- | :--- |
+| `ENVIRONMENT` | Backend | `development` | Define o modo de execução da aplicação (e.g., `development`, `production`). |
+| `POSTGRES_USER` | DB, Backend | `user` | Usuário para conexão com o banco de dados PostgreSQL. |
+| `POSTGRES_PASSWORD` | DB, Backend | `password` | Senha para conexão com o banco de dados PostgreSQL. |
+| `POSTGRES_DB` | DB, Backend | `taskdb` | Nome do banco de dados PostgreSQL. |
+| `DATABASE_URL` | Backend | `postgresql://user:password@db:5432/taskdb` | URL completa de conexão com o banco de dados. Construída a partir das variáveis `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` e o host `db` no Docker Compose. |
+| `JWT_SECRET` | Backend | `dev-secret-key-change-in-production` | Chave secreta utilizada para assinar e verificar os JSON Web Tokens (JWTs). **Essencial para segurança em produção.** |
+| `JWT_EXPIRE_MINUTES` | Backend | `60` | Duração de validade do Access Token JWT em minutos. |
+| `JWT_REFRESH_EXPIRE_DAYS`| Backend | `7` | Duração de validade do Refresh Token JWT em dias. |
+| `CORS_ORIGINS` | Backend | `*` | Lista de origens permitidas para requisições Cross-Origin Resource Sharing (CORS). Use `*` para permitir todas (apenas em dev). |
+| `SEED_DB` | Backend, Docker Compose | `true` (dev), `false` (prod) | Controla se o script de população de dados de teste deve ser executado na inicialização do backend. |
+| `NEXT_PUBLIC_API_URL` | Frontend | `http://localhost/api/v1` | URL base da API para requisições feitas pelo frontend no navegador (client-side). |
+| `INTERNAL_API_URL` | Frontend | `http://backend:8000/api/v1` | URL base da API para requisições feitas pelo frontend no servidor (server-side rendering - SSR). |
+| `DOCKER_USERNAME` | CI/CD, `.env.example` | `your-dockerhub-username` | (Apenas no `.env.example`) Nome de usuário do Docker Hub ou GitHub Container Registry, usado para construir o nome da imagem. |
+| `DOCKER_IMAGE_BASE` | CI/CD, Docker Compose (Prod) | `ghcr.io/username` | Base do nome da imagem Docker no registro de containers (e.g., `ghcr.io/your-org`). |
+| `IMAGE_TAG` | CI/CD, Docker Compose (Prod) | `latest` | Tag da imagem Docker a ser utilizada para o deploy. |
+| `WATCHPACK_POLLING` | Backend (Dev), Frontend (Dev) | `true` | Habilita o modo de polling para detecção de mudanças de arquivos em volumes Docker, útil em alguns ambientes Linux/WSL. |
+| `CHOKIDAR_USEPOLLING` | Frontend (Dev) | `true` | Habilita o modo de polling para o `chokidar` (usado pelo Next.js) para detecção de mudanças de arquivos em volumes Docker. |
 
 ### ⌨️ Comandos Makefile
 - `make dev`: Sobe tudo (Migrate + Seed inclusos).
