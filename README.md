@@ -37,8 +37,8 @@ API REST de gerenciamento de tarefas com autenticação JWT, frontend em Next.js
 
 ## 📋 Pré-requisitos
 
-- ✅ **Docker e Docker Compose** instalados (para desenvolvimento local)
-- ☁️ **Conta AWS** (para deploy em produção)
+- ✅ **Docker e Docker Compose** instalados.
+- ☁️ **Conta AWS** (apenas para o deploy em produção).
 
 ---
 
@@ -73,20 +73,10 @@ function analisarNumeros(dados: any[]): { somaPares: number; mediaImpares: numbe
 
 ### 2️⃣ Conceitos
 
-**2.1 Diferença entre REST e GraphQL**
-**REST** é baseado em recursos acessíveis via endpoints fixos e métodos HTTP (GET, POST, etc.). A estrutura da resposta é definida pelo servidor.
-**GraphQL** é uma linguagem de consulta que permite ao cliente requisitar exatamente os dados que precisa em uma única chamada, evitando *over-fetching* e *under-fetching*.
-
-**2.2 O que é uma transação em banco de dados**
-Uma transação é uma unidade lógica de trabalho que deve ser executada totalmente ou não ser executada de forma alguma (Atomicidade). Ela garante a integridade dos dados seguindo as propriedades ACID (Atomicidade, Consistência, Isolamento e Durabilidade).
-
-**2.3 Diferença entre autenticação e autorização**
-**Autenticação** é o processo de verificar QUEM o usuário é (ex: conferir senha e e-mail).
-**Autorização** é o processo de verificar o que o usuário PODE fazer dentro do sistema (ex: permissão para deletar uma tarefa).
-
-**2.4 Quando usar cache e quando evitá-lo**
-**Usar:** Para dados que são lidos com frequência, mudam raramente e cujo cálculo ou busca é computacionalmente caro.
-**Evitar:** Para dados extremamente sensíveis que exigem consistência em tempo real ou que mudam com altíssima frequência.
+**2.1 REST vs GraphQL:** REST usa endpoints fixos; GraphQL permite consultas flexíveis pelo cliente.
+**2.2 Transação:** Unidade de trabalho atômica que garante integridade (ACID).
+**2.3 Autenticação vs Autorização:** Autenticação é identidade (Quem é?); Autorização é permissão (O que pode fazer?).
+**2.4 Cache:** Usar para dados caros/estáticos; evitar para dados sensíveis ou de alta volatilidade.
 
 ---
 
@@ -106,8 +96,7 @@ Uma transação é uma unidade lógica de trabalho que deve ser executada totalm
 | DELETE | /api/v1/tasks/{id}           | Deletar tarefa                      | Sim   |
 | POST   | /api/v1/tasks/{id}/toggle    | Alternar status (Pendente/Concluída)| Sim   |
 
-### 🧪 Rodando os Testes (Backend)
-
+### 🧪 Testes
 ```bash
 make test
 # Ou manualmente:
@@ -148,94 +137,50 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 
 ## 🛠️ Parte 4 - Integração e Qualidade
 
-### 🏠 Como Rodar Localmente
+### 🏠 Desenvolvimento Local (Zero-Config) ⚡
+Este projeto usa fallbacks inteligentes. **Não é necessário configurar arquivos .env para começar.**
 
-1.  **Clone o repositório:**
+1.  **Clone e Inicie:**
     ```bash
-    git clone https://github.com/seu-usuario/task-management-fastapi-nextjs.git
+    git clone https://github.com/mucadoo/task-management-fastapi-nextjs.git
     cd task-management-fastapi-nextjs
-    ```
-
-2.  **Inicie os containers:**
-    ```bash
     make dev
-    # ou
-    docker compose up --build
     ```
-
-3.  **Execute as migrations e opcionalmente o seed:**
+2.  **Prepare o Banco:**
     ```bash
     make migrate
-    make seed  # Popula o banco com dados iniciais (opcional)
+    make seed  # Opcional: popula dados de teste
     ```
+- Frontend: [http://localhost](http://localhost)
+- Docs API: [http://localhost/api/docs](http://localhost/api/docs)
 
-4.  **Acesse as aplicações:**
-    - Frontend: [http://localhost](http://localhost)
-    - Swagger API: [http://localhost/api/docs](http://localhost/api/docs)
-    - Health Check: [http://localhost/api/health](http://localhost/api/health)
+### ☁️ Deploy em Produção (AWS) - Apenas 2 Passos! 🚀
+O pipeline é 100% automatizado via Terraform e GitHub Actions.
 
-### ⌨️ Principais Comandos (Makefile)
+1.  **GitHub Secrets:** Adicione apenas `AWS_ACCESS_KEY_ID` e `AWS_SECRET_ACCESS_KEY`.
+2.  **Push:** Envie para a branch `main`. O pipeline faz o resto.
 
-| Comando | Descrição |
-|---------|-----------|
-| `make dev` | Inicia ambiente de desenvolvimento (Docker) |
-| `make test` | Executa testes do backend e frontend |
-| `make migrate` | Aplica migrações do banco de dados |
-| `make seed` | Popula o banco com dados de teste |
-| `make down` | Para todos os containers |
-| `make logs` | Exibe logs em tempo real |
+---
 
 ## 🔐 Configuração e Variáveis Inteligentes ✨
 
-Este projeto adota uma filosofia **Zero-Config** para simplificar o desenvolvimento e o deploy. Muitas variáveis são auto-geradas ou possuem fallbacks inteligentes.
+O projeto foi desenhado para "simplesmente funcionar", automatizando o que antes era manual:
 
-### 🏠 Desenvolvimento Local (Zero-Config)
+- **🔐 Segredos:** Se `JWT_SECRET` não for definido, o pipeline gera um segredo aleatório de 64 caracteres diretamente no servidor.
+- **🔑 SSH Efêmero:** O Terraform gera uma chave privada em tempo de execução, registra-a na AWS e o GitHub a utiliza para o deploy. Nenhuma chave `.pem` precisa ser armazenada manualmente.
+- **🌐 URLs Dinâmicas:** O IP da instância EC2 é detectado pelo Terraform e injetado automaticamente no Frontend (`NEXT_PUBLIC_API_URL`).
+- **🌱 Seeding:** Para popular o banco em prod, basta configurar a variável `SEED_DB` como `true` nas GitHub Actions.
 
-Para rodar localmente, o `docker-compose` utiliza fallbacks inteligentes. Você **não precisa** criar um arquivo `.env` manualmente para começar. Basta executar `make dev`.
+### ⌨️ Comandos Makefile
+| Comando | Descrição |
+|---------|-----------|
+| `make dev` | Inicia ambiente local (Docker) |
+| `make test` | Roda suíte de testes (BE + FE) |
+| `make migrate` | Aplica migrações do banco |
+| `make seed` | Popula dados de teste |
+| `make logs` | Logs em tempo real |
 
-Variáveis com fallbacks inteligentes:
-- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: Valores padrão são usados se não fornecidos.
-- `DATABASE_URL`: Gerada automaticamente com base nas variáveis acima.
-- `JWT_SECRET`: Um valor padrão é usado para desenvolvimento local.
-- `NEXT_PUBLIC_API_URL`: Aponta para `http://localhost/api/v1` por padrão.
-
-### 🚀 Deploy em Produção (GitHub Actions)
-
-Para o deploy em produção via GitHub Actions, o sistema é ainda mais inteligente, minimizando a configuração manual:
-
-#### 🔑 Secrets Obrigatórios no GitHub:
-Você só precisa fornecer estas duas secrets no seu repositório GitHub:
-- `AWS_ACCESS_KEY_ID`: 🔑 Sua chave de acesso AWS.
-- `AWS_SECRET_ACCESS_KEY`: 🤫 Sua chave secreta AWS.
-
-#### 🪄 Variáveis Auto-geradas e Inteligentes:
-
-- **SSH Automático:** O Terraform gera uma chave SSH efêmera (`tls_private_key`), registra-a na AWS e o pipeline a utiliza automaticamente. Você **não precisa** mais fornecer `EC2_SSH_KEY`.
-- **Segredos Auto-gerados:** Se `JWT_SECRET` não for fornecido como um GitHub Secret, o pipeline de deploy gera uma string aleatória de 64 caracteres no servidor para garantir a segurança.
-- **URLs Inteligentes:** O pipeline detecta o IP da instância EC2 via Terraform e configura o `NEXT_PUBLIC_API_URL` automaticamente para o frontend.
-- **Seeding (SEED_DB):** Para habilitar o seeding do banco de dados durante o deploy, defina a variável `SEED_DB` como `true` nas GitHub Actions (Variáveis de Ambiente do Workflow ou Environment). Por padrão, o seeding é desativado em produção.
-
-## ☁️ Deploy em Produção (AWS) - Simplicidade em 2 Passos! 🚀
-
-O deploy em produção é totalmente automatizado via **GitHub Actions** e **Terraform**, seguindo a filosofia Zero-Config.
-
-### ✌️ Passos para o Deploy:
-
-1.  **Configure as Secrets no GitHub:**
-    Adicione apenas estas duas secrets no seu repositório GitHub (Settings -> Secrets and variables -> Actions -> Repository secrets):
-    -   `AWS_ACCESS_KEY_ID`: 🔑 Sua chave de acesso AWS.
-    -   `AWS_SECRET_ACCESS_KEY`: 🤫 Sua chave secreta AWS.
-    *Certifique-se de que estas credenciais AWS tenham permissões para gerenciar EC2, VPC e S3 (para o backend do Terraform).*
-
-2.  **Push para `main`:**
-    Após configurar as secrets, qualquer push para a branch `main` irá disparar o pipeline de CI/CD, que automaticamente:
-    -   Provisiona a infraestrutura na AWS via Terraform (incluindo uma instância EC2).
-    -   Gera e configura uma chave SSH efêmera para acesso seguro à EC2.
-    -   Constrói as imagens Docker e as publica no GitHub Container Registry (GHCR).
-    -   Conecta-se via SSH à instância EC2 para fazer o deploy da aplicação.
-    -   Configura todas as variáveis de ambiente necessárias (como `JWT_SECRET` e `NEXT_PUBLIC_API_URL`) de forma inteligente.
-
-É isso! Seu Task Manager estará rodando na AWS com o mínimo de intervenção manual.
+---
 
 ### 🛡️ Recursos de Segurança
 
@@ -267,9 +212,8 @@ graph TD
     Nginx -->|Proxy| Frontend[Frontend Next.js]
     Nginx -->|Proxy /api| Backend[Backend FastAPI]
     Backend -->|SQLAlchemy| DB[(PostgreSQL)]
-    Backend -.->|Alembic| DB
     CI[GitHub Actions] -->|Terraform| AWS[AWS EC2]
-    CI -->|Push| GHCR[GHCR Docker Registry]
+    CI -->|Push| GHCR[Imagens Docker]
     GHCR -->|Pull| AWS
 ```
 
