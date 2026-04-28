@@ -70,28 +70,61 @@ jobs:
     outputs:
       instance_ip: ${{ steps.out.outputs.ip }}
       private_key: ${{ steps.out.outputs.key }}
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+      TF_STATE_BUCKET: "task-manager-terraform-state-${{ github.repository_owner }}"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.7.0"
+
+      - name: Ensure S3 Bucket and Clean Conflict Resources
+        run: |
+          # 1. Create S3 Bucket if it doesn't exist
+          if ! aws s3api head-bucket --bucket "$TF_STATE_BUCKET" 2>/dev/null; then
+            echo "Creating S3 bucket $TF_STATE_BUCKET for state..."
+            aws s3api create-bucket --bucket "$TF_STATE_BUCKET" --region "$AWS_REGION"
+          fi
+
+          # 2. Check if we have an existing state file in S3
+          STATE_EXISTS=$(aws s3 ls "s3://$TF_STATE_BUCKET/terraform.tfstate" || echo "")
+
+          # 3. If NO state exists, but resources DO exist, delete them to avoid "Duplicate" errors
+          if [ -z "$STATE_EXISTS" ]; then
+            echo "No state file found. Cleaning up existing resources to avoid conflicts..."
+            
+            # Delete Key Pair
+            aws ec2 delete-key-pair --key-name "task-manager-deploy-key" || true
+            
+            # Delete Security Group (only if it exists)
+            SG_ID=$(aws ec2 describe-security-groups --group-names "task-manager-sg" --query 'SecurityGroups[0].GroupId' --output text 2>/dev/null || echo "None")
+            if [ "$SG_ID" != "None" ]; then
+              echo "Found existing Security Group $SG_ID, deleting..."
+              # Note: This might fail if the SG is currently attached to a running instance
+              aws ec2 delete-security-group --group-id "$SG_ID" || echo "Warning: Could not delete SG (might be in use)"
+            fi
+          fi
+
       - name: Terraform Init
-        run: cd terraform && terraform init
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+        run: |
+          cd terraform
+          terraform init \
+            -backend-config="bucket=$TF_STATE_BUCKET" \
+            -backend-config="key=terraform.tfstate" \
+            -backend-config="region=$AWS_REGION"
+
       - name: Terraform Apply
         id: apply
         run: |
           cd terraform
-          terraform apply -auto-approve -var="aws_region=${{ secrets.AWS_REGION || 'us-east-1' }}" -var="key_name=${{ secrets.KEY_NAME }}"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          terraform apply -auto-approve -var="aws_region=$AWS_REGION"
+
       - name: Capture Outputs
         id: out
         run: |
@@ -100,10 +133,6 @@ jobs:
           echo "key<<EOF" >> $GITHUB_OUTPUT
           terraform output -raw private_key >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
 
   build-and-push:
     name: Build & Push Docker Images

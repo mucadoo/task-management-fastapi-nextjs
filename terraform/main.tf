@@ -15,7 +15,7 @@ resource "aws_key_pair" "generated_key" {
 resource "aws_instance" "app_server" {
   ami           = "ami-04b70fa74e45c3917" # Ubuntu 22.04
   instance_type = "t3.micro"
-  key_name      = aws_key_pair.generated_key.key_name  # Use the generated key
+  key_name      = aws_key_pair.generated_key.key_name
 
   vpc_security_group_ids = [aws_security_group.app_sg.id]
 
