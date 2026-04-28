@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Suspense, useEffect } from 'react';
 import Loading from './loading';
 import { useRouter } from 'next/navigation';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function AppDashboardPage() {
   const { t } = useTranslation();
@@ -30,7 +31,11 @@ export default function AppDashboardPage() {
   }
 
   if (!isAuthenticated) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-warm-50 dark:bg-[#0a0a0a]">
+        <LoadingSpinner size="lg" className="text-brand-500" />
+      </div>
+    );
   }
 
   return (

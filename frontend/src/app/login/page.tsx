@@ -14,7 +14,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { FormControl } from '@/components/ui/FormControl';
 import AuthSidebar from '@/components/layout/AuthSidebar';
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 type LoginForm = z.infer<ReturnType<typeof getLoginSchema>>;
 
@@ -50,11 +51,18 @@ export default function LoginPage() {
     }
   };
 
-  if (authCheckLoading) return null;
+  useEffect(() => {
+    if (isAuthenticated && !authCheckLoading) {
+      router.push('/app');
+    }
+  }, [isAuthenticated, authCheckLoading, router]);
 
-  if (isAuthenticated) {
-    router.push('/app');
-    return null;
+  if (authCheckLoading || isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-warm-50 dark:bg-[#0a0a0a]">
+        <LoadingSpinner size="lg" className="text-brand-500" />
+      </div>
+    );
   }
 
   return (
