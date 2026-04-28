@@ -18,7 +18,7 @@ describe('TaskDateBadge', () => {
         isOverdue={false}
         isDueToday={false}
         isCompleted={false}
-      />
+      />,
     );
     expect(container.firstChild).toBeNull();
   });
@@ -32,7 +32,7 @@ describe('TaskDateBadge', () => {
         isDueToday={false}
         isCompleted={false}
         variant="list"
-      />
+      />,
     );
     expect(screen.getByText(/Jan 1|Dec 31/)).toBeInTheDocument();
   });
@@ -46,7 +46,7 @@ describe('TaskDateBadge', () => {
         isDueToday={false}
         isCompleted={false}
         variant="gallery"
-      />
+      />,
     );
     expect(screen.getByText(/Jan 1|Dec 31/)).toBeInTheDocument();
     expect(screen.getByText('tasks.due_date')).toBeInTheDocument();
@@ -61,7 +61,7 @@ describe('TaskDateBadge', () => {
         isDueToday={false}
         isCompleted={false}
         variant="gallery"
-      />
+      />,
     );
     expect(screen.getByText('tasks.overdue')).toBeInTheDocument();
   });
@@ -75,7 +75,7 @@ describe('TaskDateBadge', () => {
         isDueToday={true}
         isCompleted={false}
         variant="list"
-      />
+      />,
     );
     expect(screen.getByText('tasks.today')).toBeInTheDocument();
   });
@@ -89,7 +89,7 @@ describe('TaskDateBadge', () => {
         isDueToday={true}
         isCompleted={true}
         variant="list"
-      />
+      />,
     );
     expect(screen.queryByText('tasks.today')).not.toBeInTheDocument();
   });
@@ -102,7 +102,7 @@ describe('TaskDateBadge', () => {
         isOverdue={false}
         isDueToday={false}
         isCompleted={false}
-      />
+      />,
     );
     expect(screen.getByText(/Jan 1|Dec 31/)).toBeInTheDocument();
   });

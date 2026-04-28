@@ -83,7 +83,7 @@ describe('useTasks', () => {
 
     const page2 = { items: [], total: 24, page: 2, page_size: 12 };
     vi.mocked(taskService.getTasks).mockResolvedValueOnce(page2);
-    
+
     await result.current.fetchNextPage();
     await waitFor(() => expect(result.current.isFetchingNextPage).toBe(false));
     expect(result.current.hasNextPage).toBe(false);
@@ -107,7 +107,7 @@ describe('useTasks', () => {
 
     const { result } = renderHook(() => useCreateTask(), { wrapper });
 
-    result.current.mutate({ title: 'New Task' } as any);
+    result.current.mutate({ title: 'New Task' });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(notify.error).toHaveBeenCalled();
@@ -125,7 +125,10 @@ describe('useTasks', () => {
   });
 
   it('updates task status successfully with optimistic update', async () => {
-    vi.mocked(taskService.updateTaskStatus).mockResolvedValue({ id: '1', status: 'completed' } as any);
+    vi.mocked(taskService.updateTaskStatus).mockResolvedValue({
+      id: '1',
+      status: 'completed',
+    } as any);
 
     const { result } = renderHook(() => useUpdateTaskStatus(), { wrapper });
 
