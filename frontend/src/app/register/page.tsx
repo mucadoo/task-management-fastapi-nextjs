@@ -42,6 +42,7 @@ export default function RegisterPage() {
     resolver: zodResolver(getRegisterSchema(t)),
     defaultValues: {
       name: '',
+      username: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -71,7 +72,12 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterForm) => {
     if (emailStatus === 'taken') return;
     try {
-      await registerUser({ email: data.email, name: data.name, password: data.password });
+      await registerUser({
+        email: data.email,
+        name: data.name,
+        username: data.username,
+        password: data.password,
+      });
     } catch {
       // Error is handled by the auth store
     }
@@ -117,6 +123,24 @@ export default function RegisterPage() {
                       type="text"
                       className={cn('input-base pl-10', errors.name && 'border-red-500')}
                       placeholder={t('auth.name')}
+                      disabled={authActionLoading}
+                    />
+                  </div>
+                </FormControl>
+
+                <FormControl
+                  id="username"
+                  label={t('auth.username')}
+                  error={errors.username?.message}
+                >
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" />
+                    <input
+                      id="username"
+                      {...register('username')}
+                      type="text"
+                      className={cn('input-base pl-10', errors.username && 'border-red-500')}
+                      placeholder={t('auth.username')}
                       disabled={authActionLoading}
                     />
                   </div>

@@ -41,12 +41,12 @@ export function useApiError() {
   const getTranslatedError = (error: unknown, fallbackKey?: string) => {
     const message = getErrorMessage(error);
 
-    if (message.includes('common.') || message.includes('auth.') || message.includes('tasks.')) {
-      return t(message);
-    }
-
     if (fallbackKey && (message === 'common.error_unknown' || message === 'Error')) {
       return t(fallbackKey);
+    }
+
+    if (message.includes('common.') || message.includes('auth.') || message.includes('tasks.')) {
+      return t(message);
     }
 
     return message;
