@@ -222,10 +222,9 @@ def test_toggle_task_status(client, auth_headers):
     assert create_response.json()["status"] == "pending"
 
     
-    toggle_response = client.post(f"/api/v1/tasks/{task_id}/toggle", headers=auth_headers)
+    toggle_response = client.patch(f"/api/v1/tasks/{task_id}/status", json={"status": "completed"}, headers=auth_headers)
     assert toggle_response.status_code == 200
     assert toggle_response.json()["status"] == "completed"
 
-    
-    toggle_response = client.post(f"/api/v1/tasks/{task_id}/toggle", headers=auth_headers)
+    toggle_response = client.patch(f"/api/v1/tasks/{task_id}/status", json={"status": "pending"}, headers=auth_headers)
     assert toggle_response.json()["status"] == "pending"
