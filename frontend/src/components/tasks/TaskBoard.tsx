@@ -106,7 +106,7 @@ export default function TaskBoard() {
 
       {error && (
         <div className="mb-6">
-          <ErrorMessage message={(error as any).message || t('common.error')} />
+          <ErrorMessage message={(error as { message?: string }).message || t('common.error')} />
         </div>
       )}
 
@@ -118,7 +118,7 @@ export default function TaskBoard() {
               : 'space-y-3',
           )}
         >
-          {[...Array(6)].map((_, i) => (
+          {Array.from({ length: 6 }).map((_, i) => (
             <TaskSkeleton key={i} />
           ))}
         </div>
@@ -143,14 +143,16 @@ export default function TaskBoard() {
             ))}
             {isFetchingNextPage && (
               <>
-                {[...Array(3)].map((_, i) => (
+                {Array.from({ length: 3 }).map((_, i) => (
                   <TaskSkeleton key={`more-${i}`} />
                 ))}
               </>
             )}
           </div>
           <InfiniteScrollTrigger
-            onIntersect={() => fetchNextPage()}
+            onIntersect={() => {
+              void fetchNextPage();
+            }}
             isLoading={isFetchingNextPage}
             hasMore={!!hasNextPage}
           />
@@ -179,7 +181,9 @@ export default function TaskBoard() {
       <ConfirmDialog
         isOpen={deletingId !== null}
         message={t('tasks.confirm_delete')}
-        onConfirm={handleDeleteConfirm}
+        onConfirm={() => {
+          void handleDeleteConfirm();
+        }}
         onCancel={handleCancelDelete}
         isLoading={isDeleting}
       />

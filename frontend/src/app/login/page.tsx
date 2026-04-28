@@ -42,7 +42,9 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     try {
       await login(data);
-    } catch {}
+    } catch {
+      // Error is handled by the auth store
+    }
   };
 
   if (authCheckLoading || isAuthenticated) return null;
@@ -70,7 +72,12 @@ export default function LoginPage() {
           </div>
 
           <div className="card-surface p-6">
-            <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+            <form
+              className="space-y-4"
+              onSubmit={(e) => {
+                void handleSubmit(onSubmit)(e);
+              }}
+            >
               <div className="space-y-4">
                 <FormControl
                   id="identifier"

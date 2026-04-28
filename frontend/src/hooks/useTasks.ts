@@ -35,7 +35,7 @@ export function useCreateTask() {
   return useMutation({
     mutationFn: (data: TaskCreate) => taskService.createTask(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
       notify.success('tasks.create_success');
     },
     onError: (error: ApiError) => notify.error(error, 'tasks.create_failed'),
@@ -49,7 +49,7 @@ export function useUpdateTask() {
     mutationFn: ({ id, data }: { id: string; data: TaskUpdate }) =>
       taskService.updateTask(id, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: taskKeys.all });
+      void queryClient.invalidateQueries({ queryKey: taskKeys.all });
       if (variables.data.title) {
         notify.success('tasks.update_success');
       }
@@ -64,7 +64,7 @@ export function useToggleTaskStatus() {
   return useMutation({
     mutationFn: (id: string) => taskService.toggleTaskStatus(id),
     onMutate: (id: string) =>
-      onMutateListUpdate<Task>(queryClient, taskKeys.lists() as any, (page) => ({
+      onMutateListUpdate<Task>(queryClient, taskKeys.lists() as readonly unknown[], (page) => ({
         ...page,
         items: page.items.map((task) => {
           if (task.id === id) {
@@ -76,12 +76,12 @@ export function useToggleTaskStatus() {
           return task;
         }),
       })),
-    onError: (err: ApiError, id: string, context: any) => {
+    onError: (err: ApiError, id: string, context: unknown) => {
       rollbackQueries(queryClient, context);
       notify.error(err, 'tasks.status_update_failed');
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: taskKeys.all });
+      void queryClient.invalidateQueries({ queryKey: taskKeys.all });
     },
   });
 }
@@ -92,12 +92,12 @@ export function useDeleteTask() {
   return useMutation({
     mutationFn: (id: string) => taskService.deleteTask(id),
     onMutate: (id: string) =>
-      onMutateListUpdate<Task>(queryClient, taskKeys.lists() as any, (page) => ({
+      onMutateListUpdate<Task>(queryClient, taskKeys.lists() as readonly unknown[], (page) => ({
         ...page,
         items: page.items.filter((task) => task.id !== id),
         total: page.total - 1,
       })),
-    onError: (err: ApiError, id: string, context: any) => {
+    onError: (err: ApiError, id: string, context: unknown) => {
       rollbackQueries(queryClient, context);
       notify.error(err, 'tasks.delete_failed');
     },
@@ -105,7 +105,7 @@ export function useDeleteTask() {
       notify.info('tasks.delete_success');
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: taskKeys.all });
+      void queryClient.invalidateQueries({ queryKey: taskKeys.all });
     },
   });
 }

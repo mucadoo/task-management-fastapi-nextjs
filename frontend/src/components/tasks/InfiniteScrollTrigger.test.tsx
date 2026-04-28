@@ -13,7 +13,7 @@ class MockIntersectionObserver {
   thresholds = [];
   takeRecords = () => [];
 }
-window.IntersectionObserver = MockIntersectionObserver as any;
+window.IntersectionObserver = MockIntersectionObserver;
 describe('InfiniteScrollTrigger', () => {
   beforeEach(() => {
     vi.clearAllMocks();

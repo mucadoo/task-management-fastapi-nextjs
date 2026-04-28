@@ -1,7 +1,7 @@
 'use client';
-import { useForm } from 'react-hook-form';
+import { useForm, Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Task, TaskCreate } from '@/types/task';
+import { Task } from '@/types/task';
 import { useCreateTask, useUpdateTask } from './useTasks';
 import { useTranslation } from 'react-i18next';
 import { getTaskSchema } from '@/lib/validations';
@@ -25,7 +25,7 @@ export function useTaskForm({ editingTask, onClose }: UseTaskFormProps) {
   type FormData = z.infer<typeof schema>;
 
   const form = useForm<FormData>({
-    resolver: zodResolver(schema) as any,
+    resolver: zodResolver(schema) as unknown as Resolver<FormData>,
     defaultValues: editingTask
       ? {
           title: editingTask.title,
@@ -62,7 +62,7 @@ export function useTaskForm({ editingTask, onClose }: UseTaskFormProps) {
       if (editingTask) {
         await updateTaskMutation.mutateAsync({ id: editingTask.id, data: taskData });
       } else {
-        await createTaskMutation.mutateAsync(taskData as TaskCreate);
+        await createTaskMutation.mutateAsync(taskData);
       }
       onClose();
     } catch (err) {

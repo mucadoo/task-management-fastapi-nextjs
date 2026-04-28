@@ -65,14 +65,16 @@ export default function RegisterPage() {
         setEmailStatus('idle');
       }
     };
-    checkEmail();
+    void checkEmail();
   }, [debouncedEmail, errors.email]);
 
   const onSubmit = async (data: RegisterForm) => {
     if (emailStatus === 'taken') return;
     try {
       await registerUser({ email: data.email, name: data.name, password: data.password });
-    } catch {}
+    } catch {
+      // Error is handled by the auth store
+    }
   };
 
   if (authCheckLoading || isAuthenticated) return null;
@@ -99,7 +101,12 @@ export default function RegisterPage() {
             </p>
           </div>
           <div className="card-surface p-6">
-            <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+            <form
+              className="space-y-4"
+              onSubmit={(e) => {
+                void handleSubmit(onSubmit)(e);
+              }}
+            >
               <div className="space-y-4">
                 <FormControl id="name" label={t('auth.name')} error={errors.name?.message}>
                   <div className="relative">

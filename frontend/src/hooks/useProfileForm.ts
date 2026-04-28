@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
@@ -36,7 +36,9 @@ export function useProfileForm({ activeTab }: UseProfileFormProps) {
   type FormData = PersonalFormData & SecurityFormData;
 
   const form = useForm<FormData>({
-    resolver: zodResolver(activeTab === 'personal' ? personalSchema : securitySchema) as any,
+    resolver: zodResolver(
+      activeTab === 'personal' ? personalSchema : securitySchema,
+    ) as unknown as Resolver<FormData>,
     defaultValues: {
       name: user?.name || '',
       email: user?.email || '',
@@ -82,7 +84,7 @@ export function useProfileForm({ activeTab }: UseProfileFormProps) {
         setUsernameStatus('idle');
       }
     };
-    if (activeTab === 'personal') checkUsername();
+    if (activeTab === 'personal') void checkUsername();
   }, [debouncedUsername, user?.username, activeTab, !!errors.username]);
 
   useEffect(() => {
@@ -103,7 +105,7 @@ export function useProfileForm({ activeTab }: UseProfileFormProps) {
         setEmailStatus('idle');
       }
     };
-    if (activeTab === 'personal') checkEmail();
+    if (activeTab === 'personal') void checkEmail();
   }, [debouncedEmail, user?.email, activeTab, !!errors.email]);
 
   const onFormSubmit = async (data: FormData) => {

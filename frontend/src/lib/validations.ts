@@ -4,7 +4,9 @@ const PASSWORD_MIN_LENGTH = 8;
 const USERNAME_MIN_LENGTH = 3;
 const USERNAME_REGEX = /^[a-zA-Z_]+$/;
 
-const getPasswordSchema = (t: any) =>
+type TFunction = (key: string, options?: Record<string, unknown>) => string;
+
+const getPasswordSchema = (t: TFunction) =>
   z
     .string()
     .min(PASSWORD_MIN_LENGTH, t('profile.password_min'))
@@ -13,7 +15,7 @@ const getPasswordSchema = (t: any) =>
     .regex(/[0-9]/, t('profile.password_number'))
     .regex(/[^A-Za-z0-9]/, t('profile.password_special'));
 
-export const getTaskSchema = (t: any) =>
+export const getTaskSchema = (t: TFunction) =>
   z.object({
     title: z
       .string()
@@ -26,7 +28,7 @@ export const getTaskSchema = (t: any) =>
     due_date_has_time: z.boolean().default(false),
   });
 
-export const getLoginSchema = (t: any) =>
+export const getLoginSchema = (t: TFunction) =>
   z.object({
     identifier: z
       .string()
@@ -34,7 +36,7 @@ export const getLoginSchema = (t: any) =>
     password: z.string().min(1, t('common.error_required', { field: t('auth.password') })),
   });
 
-export const getRegisterSchema = (t: any) =>
+export const getRegisterSchema = (t: TFunction) =>
   z
     .object({
       name: z
@@ -58,7 +60,7 @@ export const getRegisterSchema = (t: any) =>
       path: ['confirmPassword'],
     });
 
-export const getPersonalSchema = (t: any) =>
+export const getPersonalSchema = (t: TFunction) =>
   z.object({
     name: z.string().min(1, t('profile.name_required')).max(100),
     email: z.string().email(t('profile.email_invalid')).max(255),
@@ -70,7 +72,7 @@ export const getPersonalSchema = (t: any) =>
       .transform((val) => val.toLowerCase()),
   });
 
-export const getSecuritySchema = (t: any) =>
+export const getSecuritySchema = (t: TFunction) =>
   z
     .object({
       current_password: z.string().min(1, t('profile.current_password_required')),

@@ -59,7 +59,12 @@ export default function ProfileModal({
           </TabsList>
 
           <TabsContent value="personal" className="mt-4">
-            <form onSubmit={onSubmit} className="space-y-4">
+            <form
+              onSubmit={(e) => {
+                void onSubmit(e);
+              }}
+              className="space-y-4"
+            >
               <FormField
                 name="name"
                 label={t('common.name')}
@@ -152,7 +157,12 @@ export default function ProfileModal({
           </TabsContent>
 
           <TabsContent value="security" className="mt-4">
-            <form onSubmit={onSubmit} className="space-y-4">
+            <form
+              onSubmit={(e) => {
+                void onSubmit(e);
+              }}
+              className="space-y-4"
+            >
               <FormField
                 name="current_password"
                 label={t('profile.current_password')}

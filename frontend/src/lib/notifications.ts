@@ -11,7 +11,7 @@ export const notify = {
     useToastStore.getState().addToast(i18n.t(key), 'success');
   },
 
-  error: (error: any, fallbackKey: string) => {
+  error: (error: unknown, fallbackKey: string) => {
     const rawMessage = getErrorMessage(error);
     const message =
       rawMessage === 'common.error_unknown' || rawMessage === 'Error'

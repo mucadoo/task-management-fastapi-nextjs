@@ -52,7 +52,12 @@ export default function TaskForm({ isOpen, onClose, editingTask }: TaskFormProps
             {t('tasks.form_description_sr_only', 'Fill out the form below to manage your task.')}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={onSubmit} className="space-y-4 py-4">
+        <form
+          onSubmit={(e) => {
+            void onSubmit(e);
+          }}
+          className="space-y-4 py-4"
+        >
           <FormField name="title" label={t('common.title')} error={errors.title?.message} required>
             <Input
               {...register('title')}

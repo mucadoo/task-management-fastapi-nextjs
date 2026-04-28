@@ -18,14 +18,14 @@ export class ApiError extends Error {
 
 export interface RequestOptions extends RequestInit {
   token?: string;
-  params?: Record<string, any>;
+  params?: Record<string, unknown>;
   skipRefresh?: boolean;
 }
 
 let isRefreshing = false;
-let refreshSubscribers: { resolve: (token: string) => void; reject: (err: any) => void }[] = [];
+let refreshSubscribers: { resolve: (token: string) => void; reject: (err: unknown) => void }[] = [];
 
-function onTokenRefreshed(error: any, token: string | null) {
+function onTokenRefreshed(error: unknown, token: string | null) {
   refreshSubscribers.forEach(({ resolve, reject }) => {
     if (error) reject(error);
     else if (token) resolve(token);
@@ -33,7 +33,7 @@ function onTokenRefreshed(error: any, token: string | null) {
   refreshSubscribers = [];
 }
 
-async function getResponseData(response: Response): Promise<any> {
+async function getResponseData(response: Response): Promise<unknown> {
   if (response.status === 204) return {};
   try {
     return await response.json();
@@ -50,7 +50,11 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
     const searchParams = new URLSearchParams();
     Object.entries(options.params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        searchParams.append(key, value.toString());
+        const stringValue =
+          typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
+            ? String(value)
+            : JSON.stringify(value);
+        searchParams.append(key, stringValue);
       }
     });
     const query = searchParams.toString();
@@ -63,7 +67,7 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
   const getHeaders = (token?: string) => {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...(options?.headers as any),
+      ...(options?.headers as Record<string, string>),
     };
     const activeToken = token || options?.token || tokenManager.getAccessToken();
     if (activeToken) {
@@ -103,22 +107,24 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
 
       return new Promise<T>((resolve, reject) => {
         refreshSubscribers.push({
-          resolve: async (newToken) => {
-            try {
-              const retryResponse = await fetch(url, {
-                ...options,
-                headers: getHeaders(newToken),
-              });
-              if (retryResponse.ok) {
-                resolve(await getResponseData(retryResponse));
-              } else {
-                reject(new ApiError(retryResponse.status, i18n.t('errors.retry_failed')));
+          resolve: (newToken) => {
+            void (async () => {
+              try {
+                const retryResponse = await fetch(url, {
+                  ...options,
+                  headers: getHeaders(newToken),
+                });
+                if (retryResponse.ok) {
+                  resolve((await getResponseData(retryResponse)) as T);
+                } else {
+                  reject(new ApiError(retryResponse.status, i18n.t('errors.retry_failed')));
+                }
+              } catch (e) {
+                reject(e instanceof Error ? e : new Error(String(e)));
               }
-            } catch (e) {
-              reject(e);
-            }
+            })();
           },
-          reject: (err) => reject(err),
+          reject: (err) => reject(err instanceof Error ? err : new Error(String(err))),
         });
       });
     }
@@ -127,12 +133,14 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
   if (!response.ok) {
     let message = i18n.t('common.error');
     try {
-      const errorData = await response.json();
+      const errorData = (await response.json()) as { error?: string; detail?: string };
       const rawMessage = errorData.error || errorData.detail || message;
       message = typeof rawMessage === 'string' ? i18n.t(rawMessage) : i18n.t('common.error');
-    } catch {}
+    } catch {
+      // Ignore error data parsing failure
+    }
     throw new ApiError(response.status, message);
   }
 
-  return getResponseData(response);
+  return getResponseData(response) as Promise<T>;
 }

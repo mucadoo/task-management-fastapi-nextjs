@@ -39,8 +39,8 @@ export const useAuthStore = create<AuthState>()(
           await authService.login(data);
           const user = await authService.getMe();
           set({ user, isAuthenticated: true, isLoading: false });
-        } catch (err: any) {
-          const message = err.message || i18n.t('auth.login_failed');
+        } catch (err: unknown) {
+          const message = (err as { message?: string }).message || i18n.t('auth.login_failed');
           set({ error: message, isLoading: false, isAuthenticated: false });
           notify.error(err, 'auth.login_failed');
           throw err;
@@ -54,8 +54,8 @@ export const useAuthStore = create<AuthState>()(
           const user = await authService.getMe();
           set({ user, isAuthenticated: true, isLoading: false });
           notify.success('auth.register_success');
-        } catch (err: any) {
-          const message = err.message || i18n.t('auth.register_failed');
+        } catch (err: unknown) {
+          const message = (err as { message?: string }).message || i18n.t('auth.register_failed');
           set({ error: message, isLoading: false, isAuthenticated: false });
           notify.error(err, 'auth.register_failed');
           throw err;
@@ -99,8 +99,8 @@ export const useAuthStore = create<AuthState>()(
           const updatedUser = await authService.updateMe(data);
           set({ user: updatedUser, isLoading: false });
           notify.success('profile.update_success');
-        } catch (err: any) {
-          const message = err.message || i18n.t('profile.update_failed');
+        } catch (err: unknown) {
+          const message = (err as { message?: string }).message || i18n.t('profile.update_failed');
           set({ error: message, isLoading: false });
           notify.error(err, 'profile.update_failed');
           throw err;

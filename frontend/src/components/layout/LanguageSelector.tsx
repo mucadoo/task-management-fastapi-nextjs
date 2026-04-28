@@ -30,7 +30,9 @@ export default function LanguageSelector() {
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
-            onClick={() => i18n.changeLanguage(lang.code)}
+            onClick={() => {
+              void i18n.changeLanguage(lang.code);
+            }}
             className={
               i18n.language.startsWith(lang.code) ? 'bg-warm-50 dark:bg-white/5 font-semibold' : ''
             }

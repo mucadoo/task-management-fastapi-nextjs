@@ -16,11 +16,11 @@ interface FormFieldProps {
  * It automatically passes 'id' and 'error' (boolean) props to its child.
  */
 export function FormField({ label, name, error, required, children, className }: FormFieldProps) {
-  const child = React.Children.only(children) as React.ReactElement;
+  const child = React.Children.only(children);
 
   return (
     <FormControl label={label} error={error} required={required} id={name} className={className}>
-      {React.cloneElement(child as React.ReactElement<any>, {
+      {React.cloneElement(child as React.ReactElement<Record<string, unknown>>, {
         id: name,
         error: !!error,
         ...(child.props || {}),

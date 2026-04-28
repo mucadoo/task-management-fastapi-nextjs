@@ -9,6 +9,7 @@ export default tseslint.config(
   { ignores: [
     "eslint.config.mjs",
     "postcss.config.mjs",
+    "next.config.ts",
     ".next/**",
     "out/**",
     "build/**",
@@ -20,8 +21,8 @@ export default tseslint.config(
 
   js.configs.recommended,
 
-  nextPlugin.flatConfig.recommended,
-  nextPlugin.flatConfig.coreWebVitals,
+  nextPlugin.configs.recommended,
+  nextPlugin.configs["core-web-vitals"],
 
   ...tseslint.configs.recommendedTypeChecked.map((config) => ({
     ...config,

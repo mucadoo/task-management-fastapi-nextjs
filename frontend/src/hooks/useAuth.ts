@@ -8,7 +8,7 @@ export function useAuth() {
 
   useEffect(() => {
     if (!hasFetched.current) {
-      fetchMe();
+      void fetchMe();
       hasFetched.current = true;
     }
   }, [fetchMe]);
