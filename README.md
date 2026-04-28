@@ -230,12 +230,13 @@ A arquitetura de produção utiliza:
 
 - **Arquitetura Base (Backend):** Uso de **BaseService** e **BaseRepository** genéricos. Essa abstração centraliza lógica repetitiva de CRUD, garante tratamento de erros padronizado (como `get_or_404`) e facilita a implementação de multi-tenancy através de métodos "scoped" que exigem sempre o `owner_id`.
 - **Padrão Repository + Service:** Separação clara de responsabilidades. O Repository lida exclusivamente com consultas SQLAlchemy, enquanto o Service gerencia regras de negócio e transações, mantendo os Controllers (Routers) focados apenas na interface HTTP.
-- **FastAPI (Pydantic v2):** Escolhido pela performance assíncrona, documentação automática (Swagger/OpenAPI) e validação de tipos rigorosa que reduz bugs em tempo de execução.
+- **FastAPI (Pydantic v2) & Injeção de Dependência:** Escolhido pela performance assíncrona, documentação automática (Swagger/OpenAPI) e validação rigorosa. Utiliza padrões modernos de `Annotated` para injeção de dependência, garantindo um código limpo, testável e desacoplado.
+- **API Orientada a Ações:** Além do CRUD tradicional, a API implementa endpoints específicos para ações de negócio (como `toggle_task`), reduzindo o número de requisições e a complexidade lógica no frontend.
 - **Gerenciamento de Estado Híbrido (Frontend):** 
   - **React Query:** Gerencia o estado do servidor, cache e sincronização, eliminando a necessidade de `useEffect` complexos para busca de dados.
   - **Zustand:** Gerencia o estado global UI (autenticação, preferências) de forma leve e performática.
 - **Migrations com Alembic:** Controle de versão do esquema do banco de dados, permitindo evoluções seguras e reprodutíveis entre ambientes de desenvolvimento, teste e produção.
-- **Next.js App Router:** Aproveitamento de *Server Components* para redução do bundle enviado ao cliente e *Client Components* apenas onde a interatividade é necessária.
+- **Next.js App Router & React 19:** Aproveitamento das últimas tecnologias do ecossistema React, incluindo *Server Components* para performance e as melhorias de renderização do React 19 e Tailwind CSS 4.
 - **CI/CD com GitHub Actions & Terraform:** Automação completa do ciclo de vida da aplicação, desde a criação da infraestrutura na AWS até o deploy contínuo, garantindo que o ambiente de produção seja sempre um reflexo fiel do código aprovado.
 
 ### O que Melhoraria com Mais Tempo
@@ -258,6 +259,8 @@ A arquitetura de produção utiliza:
 - **Tipagem End-to-End:** Uso extensivo de TypeScript no Frontend e Pydantic no Backend, garantindo contratos de API sólidos.
 - **UX Fluida (Optimistic Updates):** Implementação de **Optimistic Updates** via React Query, permitindo que a interface responda instantaneamente às ações do usuário enquanto a sincronização ocorre em background.
 - **Arquitetura de Componentes UI:** Separação rigorosa entre componentes de interface (UI) e lógica de negócio, utilizando componentes altamente desacoplados, reutilizáveis e baseados em Radix UI.
+- **Internacionalização (i18n) Nativa:** Suporte completo a múltiplos idiomas (PT/EN) com detecção automática, demonstrando prontidão para o mercado global.
+- **Gateway de API com Nginx:** Centralização de requisições, compressão Gzip e configuração otimizada para performance e segurança na borda.
 - **DevEx Superior com Makefile:** Ambiente totalmente dockerizado com um **Makefile** que centraliza todos os comandos essenciais (build, dev, test, migrate, seed), simplificando o fluxo de trabalho.
 - **Qualidade Assegurada no CI/CD:** O pipeline de CI/CD impõe padrões rigorosos de qualidade, executando obrigatoriamente testes com cobertura mínima (**80% no Backend**, **60% no Frontend**) e ferramentas de linting como **Ruff** (Backend) e ESLint (Frontend) antes de qualquer deploy.
 - **Automação de Infraestrutura:** Uso de **Terraform** para provisionamento reprodutível de recursos na AWS.
