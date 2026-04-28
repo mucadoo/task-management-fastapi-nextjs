@@ -114,8 +114,8 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
                     const rawMessage = errData.error || errData.detail || message;
                     message = typeof rawMessage === 'string' ? i18n.t(rawMessage) : message;
                     code = errData.code;
-                  } catch {
-
+                  } catch (e) {
+                    console.error('Failed to parse error response:', e);
                   }
                   reject(new ApiError(retryResponse.status, message, code));
                 }

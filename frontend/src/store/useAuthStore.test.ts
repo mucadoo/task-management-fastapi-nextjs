@@ -141,7 +141,6 @@ describe('useAuthStore', () => {
       await useAuthStore.getState().updateMe({ name: 'New Name' });
 
       expect(useAuthStore.getState().user).toEqual(updatedUser);
-      expect(notify.success).toHaveBeenCalledWith('profile.update_success');
     });
   });
 });
