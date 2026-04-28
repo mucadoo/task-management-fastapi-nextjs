@@ -225,7 +225,9 @@ graph TD
 
 ### 🚀 O que Melhoraria com Mais Tempo
 
-- **Visualização Kanban:** Implementação de um quadro Kanban no frontend para proporcionar uma gestão visual do fluxo de trabalho.
+- **Recuperação de Senha**: Adição de um fluxo de recuperação de senha seguro via e-mail.
+- **Verificação de E-mail**: Implementação de verificação de conta por e-mail após o cadastro.
+- **Visualização Kanban**: Implementação de um quadro Kanban no frontend para proporcionar uma gestão visual do fluxo de trabalho.
 - **Filtros Avançados:** Evoluir os filtros atuais para suportar seleção múltipla de status e prioridades.
 - **DateTimePicker Style:** Refinar e padronizar o estilo do Date Time Picker para garantir total consistência com o design system da aplicação.
 - **Categorização e Projetos:** Criação de uma forma de organizar tarefas por projeto, categoria ou tópicos (tags).
