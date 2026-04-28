@@ -1,6 +1,6 @@
 # 📝 Task Manager
 
-API REST de gerenciamento de tarefas com autenticação JWT, frontend em Next.js e pipeline de CI/CD automatizado para AWS.
+API REST de gerenciamento de tarefas com autenticação JWT, frontend em Next.js e pipeline de CI/CD automatizado para AWS com configuração zero.
 
 ---
 
@@ -18,9 +18,6 @@ API REST de gerenciamento de tarefas com autenticação JWT, frontend em Next.js
 - [⚙️ Parte 2 - Backend](#-parte-2---backend)
 - [💻 Parte 3 - Frontend](#-parte-3---frontend)
 - [🛠️ Parte 4 - Integração e Qualidade](#-parte-4---integração-e-qualidade)
-- [🧱 Arquitetura](#-arquitetura)
-- [💡 Decisões Técnicas](#-decisões-técnicas)
-- [🏆 Pontos Fortes e Limitações](#-pontos-fortes-e-limitações)
 
 ---
 
@@ -138,57 +135,58 @@ A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**
 ## 🛠️ Parte 4 - Integração e Qualidade
 
 ### 🏠 Desenvolvimento Local (Zero-Config) ⚡
-Este projeto usa fallbacks inteligentes. **Não é necessário configurar arquivos .env para começar.**
-
-1.  **Clone e Inicie:**
+1.  **Inicie o ambiente:**
     ```bash
-    git clone https://github.com/mucadoo/task-management-fastapi-nextjs.git
-    cd task-management-fastapi-nextjs
     make dev
     ```
-2.  **Prepare o Banco:**
-    ```bash
-    make migrate
-    make seed  # Opcional: popula dados de teste
-    ```
-- Frontend: [http://localhost](http://localhost)
-- Docs API: [http://localhost/api/docs](http://localhost/api/docs)
+2.  **O que acontece automaticamente:**
+    - O banco PostgreSQL é iniciado.
+    - O backend aguarda o banco estar saudável.
+    - **Alembic** executa as migrações para criar o esquema.
+    - **Seeding** popula o banco com usuários e tarefas de teste (dev padrão).
 
-### ☁️ Deploy em Produção (AWS) - Apenas 2 Passos! 🚀
-O pipeline é 100% automatizado via Terraform e GitHub Actions.
+- Frontend: [http://localhost](http://localhost) | API Docs: [http://localhost/api/docs](http://localhost/api/docs)
 
-1.  **GitHub Secrets:** Adicione apenas `AWS_ACCESS_KEY_ID` e `AWS_SECRET_ACCESS_KEY`.
-2.  **Push:** Envie para a branch `main`. O pipeline faz o resto.
+### ☁️ Deploy em Produção (AWS) 🚀
+O deploy exige apenas **duas** configurações no GitHub (Secrets):
+1. `AWS_ACCESS_KEY_ID`
+2. `AWS_SECRET_ACCESS_KEY`
 
----
+O Terraform cuidará da criação da chave SSH, do Security Group e da instância. O pipeline injetará automaticamente o IP e gerará os segredos necessários.
 
-## 🔐 Configuração e Variáveis Inteligentes ✨
+### 🔐 Configuração e Variáveis
 
-O projeto foi desenhado para "simplesmente funcionar", automatizando o que antes era manual:
+Embora o projeto use *fallbacks* automáticos, você pode sobrescrever qualquer comportamento via variáveis de ambiente no `.env` (local) ou GitHub Secrets (produção):
 
-- **🔐 Segredos:** Se `JWT_SECRET` não for definido, o pipeline gera um segredo aleatório de 64 caracteres diretamente no servidor.
-- **🔑 SSH Efêmero:** O Terraform gera uma chave privada em tempo de execução, registra-a na AWS e o GitHub a utiliza para o deploy. Nenhuma chave `.pem` precisa ser armazenada manualmente.
-- **🌐 URLs Dinâmicas:** O IP da instância EC2 é detectado pelo Terraform e injetado automaticamente no Frontend (`NEXT_PUBLIC_API_URL`).
-- **🌱 Seeding:** Para popular o banco em prod, basta configurar a variável `SEED_DB` como `true` nas GitHub Actions.
+| Variável | Fallback / Auto-geração | Descrição |
+| :--- | :--- | :--- |
+| `ENVIRONMENT` | `development` | Use `production` para habilitar validações rigorosas de segurança. |
+| `SEED_DB` | `true` (dev) / `false` (prod) | Define se o script de dados de teste deve rodar se o banco estiver vazio. |
+| `JWT_SECRET` | Aleatório (64 chars) | Chave de assinatura dos tokens. Auto-gerada no servidor se ausente. |
+| `NEXT_PUBLIC_API_URL` | `/api/v1` (Relativo) | URL da API. O pipeline resolve o IP da AWS automaticamente. |
+| `POSTGRES_PASSWORD` | `password` | Senha do banco de dados PostgreSQL. |
+| `JWT_EXPIRE_MINUTES` | `60` | Tempo de vida do Access Token. |
 
 ### ⌨️ Comandos Makefile
-| Comando | Descrição |
-|---------|-----------|
-| `make dev` | Inicia ambiente local (Docker) |
-| `make test` | Roda suíte de testes (BE + FE) |
-| `make migrate` | Aplica migrações do banco |
-| `make seed` | Popula dados de teste |
-| `make logs` | Logs em tempo real |
+- `make dev`: Sobe tudo (Migrate + Seed inclusos).
+- `make test`: Executa testes unitários com cobertura (Backend + Frontend).
+- `make seed`: Força a execução do script de população de dados.
+- `make migrate`: Aplica migrações pendentes manualmente.
 
 ---
 
-### 🛡️ Recursos de Segurança
+### 🏗️ Arquitetura
 
-- **Tokens de Atualização (Refresh Tokens) com Rotação**: Implementação de *Refresh Token Rotation*. Ao solicitar um novo *Access Token*, o *Refresh Token* antigo é revogado e um novo é emitido, mitigando riscos de interceptação.
-- **Assuntos de JWT Imutáveis**: O campo `sub` do JWT contém o UUID do usuário, garantindo que mudanças de e-mail ou username não invalidem a sessão ou causem inconsistências.
-- **UUIDs como Chave Primária**: Uso de UUID v4 em vez de IDs sequenciais para evitar enumeração de recursos e aumentar a segurança.
-- **Segurança com JWT + Argon2**: Uso do algoritmo **Argon2** (vencedor do Password Hashing Competition) via `pwdlib` para hashing de senhas, oferecendo proteção superior contra ataques de GPU e *side-channel*.
-- **Defesa em Profundidade**: Validação tripla: Banco de Dados (Constraints), API (Pydantic v2) e Frontend (Zod + React Hook Form).
+```mermaid
+graph TD
+    User([Usuário]) -->|HTTP| Nginx[Nginx API Gateway]
+    Nginx -->|Proxy| Frontend[Frontend Next.js]
+    Nginx -->|Proxy /api| Backend[Backend FastAPI]
+    Backend -->|SQLAlchemy| DB[(PostgreSQL)]
+    CI[GitHub Actions] -->|Terraform| AWS[AWS EC2]
+    CI -->|Push| GHCR[Imagens Docker]
+    GHCR -->|Pull| AWS
+```
 
 ### 💡 Decisões Técnicas
 
@@ -204,18 +202,13 @@ O projeto foi desenhado para "simplesmente funcionar", automatizando o que antes
 - **Next.js App Router & React 19:** Aproveitamento das últimas tecnologias do ecossistema React, incluindo *Server Components* para performance e as melhorias de renderização do React 19 e Tailwind CSS 4.
 - **CI/CD com GitHub Actions & Terraform:** Automação completa do ciclo de vida da aplicação, desde a criação da infraestrutura na AWS até o deploy contínuo, garantindo que o ambiente de produção seja sempre um reflexo fiel do código aprovado.
 
-### 🏗️ Arquitetura
+### 🛡️ Recursos de Segurança
 
-```mermaid
-graph TD
-    User([Usuário]) -->|HTTP| Nginx[Nginx API Gateway]
-    Nginx -->|Proxy| Frontend[Frontend Next.js]
-    Nginx -->|Proxy /api| Backend[Backend FastAPI]
-    Backend -->|SQLAlchemy| DB[(PostgreSQL)]
-    CI[GitHub Actions] -->|Terraform| AWS[AWS EC2]
-    CI -->|Push| GHCR[Imagens Docker]
-    GHCR -->|Pull| AWS
-```
+- **Tokens de Atualização (Refresh Tokens) com Rotação**: Implementação de *Refresh Token Rotation*. Ao solicitar um novo *Access Token*, o *Refresh Token* antigo é revogado e um novo é emitido, mitigando riscos de interceptação.
+- **Assuntos de JWT Imutáveis**: O campo `sub` do JWT contém o UUID do usuário, garantindo que mudanças de e-mail ou username não invalidem a sessão ou causem inconsistências.
+- **UUIDs como Chave Primária**: Uso de UUID v4 em vez de IDs sequenciais para evitar enumeração de recursos e aumentar a segurança.
+- **Segurança com JWT + Argon2**: Uso do algoritmo **Argon2** (vencedor do Password Hashing Competition) via `pwdlib` para hashing de senhas, oferecendo proteção superior contra ataques de GPU e *side-channel*.
+- **Defesa em Profundidade**: Validação tripla: Banco de Dados (Constraints), API (Pydantic v2) e Frontend (Zod + React Hook Form).
 
 ### 🚀 O que Melhoraria com Mais Tempo
 
