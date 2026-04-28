@@ -115,7 +115,6 @@
     "priority": "Prioridade",
     "placeholder_title": "Digite o título da tarefa",
     "placeholder_description": "Digite a descrição da tarefa (opcional)",
-    "no_description": "Nenhuma descrição fornecida.",
     "due_date": "Data de Entrega",
     "time": "Horário",
     "placeholder_due_date": "Escolha uma data",

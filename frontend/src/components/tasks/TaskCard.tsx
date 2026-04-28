@@ -164,9 +164,11 @@ const TaskCard = memo(function TaskCard({
         >
           {task.title}
         </h3>
-        <p className="text-xs text-warm-500 dark:text-gray-400 line-clamp-3 leading-snug">
-          {task.description || t('tasks.no_description')}
-        </p>
+        {task.description && (
+          <p className="text-xs text-warm-500 dark:text-gray-400 line-clamp-3 leading-snug">
+            {task.description}
+          </p>
+        )}
         <TaskDateBadge
           dueDate={task.due_date as string | null}
           hasTime={task.due_date_has_time || false}

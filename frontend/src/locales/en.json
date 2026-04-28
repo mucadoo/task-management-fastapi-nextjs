@@ -115,7 +115,6 @@
     "priority": "Priority",
     "placeholder_title": "Enter task title",
     "placeholder_description": "Enter task description (optional)",
-    "no_description": "No description provided.",
     "due_date": "Due Date",
     "time": "Time",
     "placeholder_due_date": "Pick a date",
