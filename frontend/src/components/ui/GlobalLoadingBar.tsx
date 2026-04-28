@@ -7,7 +7,7 @@ export function GlobalLoadingBar() {
   const { progress, isVisible } = useGlobalLoadingStore();
 
   return (
-    <div 
+    <div
       className="fixed top-0 left-0 w-full z-[9999] pointer-events-none overflow-hidden transition-opacity duration-300"
       style={{
         opacity: isVisible ? 1 : 0,
@@ -23,7 +23,7 @@ export function GlobalLoadingBar() {
       />
 
       {isVisible && progress < 100 && (
-        <div 
+        <div
           className="absolute top-0 h-[3px] w-20 bg-[#3a5fa3] opacity-50 blur-[4px] transition-all duration-300"
           style={{
             left: `${progress}%`,

@@ -1,4 +1,9 @@
-import { useInfiniteQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from '@tanstack/react-query';
 import { taskService } from '@/services/task-service';
 import { taskKeys } from '@/lib/query-keys';
 import { onMutateListUpdate, rollbackQueries } from '@/lib/query-utils';
@@ -84,22 +89,18 @@ export function useUpdateTaskStatus() {
       taskService.updateTaskStatus(id, status),
     onMutate: async ({ id, status: newStatus }) => {
       startLoading();
-      return await onMutateListUpdate<Task>(
-        queryClient,
-        taskKeys.lists() as readonly unknown[],
-        (page) => ({
-          ...page,
-          items: page.items.map((task) => {
-            if (task.id === id) {
-              return {
-                ...task,
-                status: newStatus,
-              };
-            }
-            return task;
-          }),
+      return await onMutateListUpdate<Task>(queryClient, taskKeys.lists(), (page) => ({
+        ...page,
+        items: page.items.map((task) => {
+          if (task.id === id) {
+            return {
+              ...task,
+              status: newStatus,
+            };
+          }
+          return task;
         }),
-      );
+      }));
     },
     onError: (err: ApiError, { id, status }, context) => {
       rollbackQueries(queryClient, context);
@@ -120,7 +121,7 @@ export function useDeleteTask() {
     mutationFn: (id: string) => taskService.deleteTask(id),
     onMutate: (id: string) => {
       startLoading();
-      return onMutateListUpdate<Task>(queryClient, taskKeys.lists() as readonly unknown[], (page) => ({
+      return onMutateListUpdate<Task>(queryClient, taskKeys.lists(), (page) => ({
         ...page,
         items: page.items.filter((task) => task.id !== id),
         total: page.total - 1,

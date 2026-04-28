@@ -5,7 +5,7 @@ import {
   useTasks,
   useCreateTask,
   useUpdateTask,
-  useToggleTaskStatus,
+  useUpdateTaskStatus,
   useDeleteTask,
 } from './useTasks';
 import { taskService } from '@/services/task-service';
@@ -16,7 +16,7 @@ vi.mock('@/services/task-service', () => ({
     getTasks: vi.fn(),
     createTask: vi.fn(),
     updateTask: vi.fn(),
-    toggleTaskStatus: vi.fn(),
+    updateTaskStatus: vi.fn(),
     deleteTask: vi.fn(),
   },
 }));
@@ -87,17 +87,17 @@ describe('useTasks', () => {
   });
 
   it('handles toggle task status', async () => {
-    vi.mocked(taskService.toggleTaskStatus).mockResolvedValue({
+    vi.mocked(taskService.updateTaskStatus).mockResolvedValue({
       id: '1',
       status: 'completed',
     } as any);
 
-    const { result } = renderHook(() => useToggleTaskStatus(), { wrapper });
+    const { result } = renderHook(() => useUpdateTaskStatus(), { wrapper });
 
-    result.current.mutate('1');
+    result.current.mutate({ id: '1', status: 'completed' });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(taskService.toggleTaskStatus).toHaveBeenCalledWith('1');
+    expect(taskService.updateTaskStatus).toHaveBeenCalledWith('1', 'completed');
   });
 
   it('handles delete task success', async () => {

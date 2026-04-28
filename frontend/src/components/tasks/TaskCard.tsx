@@ -68,12 +68,7 @@ const TaskCard = memo(function TaskCard({
   };
 
   const actions = (
-    <TaskCardActions
-      task={task}
-      onEdit={onEdit}
-      onDelete={onDelete}
-      isDeleting={isDeleting}
-    />
+    <TaskCardActions task={task} onEdit={onEdit} onDelete={onDelete} isDeleting={isDeleting} />
   );
 
   const statusToggles = (

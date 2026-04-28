@@ -127,9 +127,9 @@ export function useProfileForm({ activeTab }: UseProfileFormProps) {
       }
     } catch (err: any) {
       if (activeTab === 'security' && err.code === 'INCORRECT_PASSWORD') {
-        form.setError('current_password', { 
-          type: 'manual', 
-          message: t('errors.incorrect_password') 
+        form.setError('current_password', {
+          type: 'manual',
+          message: t('errors.incorrect_password'),
         });
       } else {
         notify.error(

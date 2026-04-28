@@ -106,7 +106,7 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
                   let message = i18n.t('errors.retry_failed');
                   let code: string | undefined;
                   try {
-                    const errData = (await retryResponse.json()) as any;
+                    const errData = await retryResponse.json();
                     const rawMessage = errData.error || errData.detail || message;
                     message = typeof rawMessage === 'string' ? i18n.t(rawMessage) : message;
                     code = errData.code;
@@ -147,7 +147,11 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
     let message = i18n.t('common.error');
     let code: string | undefined;
     try {
-      const errorData = (await response.json()) as { error?: string; detail?: string; code?: string };
+      const errorData = (await response.json()) as {
+        error?: string;
+        detail?: string;
+        code?: string;
+      };
       const rawMessage = errorData.error || errorData.detail || message;
       message = typeof rawMessage === 'string' ? i18n.t(rawMessage) : i18n.t('common.error');
       code = errorData.code;

@@ -38,7 +38,10 @@ describe('authService', () => {
         '/auth/login',
         expect.objectContaining({
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: JSON.stringify({
+            identifier: 'testuser',
+            password: 'password123',
+          }),
         }),
       );
       expect(tokenManager.setTokens).toHaveBeenCalledWith('access-123', 'refresh-123');

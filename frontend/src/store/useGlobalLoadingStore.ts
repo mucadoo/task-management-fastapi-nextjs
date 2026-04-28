@@ -27,7 +27,7 @@ export const useGlobalLoadingStore = create<GlobalLoadingState>((set, get) => ({
       }
       if (trickleInterval) clearInterval(trickleInterval);
 
-      set({ isVisible: true, progress: 5 + Math.random() * 5 }); 
+      set({ isVisible: true, progress: 5 + Math.random() * 5 });
 
       trickleInterval = setInterval(() => {
         const { progress } = get();

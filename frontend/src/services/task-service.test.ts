@@ -94,17 +94,18 @@ describe('taskService', () => {
     });
   });
 
-  describe('toggleTaskStatus', () => {
-    it('calls request for toggle endpoint', async () => {
+  describe('updateTaskStatus', () => {
+    it('calls request for status update endpoint', async () => {
       const mockTask = { id: '1', status: 'completed' };
       vi.mocked(request).mockResolvedValue(mockTask);
 
-      const result = await taskService.toggleTaskStatus('1');
+      const result = await taskService.updateTaskStatus('1', 'completed');
 
       expect(request).toHaveBeenCalledWith(
-        '/tasks/1/toggle',
+        '/tasks/1/status',
         expect.objectContaining({
-          method: 'POST',
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'completed' }),
         }),
       );
       expect(result).toEqual(mockTask);
