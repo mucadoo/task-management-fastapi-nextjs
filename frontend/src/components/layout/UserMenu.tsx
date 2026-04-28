@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
+import { useRouter } from 'next/navigation';
 
 interface UserMenuProps {
   onProfileOpen: (tab: 'personal' | 'security') => void;
@@ -19,9 +20,11 @@ interface UserMenuProps {
 export default function UserMenu({ onProfileOpen }: UserMenuProps) {
   const { t } = useTranslation();
   const { user, logout } = useAuthStore();
+  const router = useRouter();
 
   const handleLogout = () => {
     logout();
+    router.push('/login');
   };
 
   return (

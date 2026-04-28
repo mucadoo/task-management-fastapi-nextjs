@@ -14,12 +14,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { FormControl } from '@/components/ui/FormControl';
 import AuthSidebar from '@/components/layout/AuthSidebar';
+import { useRouter } from 'next/navigation'; // Import useRouter
 
 type LoginForm = z.infer<ReturnType<typeof getLoginSchema>>;
 
 export default function LoginPage() {
   const { t } = useTranslation();
   const { login } = useAuthStore();
+  const router = useRouter();
 
   const {
     isLoading: authCheckLoading,
@@ -42,12 +44,18 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     try {
       await login(data);
+      router.push('/app');
     } catch (error) {
       console.error('Login failed:', error);
     }
   };
 
-  if (authCheckLoading || isAuthenticated) return null;
+  if (authCheckLoading) return null;
+
+  if (isAuthenticated) {
+    router.push('/app');
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex">

@@ -3,12 +3,20 @@
 import TaskBoard from '@/components/tasks/TaskBoard';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import Loading from './loading';
+import { useRouter } from 'next/navigation';
 
 export default function AppDashboardPage() {
   const { t } = useTranslation();
   const { isLoading, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isAuthenticated && !isLoading) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -21,7 +29,7 @@ export default function AppDashboardPage() {
     );
   }
 
-  if (!isAuthenticated && !isLoading) {
+  if (!isAuthenticated) {
     return null;
   }
 
