@@ -70,10 +70,10 @@ function analisarNumeros(dados: any[]): { somaPares: number; mediaImpares: numbe
 
 ### 2️⃣ Conceitos
 
-**2.1 REST vs GraphQL:** REST usa endpoints fixos; GraphQL permite consultas flexíveis pelo cliente.
-**2.2 Transação:** Unidade de trabalho atômica que garante integridade (ACID).
-**2.3 Autenticação vs Autorização:** Autenticação é identidade (Quem é?); Autorização é permissão (O que pode fazer?).
-**2.4 Cache:** Usar para dados caros/estáticos; evitar para dados sensíveis ou de alta volatilidade.
+- **2.1 REST vs GraphQL:** REST usa endpoints fixos; GraphQL permite consultas flexíveis pelo cliente.
+- **2.2 Transação:** Unidade de trabalho atômica que garante integridade (ACID).
+- **2.3 Autenticação vs Autorização:** Autenticação é identidade (Quem é?); Autorização é permissão (O que pode fazer?).
+- **2.4 Cache:** Usar para dados caros/estáticos; evitar para dados sensíveis ou de alta volatilidade.
 
 ---
 
