@@ -153,8 +153,9 @@ O deploy exige apenas **duas** configurações no GitHub (Secrets):
 1. `AWS_ACCESS_KEY_ID`
 2. `AWS_SECRET_ACCESS_KEY`
 
-O Terraform cuidará da criação da chave SSH, do Security Group e da instância. O pipeline injetará automaticamente o IP e gerará os segredos necessários.
-O pipeline de CI/CD monitora o repositório e, a cada push na branch principal, reconstrói e atualiza os containers na AWS automaticamente.
+O Terraform cuidará da criação da infraestrutura na AWS, incluindo a instância EC2, Security Groups e chaves SSH. O pipeline de CI/CD monitora o repositório e, a cada push na branch principal, reconstrói e atualiza os containers na AWS automaticamente.
+
+**Diferencial de Robustez:** O projeto utiliza **Remote State do Terraform** armazenado em um bucket S3. Isso garante que o estado da infraestrutura seja persistente entre as execuções do pipeline, permitindo atualizações incrementais e seguras, exatamente como o comportamento do AWS CloudFormation.
 
 ### 🔐 Configuração e Variáveis
 
@@ -233,7 +234,7 @@ graph TD
 - **Categorização e Projetos:** Criação de uma forma de organizar tarefas por projeto, categoria ou tópicos (tags).
 - **Testes de Integração e E2E:** Ampliação da cobertura com testes de integração no backend e testes de ponta a ponta (E2E) com **Playwright**.
 - **Infraestrutura e Segurança:** Desacoplamento do banco de dados para um serviço gerenciado, configuração de **SSL/TLS** e uso de domínio customizado.
-- **Múltiplos Ambientes:** Estruturação de ambientes distintos (pelo menos um de Desenvolvimento/Dev e outro de Produção) via Terraform, incluindo a configuração de um **Backend Remoto (S3 + DynamoDB)** para garantir o bloqueio de estado (*state locking*) em produção.
+- **Múltiplos Ambientes:** Estruturação de ambientes distintos (pelo menos um de Desenvolvimento/Dev e outro de Produção) via Terraform.
 - **Observabilidade:** Implementação de **Logs Estruturados** e centralização de logs para melhor monitoramento e depuração.
 - **Rate Limiting** para proteger endpoints sensíveis contra ataques de força bruta.
 - **Soft Delete** nas tarefas para permitir a recuperação de dados excluídos acidentalmente.
@@ -251,7 +252,7 @@ graph TD
 - **Gateway de API com Nginx:** Centralização de requisições, compressão Gzip e configuração otimizada para performance e segurança na borda.
 - **DevEx Superior com Makefile:** Ambiente totalmente dockerizado com um **Makefile** que centraliza todos os comandos essenciais (build, dev, test, migrate, seed), simplificando o fluxo de trabalho.
 - **Qualidade Assegurada no CI/CD:** O pipeline de CI/CD impõe padrões rigorosos de qualidade, executando obrigatoriamente testes com cobertura mínima (**80% no Backend**, **60% no Frontend**) e ferramentas de linting como **Ruff** (Backend) e ESLint (Frontend) antes de qualquer deploy.
-- **Automação de Infraestrutura:** Uso de **Terraform** para provisionamento reprodutível de recursos na AWS.
+- **Automação de Infraestrutura:** Uso de **Terraform** para provisionamento reprodutível de recursos na AWS, agora com **Remote State em S3** para maior segurança e estabilidade.
 - **UX Consistente:** Tratamento global de erros, estados de carregamento (Skeleton/Spinners) e feedbacks via Toast.
 
 **Limitações:**

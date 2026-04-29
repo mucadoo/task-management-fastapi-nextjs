@@ -38,3 +38,12 @@ resource "aws_instance" "app_server" {
     Name = "TaskManagerAppServer"
   }
 }
+
+resource "aws_eip" "app_eip" {
+  instance = aws_instance.app_server.id
+  domain   = "vpc"
+
+  tags = {
+    Name = "TaskManagerEIP"
+  }
+}
