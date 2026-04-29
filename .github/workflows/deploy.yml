@@ -89,7 +89,11 @@ jobs:
           # 1. Create S3 Bucket if it doesn't exist
           if ! aws s3api head-bucket --bucket "$TF_STATE_BUCKET" 2>/dev/null; then
             echo "Creating S3 bucket $TF_STATE_BUCKET for state..."
-            aws s3api create-bucket --bucket "$TF_STATE_BUCKET" --region "$AWS_REGION"
+            if [ "$AWS_REGION" = "us-east-1" ]; then
+              aws s3api create-bucket --bucket "$TF_STATE_BUCKET" --region "$AWS_REGION"
+            else
+              aws s3api create-bucket --bucket "$TF_STATE_BUCKET" --region "$AWS_REGION" --create-bucket-configuration LocationConstraint="$AWS_REGION"
+            fi
           fi
 
           # 2. Check if we have an existing state file in S3
@@ -102,19 +106,40 @@ jobs:
             # Delete Key Pair
             aws ec2 delete-key-pair --key-name "task-manager-deploy-key" || true
             
-            # Delete Security Group (only if it exists)
+            # Find and terminate instances using the security group
             SG_ID=$(aws ec2 describe-security-groups --group-names "task-manager-sg" --query 'SecurityGroups[0].GroupId' --output text 2>/dev/null || echo "None")
             if [ "$SG_ID" != "None" ]; then
-              echo "Found existing Security Group $SG_ID, deleting..."
-              # Note: This might fail if the SG is currently attached to a running instance
-              aws ec2 delete-security-group --group-id "$SG_ID" || echo "Warning: Could not delete SG (might be in use)"
+              echo "Found existing Security Group $SG_ID. Checking for associated instances..."
+              INSTANCE_IDS=$(aws ec2 describe-instances \
+                --filters "Name=instance.group-id,Values=$SG_ID" "Name=instance-state-name,Values=running,pending,stopping,stopped" \
+                --query 'Reservations[*].Instances[*].InstanceId' --output text)
+
+              if [ -n "$INSTANCE_IDS" ]; then
+                echo "Terminating instances: $INSTANCE_IDS"
+                aws ec2 terminate-instances --instance-ids $INSTANCE_IDS
+                echo "Waiting for instances to terminate..."
+                aws ec2 wait instance-terminated --instance-ids $INSTANCE_IDS
+                echo "Instances terminated."
+              fi
+
+              # Delete Security Group (retry a few times as it might take a moment for associations to clear)
+              echo "Attempting to delete Security Group $SG_ID..."
+              for i in $(seq 1 6); do
+                if aws ec2 delete-security-group --group-id "$SG_ID" 2>/dev/null; then
+                  echo "Security Group $SG_ID deleted."
+                  break
+                else
+                  echo "Attempt $i: Could not delete SG $SG_ID (might still be in use or deleting). Retrying in 15s..."
+                  sleep 15
+                fi
+              done
             fi
           fi
 
       - name: Terraform Init
         run: |
           cd terraform
-          terraform init \
+          terraform init -reconfigure \
             -backend-config="bucket=$TF_STATE_BUCKET" \
             -backend-config="key=terraform.tfstate" \
             -backend-config="region=$AWS_REGION"
