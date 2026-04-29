@@ -1,15 +1,18 @@
 import { TaskStatus, TaskPriority } from '@/types/task';
 
 export const taskKeys = {
-  all: ['tasks'] as const,
-  lists: () => [...taskKeys.all, 'list'] as const,
-  list: (filters: {
-    status?: TaskStatus;
-    priority?: TaskPriority;
-    q?: string;
-    sort_by?: string;
-    sort_dir?: string;
-  }) => [...taskKeys.lists(), filters] as const,
-  details: () => [...taskKeys.all, 'detail'] as const,
-  detail: (id: string) => [...taskKeys.details(), id] as const,
+  all: (userId?: string) => ['tasks', userId].filter(Boolean) as const,
+  lists: (userId?: string) => [...taskKeys.all(userId), 'list'] as const,
+  list: (
+    userId: string | undefined,
+    filters: {
+      status?: TaskStatus;
+      priority?: TaskPriority;
+      q?: string;
+      sort_by?: string;
+      sort_dir?: string;
+    },
+  ) => [...taskKeys.lists(userId), filters] as const,
+  details: (userId?: string) => [...taskKeys.all(userId), 'detail'] as const,
+  detail: (userId: string | undefined, id: string) => [...taskKeys.details(userId), id] as const,
 };

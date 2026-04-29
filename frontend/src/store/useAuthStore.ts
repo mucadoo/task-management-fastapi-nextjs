@@ -6,6 +6,7 @@ import { tokenManager } from '@/lib/token';
 import i18n from '@/lib/i18n';
 import { notify } from '@/lib/notifications';
 import { useGlobalLoadingStore } from './useGlobalLoadingStore';
+import { queryClient } from '@/lib/query-client';
 
 interface AuthState {
   user: User | null;
@@ -72,6 +73,7 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         authService.logout();
+        queryClient.clear();
         set({
           user: null,
           isAuthenticated: false,
@@ -99,6 +101,7 @@ export const useAuthStore = create<AuthState>()(
           set({ user, isAuthenticated: true, isInitializing: false });
         } catch {
           authService.logout();
+          queryClient.clear();
           set({ user: null, isAuthenticated: false, isInitializing: false });
         } finally {
           stopLoading();

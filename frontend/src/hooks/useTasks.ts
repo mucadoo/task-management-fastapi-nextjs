@@ -11,6 +11,7 @@ import { TaskCreate, TaskUpdate, TaskStatus, TaskPriority, Task } from '@/types/
 import { notify } from '@/lib/notifications';
 import { ApiError } from '@/lib/api-client';
 import { useGlobalLoadingStore } from '@/store/useGlobalLoadingStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export function useTasks(filters: {
   status?: TaskStatus;
@@ -19,8 +20,10 @@ export function useTasks(filters: {
   sort_by?: string;
   sort_dir?: string;
 }) {
+  const { user } = useAuthStore();
+
   return useInfiniteQuery({
-    queryKey: taskKeys.list(filters),
+    queryKey: taskKeys.list(user?.id, filters),
     queryFn: ({ pageParam = 1 }) =>
       taskService.getTasks({
         ...filters,
@@ -39,6 +42,7 @@ export function useTasks(filters: {
 
 export function useCreateTask() {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   const { startLoading, stopLoading } = useGlobalLoadingStore.getState();
 
   return useMutation({
@@ -47,7 +51,7 @@ export function useCreateTask() {
       startLoading();
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: taskKeys.lists(user?.id) });
       notify.success('tasks.create_success');
     },
     onError: (error: ApiError) => notify.error(error, 'tasks.create_failed'),
@@ -59,6 +63,7 @@ export function useCreateTask() {
 
 export function useUpdateTask() {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   const { startLoading, stopLoading } = useGlobalLoadingStore.getState();
 
   return useMutation({
@@ -68,7 +73,7 @@ export function useUpdateTask() {
       startLoading();
     },
     onSuccess: (_, variables) => {
-      void queryClient.invalidateQueries({ queryKey: taskKeys.all });
+      void queryClient.invalidateQueries({ queryKey: taskKeys.all(user?.id) });
       if (variables.data.title) {
         notify.success('tasks.update_success');
       }
@@ -82,6 +87,7 @@ export function useUpdateTask() {
 
 export function useUpdateTaskStatus() {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   const { startLoading, stopLoading } = useGlobalLoadingStore.getState();
 
   return useMutation({
@@ -89,7 +95,7 @@ export function useUpdateTaskStatus() {
       taskService.updateTaskStatus(id, status),
     onMutate: async ({ id, status: newStatus }) => {
       startLoading();
-      return await onMutateListUpdate<Task>(queryClient, taskKeys.lists(), (page) => ({
+      return await onMutateListUpdate<Task>(queryClient, taskKeys.lists(user?.id), (page) => ({
         ...page,
         items: page.items.map((task) => {
           if (task.id === id) {
@@ -108,20 +114,21 @@ export function useUpdateTaskStatus() {
     },
     onSettled: () => {
       stopLoading();
-      void queryClient.invalidateQueries({ queryKey: taskKeys.all });
+      void queryClient.invalidateQueries({ queryKey: taskKeys.all(user?.id) });
     },
   });
 }
 
 export function useDeleteTask() {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   const { startLoading, stopLoading } = useGlobalLoadingStore.getState();
 
   return useMutation({
     mutationFn: (id: string) => taskService.deleteTask(id),
     onMutate: (id: string) => {
       startLoading();
-      return onMutateListUpdate<Task>(queryClient, taskKeys.lists(), (page) => ({
+      return onMutateListUpdate<Task>(queryClient, taskKeys.lists(user?.id), (page) => ({
         ...page,
         items: page.items.filter((task) => task.id !== id),
         total: page.total - 1,
@@ -136,7 +143,7 @@ export function useDeleteTask() {
     },
     onSettled: () => {
       stopLoading();
-      void queryClient.invalidateQueries({ queryKey: taskKeys.all });
+      void queryClient.invalidateQueries({ queryKey: taskKeys.all(user?.id) });
     },
   });
 }
