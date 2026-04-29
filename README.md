@@ -157,6 +157,21 @@ O Terraform cuidará da criação da infraestrutura na AWS, incluindo a instânc
 
 **Diferencial de Robustez:** O projeto utiliza **Remote State do Terraform** armazenado em um bucket S3. Isso garante que o estado da infraestrutura seja persistente entre as execuções do pipeline, permitindo atualizações incrementais e seguras, exatamente como o comportamento do AWS CloudFormation.
 
+### 🌐 Endereço e Acesso (Demo)
+A aplicação está disponível publicamente para testes no ambiente AWS:
+
+- **URL:** [http://32.194.235.8](http://32.194.235.8)
+- **API Docs:** [http://32.194.235.8/api/docs](http://32.194.235.8/api/docs)
+
+**Usuários de Teste (Seed):**
+Todos os usuários abaixo utilizam a senha padrão: `senha123`
+
+| Nome | Email | Username |
+| :--- | :--- | :--- |
+| Desenvolvedor | `dev@exemplo.com` | `dev` |
+| Testador | `tester@exemplo.com` | `tester` |
+| Gerente | `gerente@exemplo.com` | `gerente` |
+
 ### 🔐 Configuração e Variáveis
 
 Embora o projeto use *fallbacks* automáticos, você pode sobrescrever qualquer comportamento via variáveis de ambiente no `.env` (local) ou GitHub Secrets (produção). A tabela abaixo lista todas as variáveis de ambiente utilizadas no projeto, seus fallbacks e onde cada uma é aplicada:
