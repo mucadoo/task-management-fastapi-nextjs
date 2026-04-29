@@ -153,7 +153,7 @@ O deploy exige apenas **duas** configurações no GitHub (Secrets):
 1. `AWS_ACCESS_KEY_ID`
 2. `AWS_SECRET_ACCESS_KEY`
 
-O Terraform cuidará da criação da infraestrutura na AWS, incluindo a instância EC2, Security Groups e chaves SSH. O pipeline de CI/CD monitora o repositório e, a cada push na branch principal, reconstrói e atualiza os containers na AWS automaticamente.
+O Terraform cuidará da criação da infraestrutura na AWS, incluindo a instância EC2, Security Groups e chaves SSH. Para garantir que o endereço IP público da aplicação permaneça constante mesmo após recriações da instância, um **Elastic IP (EIP)** é provisionado e associado à instância EC2.
 
 **Diferencial de Robustez:** O projeto utiliza **Remote State do Terraform** armazenado em um bucket S3. Isso garante que o estado da infraestrutura seja persistente entre as execuções do pipeline, permitindo atualizações incrementais e seguras, exatamente como o comportamento do AWS CloudFormation.
 
@@ -239,6 +239,7 @@ graph TD
 - **Rate Limiting** para proteger endpoints sensíveis contra ataques de força bruta.
 - **Soft Delete** nas tarefas para permitir a recuperação de dados excluídos acidentalmente.
 - **Camada de Cache** com **Redis** para otimizar a performance de consultas frequentes.
+- **Deploy Condicional:** Implementar lógica no pipeline de CI/CD para pular etapas (e.g., reconstrução de imagens Docker ou deploy) se apenas partes específicas do código (e.g., apenas `README.md` ou arquivos de documentação) forem alteradas, otimizando o tempo de execução.
 
 ### 🏆 Pontos Fortes e Limitações
 
@@ -252,7 +253,7 @@ graph TD
 - **Gateway de API com Nginx:** Centralização de requisições, compressão Gzip e configuração otimizada para performance e segurança na borda.
 - **DevEx Superior com Makefile:** Ambiente totalmente dockerizado com um **Makefile** que centraliza todos os comandos essenciais (build, dev, test, migrate, seed), simplificando o fluxo de trabalho.
 - **Qualidade Assegurada no CI/CD:** O pipeline de CI/CD impõe padrões rigorosos de qualidade, executando obrigatoriamente testes com cobertura mínima (**80% no Backend**, **60% no Frontend**) e ferramentas de linting como **Ruff** (Backend) e ESLint (Frontend) antes de qualquer deploy.
-- **Automação de Infraestrutura:** Uso de **Terraform** para provisionamento reprodutível de recursos na AWS, agora com **Remote State em S3** para maior segurança e estabilidade.
+- **Automação de Infraestrutura:** Uso de **Terraform** para provisionamento reprodutível de recursos na AWS, agora com **Remote State em S3** e **Elastic IP (EIP)** para maior segurança e estabilidade.
 - **UX Consistente:** Tratamento global de erros, estados de carregamento (Skeleton/Spinners) e feedbacks via Toast.
 
 **Limitações:**
