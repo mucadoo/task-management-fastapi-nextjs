@@ -19,7 +19,7 @@ export const useToastStore = create<ToastState>((set) => ({
   toasts: [],
   addToast: (message, type = 'info', duration = 5000) => {
     const id =
-      typeof window !== 'undefined'
+      typeof window !== 'undefined' && typeof window.crypto?.randomUUID === 'function'
         ? window.crypto.randomUUID()
         : Math.random().toString(36).substring(2, 9);
     set((state) => ({
