@@ -154,10 +154,19 @@ jobs:
         id: out
         run: |
           cd terraform
-          echo "ip=$(terraform output -raw instance_public_ip)" >> $GITHUB_OUTPUT
+          IP=$(terraform output -raw instance_public_ip)
+          echo "ip=$IP" >> $GITHUB_OUTPUT
           echo "key<<EOF" >> $GITHUB_OUTPUT
           terraform output -raw private_key >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Add to Job Summary
+          echo "### 🚀 Deployment Info" >> $GITHUB_STEP_SUMMARY
+          echo "| Resource | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **EC2 Public IP** | \`$IP\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Application URL** | [http://$IP](http://$IP) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **API Health** | [http://$IP/api/health](http://$IP/api/health) |" >> $GITHUB_STEP_SUMMARY
 
   build-and-push:
     name: Build & Push Docker Images
@@ -266,6 +275,15 @@ jobs:
             if [ $SUCCESS -eq 1 ]; then
               echo "Deploy successful, running migrations..."
               docker compose -f docker-compose.prod.yml exec -T backend alembic upgrade head
+              
+              if [ "${{ secrets.SEED_DB }}" = "true" ]; then
+                echo "SEED_DB is true. Seeding database..."
+                docker compose -f docker-compose.prod.yml exec -T backend python -m app.scripts.seed_db
+                echo "Database seeding complete."
+              else
+                echo "SEED_DB is not true. Skipping database seeding."
+              fi
+
               echo "Migrations complete. Application is UP."
             else
               echo "Deploy failed: Health check timeout."
