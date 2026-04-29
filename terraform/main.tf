@@ -1,3 +1,7 @@
+terraform {
+  backend "s3" {}
+}
+
 provider "aws" {
   region = var.aws_region
 }
@@ -40,10 +44,14 @@ resource "aws_instance" "app_server" {
 }
 
 resource "aws_eip" "app_eip" {
-  instance = aws_instance.app_server.id
-  domain   = "vpc"
+  domain = "vpc"
 
   tags = {
     Name = "TaskManagerEIP"
   }
+}
+
+resource "aws_eip_association" "eip_assoc" {
+  instance_id   = aws_instance.app_server.id
+  allocation_id = aws_eip.app_eip.id
 }
