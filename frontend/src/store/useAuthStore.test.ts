@@ -81,13 +81,11 @@ describe('useAuthStore', () => {
 
   describe('register', () => {
     it('handles successful registration', async () => {
-      const mockUser = { id: 1, email: 'test@example.com', name: 'Test' };
       vi.mocked(authService.register).mockResolvedValue({
         access_token: 'at',
         refresh_token: 'rt',
         token_type: 'bearer',
       });
-      vi.mocked(authService.getMe).mockResolvedValue(mockUser);
 
       await useAuthStore.getState().register({
         name: 'Test',
@@ -97,8 +95,8 @@ describe('useAuthStore', () => {
         confirmPassword: 'pass',
       });
 
-      expect(useAuthStore.getState().user).toEqual(mockUser);
-      expect(useAuthStore.getState().isAuthenticated).toBe(true);
+      expect(useAuthStore.getState().user).toBeNull();
+      expect(useAuthStore.getState().isAuthenticated).toBe(false);
       expect(notify.success).toHaveBeenCalledWith('auth.register_success');
     });
 

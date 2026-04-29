@@ -4,6 +4,7 @@ import RegisterPage from './page';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useAuth } from '@/hooks/useAuth';
 import { authService } from '@/services/auth-service';
+import { useRouter } from 'next/navigation';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -26,10 +27,10 @@ vi.mock('@/services/auth-service', () => ({
 }));
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({
+  useRouter: vi.fn(() => ({
     push: vi.fn(),
     replace: vi.fn(),
-  }),
+  })),
   useSearchParams: () => new URLSearchParams(),
   usePathname: () => '/register',
 }));
@@ -48,6 +49,7 @@ vi.mock('@/components/layout/AuthSidebar', () => ({
 
 describe('RegisterPage', () => {
   const mockRegister = vi.fn();
+  const mockPush = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -60,6 +62,11 @@ describe('RegisterPage', () => {
       isAuthenticated: false,
     } as any);
     vi.mocked(authService.checkEmail).mockResolvedValue({ available: true });
+
+    vi.mocked(useRouter).mockReturnValue({
+      push: mockPush,
+      replace: vi.fn(),
+    } as any);
   });
 
   it('renders register form', () => {
@@ -95,6 +102,7 @@ describe('RegisterPage', () => {
         email: 'test@example.com',
         password: 'Password123!',
       });
+      expect(mockPush).toHaveBeenCalledWith('/login');
     });
   });
 

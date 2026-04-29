@@ -58,8 +58,7 @@ export const useAuthStore = create<AuthState>()(
         startLoading();
         try {
           await authService.register(data);
-          const user = await authService.getMe();
-          set({ user, isAuthenticated: true, isLoading: false });
+          set({ isLoading: false });
           notify.success('auth.register_success');
         } catch (err: unknown) {
           const message = (err as { message?: string }).message || i18n.t('auth.register_failed');

@@ -17,11 +17,13 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { FormControl } from '@/components/ui/FormControl';
 import AuthSidebar from '@/components/layout/AuthSidebar';
+import { useRouter } from 'next/navigation';
 
 type RegisterForm = z.infer<ReturnType<typeof getRegisterSchema>>;
 
 export default function RegisterPage() {
   const { t } = useTranslation();
+  const router = useRouter();
   const { register: registerUser } = useAuthStore();
   const [emailStatus, setEmailStatus] = useState<
     'idle' | 'checking' | 'available' | 'taken' | 'invalid'
@@ -78,6 +80,7 @@ export default function RegisterPage() {
         username: data.username,
         password: data.password,
       });
+      router.push('/login');
     } catch (error) {
       console.error('Registration failed:', error);
     }

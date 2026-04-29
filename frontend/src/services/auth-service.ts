@@ -20,7 +20,6 @@ export const authService = {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    tokenManager.setTokens(res.access_token, res.refresh_token);
     return res;
   },
 

@@ -50,7 +50,7 @@ describe('authService', () => {
   });
 
   describe('register', () => {
-    it('calls request with correct parameters and sets tokens', async () => {
+    it('calls request with correct parameters and does not set tokens automatically', async () => {
       const mockResponse = {
         access_token: 'access-reg',
         refresh_token: 'refresh-reg',
@@ -74,7 +74,7 @@ describe('authService', () => {
           body: JSON.stringify(regData),
         }),
       );
-      expect(tokenManager.setTokens).toHaveBeenCalledWith('access-reg', 'refresh-reg');
+      expect(tokenManager.setTokens).not.toHaveBeenCalled();
       expect(result).toEqual(mockResponse);
     });
   });

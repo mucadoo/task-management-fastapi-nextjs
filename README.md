@@ -197,10 +197,18 @@ Embora o projeto use *fallbacks* automáticos, você pode sobrescrever qualquer 
 | `CHOKIDAR_USEPOLLING` | Frontend (Dev) | `true` | Habilita o modo de polling para o `chokidar` (usado pelo Next.js) para detecção de mudanças de arquivos em volumes Docker. |
 
 ### ⌨️ Comandos Makefile
-- `make dev`: Sobe tudo (Migrate + Seed inclusos).
-- `make test`: Executa testes unitários com cobertura (Backend + Frontend).
-- `make seed`: Força a execução do script de população de dados.
-- `make migrate`: Aplica migrações pendentes manualmente.
+O projeto utiliza um `Makefile` para simplificar as tarefas comuns de desenvolvimento e manutenção:
+
+- `make dev`: Inicia o ambiente de desenvolvimento completo (build, containers, migrations e seed).
+- `make down`: Para todos os serviços e remove os containers.
+- `make test`: Executa a suíte de testes unitários (Backend + Frontend) com cobertura.
+- `make lint`: Executa a verificação de linting no Backend (Ruff), Frontend (ESLint) e Terraform.
+- `make migrate`: Aplica as migrações do banco de dados via Alembic.
+- `make seed`: Popula o banco de dados com usuários e tarefas de teste.
+- `make logs`: Exibe os logs de todos os containers em tempo real.
+- `make build`: Força a reconstrução das imagens Docker.
+- `make shell-be`: Abre um shell interativo dentro do container do Backend.
+- `make shell-fe`: Abre um shell interativo dentro do container do Frontend.
 
 ---
 
