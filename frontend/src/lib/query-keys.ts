@@ -1,7 +1,7 @@
 import { TaskStatus, TaskPriority } from '@/types/task';
 
 export const taskKeys = {
-  all: (userId?: string) => ['tasks', userId].filter(Boolean) as const,
+  all: (userId?: string) => (userId ? (['tasks', userId] as const) : (['tasks'] as const)),
   lists: (userId?: string) => [...taskKeys.all(userId), 'list'] as const,
   list: (
     userId: string | undefined,
