@@ -48,6 +48,8 @@ services:
       CHOKIDAR_USEPOLLING: "true"
     volumes:
       - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
     command: npm run dev
     depends_on:
       backend:
