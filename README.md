@@ -1,6 +1,6 @@
 # 📝 Task Manager
 
-API REST de gerenciamento de tarefas com autenticação JWT, frontend em Next.js e pipeline de CI/CD automatizado para AWS com configuração zero.
+REST API for task management with JWT authentication, Next.js frontend, and automated CI/CD pipeline to AWS with zero configuration.
 
 ---
 
@@ -12,18 +12,25 @@ API REST de gerenciamento de tarefas com autenticação JWT, frontend em Next.js
 
 ---
 
-## 📌 Índice
-- [🚀 Stack Tecnológica](#-stack-tecnológica)
-- [🧩 Parte 1 - Lógica e Fundamentos](#-parte-1---lógica-e-fundamentos)
-- [⚙️ Parte 2 - Backend](#-parte-2---backend)
-- [💻 Parte 3 - Frontend](#-parte-3---frontend)
-- [🛠️ Parte 4 - Integração e Qualidade](#-parte-4---integração-e-qualidade)
+## 📌 Index
+- [🚀 Tech Stack](#-tech-stack)
+- [📋 Prerequisites](#-prerequisites)
+- [⚙️ Backend](#-backend)
+- [💻 Frontend](#-frontend)
+- [🛠️ Integration and Quality](#-integration-and-quality)
+- [🔐 Configuration and Variables](#-configuration-and-variables)
+- [⌨️ Makefile Commands](#-makefile-commands)
+- [🏗️ Architecture](#-architecture)
+- [💡 Technical Decisions](#-technical-decisions)
+- [🛡️ Security Features](#-security-features)
+- [🚀 Future Improvements](#-future-improvements)
+- [🏆 Strengths and Limitations](#-strengths-and-limitations)
 
 ---
 
-## 🚀 Stack Tecnológica
+## 🚀 Tech Stack
 
-| Camada         | Tecnologia                                      |
+| Layer          | Technology                                      |
 |----------------|-------------------------------------------------|
 | **Backend**    | ![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python) ![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=flat-square&logo=fastapi) |
 | **Frontend**   | ![Next.js](https://img.shields.io/badge/Next.js-16.2-000000?style=flat-square&logo=next.js) ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react) |
@@ -32,83 +39,44 @@ API REST de gerenciamento de tarefas com autenticação JWT, frontend em Next.js
 | **CI/CD**      | ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-Automated-2088FF?style=flat-square&logo=github-actions) |
 | **Proxy**      | ![Nginx](https://img.shields.io/badge/Nginx-API_Gateway-009639?style=flat-square&logo=nginx) |
 
-## 📋 Pré-requisitos
+## 📋 Prerequisites
 
-- ✅ **Docker e Docker Compose** instalados.
-- ☁️ **Conta AWS** (apenas para o deploy em produção).
-
----
-
-## 🧩 Parte 1 - Lógica e Fundamentos
-
-### 1️⃣ Lógica
-Implementação da função que recebe uma lista de números inteiros e retorna a soma dos pares e a média dos ímpares, ignorando valores inválidos.
-
-**Algoritmo:**
-```typescript
-function analisarNumeros(dados: any[]): { somaPares: number; mediaImpares: number | null } {
-  // Filtra apenas números inteiros, ignorando booleanos e outros tipos
-  const inteiros = dados.filter(x => typeof x === 'number' && Number.isInteger(x));
-  
-  // Separa pares e ímpares
-  const pares = inteiros.filter(x => x % 2 === 0);
-  const impares = inteiros.filter(x => x % 2 !== 0);
-  
-  // Calcula a soma dos pares
-  const somaPares = pares.reduce((acc, curr) => acc + curr, 0);
-  
-  // Calcula a média dos ímpares (retorna null se não houver ímpares)
-  const mediaImpares = impares.length > 0 
-    ? impares.reduce((acc, curr) => acc + curr, 0) / impares.length 
-    : null;
-    
-  return { somaPares, mediaImpares };
-}
-```
+- ✅ **Docker and Docker Compose** installed.
+- ☁️ **AWS Account** (only for production deployment).
 
 ---
 
-### 2️⃣ Conceitos
+## ⚙️ Backend
 
-- **2.1 REST vs GraphQL:** REST usa endpoints fixos; GraphQL permite consultas flexíveis pelo cliente.
-- **2.2 Transação:** Unidade de trabalho atômica que garante integridade (ACID).
-- **2.3 Autenticação vs Autorização:** Autenticação é identidade (Quem é?); Autorização é permissão (O que pode fazer?).
-- **2.4 Cache:** Usar para dados caros/estáticos; evitar para dados sensíveis ou de alta volatilidade.
+### 📡 API Endpoints
 
----
-
-## ⚙️ Parte 2 - Backend
-
-### 📡 Endpoints da API
-
-| Método | Rota                         | Descrição                           | Auth? |
+| Method | Route                        | Description                         | Auth? |
 |--------|------------------------------|-------------------------------------|-------|
-| GET    | /api/health                  | Health check                        | Não   |
-| POST   | /api/v1/auth/register        | Cadastro de usuário                 | Não   |
-| POST   | /api/v1/auth/login           | Login (retorna JWT)                 | Não   |
-| POST   | /api/v1/tasks/               | Criar tarefa                        | Sim   |
-| GET    | /api/v1/tasks/               | Listar tarefas (paginado, filtrado) | Sim   |
-| GET    | /api/v1/tasks/{id}           | Buscar tarefa por ID                | Sim   |
-| PUT    | /api/v1/tasks/{id}           | Atualizar tarefa                    | Sim   |
-| PATCH  | /api/v1/tasks/{id}/status    | Atualizar status                    | Sim   |
-| DELETE | /api/v1/tasks/{id}           | Deletar tarefa                      | Sim   |
+| GET    | /api/health                  | Health check                        | No    |
+| POST   | /api/v1/auth/register        | User registration                   | No    |
+| POST   | /api/v1/auth/login           | Login (returns JWT)                 | No    |
+| POST   | /api/v1/tasks/               | Create task                         | Yes   |
+| GET    | /api/v1/tasks/               | List tasks (paginated, filtered)    | Yes   |
+| GET    | /api/v1/tasks/{id}           | Get task by ID                      | Yes   |
+| PUT    | /api/v1/tasks/{id}           | Update task                         | Yes   |
+| PATCH  | /api/v1/tasks/{id}/status    | Update status                       | Yes   |
+| DELETE | /api/v1/tasks/{id}           | Delete task                         | Yes   |
 
-### 🧪 Testes
+### 🧪 Tests
 ```bash
 make test
-# Ou manualmente:
+# Or manually:
 cd backend && export PYTHONPATH=$PYTHONPATH:. && ./venv/bin/pytest --cov=app tests/ -v
 ```
 
-**Cobertura Mínima:** 80% (Configurado em `pytest.ini`)
+**Minimum Coverage:** 80% (Configured in `pytest.ini`)
 
-### 📄 Paginação e Filtros
-(Implementado como diferencial)
+### 📄 Pagination and Filters
 
-A listagem de tarefas suporta paginação e filtros via query parameters:
+Task listing supports pagination and filters via query parameters:
 `GET /api/v1/tasks/?page=1&page_size=10&status=completed`
 
-Exemplo de resposta:
+Example response:
 ```json
 {
   "items": [...],
@@ -120,169 +88,154 @@ Exemplo de resposta:
 
 ---
 
-## 💻 Parte 3 - Frontend
+## 💻 Frontend
 
-A interface foi construída com **Next.js 16 (App Router)** e **Tailwind CSS 4**.
+The interface was built with **Next.js 16 (App Router)** and **Tailwind CSS 4**.
 
-- 🔄 **Gerenciamento de Estado:** Utiliza React Hooks (`useState`, `useEffect`, `useCallback`) para controle de tarefas e autenticação.
-- ⚡ **SSR & Client Components:** Renderização no servidor para performance inicial e componentes interativos no cliente.
-- 📱 **Responsividade:** Layout adaptável para dispositivos móveis e desktop.
-- 🔔 **Feedback:** Loading states e tratamento de erros amigável com Toasts.
-- 🧪 **Testes Unitários:** Implementados com **Vitest** e **React Testing Library**, com cobertura mínima de **60%**.
+- 🔄 **State Management:** Uses React Hooks (`useState`, `useEffect`, `useCallback`) for task and authentication control.
+- ⚡ **SSR & Client Components:** Server-side rendering for initial performance and interactive client components.
+- 📱 **Responsiveness:** Adaptive layout for mobile and desktop devices.
+- 🔔 **Feedback:** Loading states and user-friendly error handling with Toasts.
+- 🧪 **Unit Tests:** Implemented with **Vitest** and **React Testing Library**, with a minimum coverage of **60%**.
 
 ---
 
-## 🛠️ Parte 4 - Integração e Qualidade
+## 🛠️ Integration and Quality
 
-### 🏠 Desenvolvimento Local (Zero-Config) ⚡
-1.  **Inicie o ambiente:**
+### 🏠 Local Development (Zero-Config) ⚡
+1.  **Start the environment:**
     ```bash
     make dev
     ```
-2.  **O que acontece automaticamente:**
-    - O banco PostgreSQL é iniciado.
-    - O backend aguarda o banco estar saudável.
-    - **Alembic** executa as migrações para criar o esquema.
-    - **Seeding** popula o banco com usuários e tarefas de teste (dev padrão).
-    - **Hot Reload:** O ambiente monitora mudanças no código do backend e frontend, reiniciando os containers automaticamente para refletir as alterações instantaneamente.
+2.  **What happens automatically:**
+    - The PostgreSQL database is started.
+    - The backend waits for the database to be healthy.
+    - **Alembic** executes migrations to create the schema.
+    - **Seeding** populates the database with test users and tasks (default dev).
+    - **Hot Reload:** The environment monitors changes in the backend and frontend code, automatically restarting containers to instantly reflect changes.
 
 - Frontend: [http://localhost](http://localhost) | API Docs: [http://localhost/api/docs](http://localhost/api/docs)
 
-### ☁️ Deploy em Produção (AWS) 🚀
-O deploy exige apenas **duas** configurações no GitHub (Secrets):
+### ☁️ Production Deployment (AWS) 🚀
+Deployment requires only **two** GitHub (Secrets) configurations:
 1. `AWS_ACCESS_KEY_ID`
 2. `AWS_SECRET_ACCESS_KEY`
 
-O Terraform cuidará da criação da infraestrutura na AWS, incluindo a instância EC2, Security Groups e chaves SSH. Para garantir que o endereço IP público da aplicação permaneça constante mesmo após recriações da instância, um **Elastic IP (EIP)** é provisionado e associado à instância EC2.
+Terraform will handle the creation of AWS infrastructure, including the EC2 instance, Security Groups, and SSH keys. To ensure the application's public IP address remains constant even after instance recreation, an **Elastic IP (EIP)** is provisioned and associated with the EC2 instance.
 
-**Diferencial de Robustez:** O projeto utiliza **Remote State do Terraform** armazenado em um bucket S3. Isso garante que o estado da infraestrutura seja persistente entre as execuções do pipeline, permitindo atualizações incrementais e seguras, exatamente como o comportamento do AWS CloudFormation.
+The project uses **Terraform Remote State** stored in an S3 bucket. This ensures that the infrastructure state is persistent across pipeline executions, allowing for incremental and secure updates, similar to AWS CloudFormation behavior.
 
-### 🌐 Endereço e Acesso (Demo)
-A aplicação está disponível publicamente para testes no ambiente AWS:
+### 🔐 Configuration and Variables
 
-- **URL:** [http://32.194.235.8](http://32.194.235.8)
-- **API Docs:** [http://32.194.235.8/api/docs](http://32.194.235.8/api/docs)
+Although the project uses automatic *fallbacks*, you can override any behavior via environment variables in `.env` (local) or GitHub Secrets (production). The table below lists all environment variables used in the project, their fallbacks, and where each is applied:
 
-**Usuários de Teste (Seed):**
-Todos os usuários abaixo utilizam a senha padrão: `senha123`
-
-| Nome | Email | Username |
-| :--- | :--- | :--- |
-| Desenvolvedor | `dev@exemplo.com` | `dev` |
-| Testador | `tester@exemplo.com` | `tester` |
-| Gerente | `gerente@exemplo.com` | `gerente` |
-
-### 🔐 Configuração e Variáveis
-
-Embora o projeto use *fallbacks* automáticos, você pode sobrescrever qualquer comportamento via variáveis de ambiente no `.env` (local) ou GitHub Secrets (produção). A tabela abaixo lista todas as variáveis de ambiente utilizadas no projeto, seus fallbacks e onde cada uma é aplicada:
-
-| Variável | Onde é usada | Fallback (Dev) / Default | Descrição |
+| Variable | Where used | Fallback (Dev) / Default | Description |
 | :--- | :--- | :--- | :--- |
-| `ENVIRONMENT` | Backend | `development` | Define o modo de execução da aplicação (e.g., `development`, `production`). |
-| `POSTGRES_USER` | DB, Backend | `user` | Usuário para conexão com o banco de dados PostgreSQL. |
-| `POSTGRES_PASSWORD` | DB, Backend | `password` | Senha para conexão com o banco de dados PostgreSQL. |
-| `POSTGRES_DB` | DB, Backend | `taskdb` | Nome do banco de dados PostgreSQL. |
-| `DATABASE_URL` | Backend | `postgresql://user:password@db:5432/taskdb` | URL completa de conexão com o banco de dados. Construída a partir das variáveis `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` e o host `db` no Docker Compose. |
-| `JWT_SECRET` | Backend | `dev-secret-key-change-in-production` | Chave secreta utilizada para assinar e verificar os JSON Web Tokens (JWTs). **Essencial para segurança em produção.** |
-| `JWT_EXPIRE_MINUTES` | Backend | `60` | Duração de validade do Access Token JWT em minutos. |
-| `JWT_REFRESH_EXPIRE_DAYS`| Backend | `7` | Duração de validade do Refresh Token JWT em dias. |
-| `CORS_ORIGINS` | Backend | `*` | Lista de origens permitidas para requisições Cross-Origin Resource Sharing (CORS). Use `*` para permitir todas (apenas em dev). |
-| `SEED_DB` | Backend, Docker Compose | `true` (dev), `false` (prod) | Controla se o script de população de dados de teste deve ser executado na inicialização do backend. |
-| `NEXT_PUBLIC_API_URL` | Frontend | `http://localhost/api/v1` | URL base da API para requisições feitas pelo frontend no navegador (client-side). |
-| `INTERNAL_API_URL` | Frontend | `http://backend:8000/api/v1` | URL base da API para requisições feitas pelo frontend no servidor (server-side rendering - SSR). |
-| `DOCKER_USERNAME` | CI/CD, `.env.example` | `your-dockerhub-username` | (Apenas no `.env.example`) Nome de usuário do Docker Hub ou GitHub Container Registry, usado para construir o nome da imagem. |
-| `DOCKER_IMAGE_BASE` | CI/CD, Docker Compose (Prod) | `ghcr.io/username` | Base do nome da imagem Docker no registro de containers (e.g., `ghcr.io/your-org`). |
-| `IMAGE_TAG` | CI/CD, Docker Compose (Prod) | `latest` | Tag da imagem Docker a ser utilizada para o deploy. |
-| `WATCHPACK_POLLING` | Backend (Dev), Frontend (Dev) | `true` | Habilita o modo de polling para detecção de mudanças de arquivos em volumes Docker, útil em alguns ambientes Linux/WSL. |
-| `CHOKIDAR_USEPOLLING` | Frontend (Dev) | `true` | Habilita o modo de polling para o `chokidar` (usado pelo Next.js) para detecção de mudanças de arquivos em volumes Docker. |
+| `ENVIRONMENT` | Backend | `development` | Defines the application's execution mode (e.g., `development`, `production`). |
+| `POSTGRES_USER` | DB, Backend | `user` | User for PostgreSQL database connection. |
+| `POSTGRES_PASSWORD` | DB, Backend | `password` | Password for PostgreSQL database connection. |
+| `POSTGRES_DB` | DB, Backend | `taskdb` | PostgreSQL database name. |
+| `DATABASE_URL` | Backend | `postgresql://user:password@db:5432/taskdb` | Full database connection URL. Constructed from `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` variables and the `db` host in Docker Compose. |
+| `JWT_SECRET` | Backend | `dev-secret-key-change-in-production` | Secret key used to sign and verify JSON Web Tokens (JWTs). **Essential for production security.** |
+| `JWT_EXPIRE_MINUTES` | Backend | `60` | JWT Access Token validity duration in minutes. |
+| `JWT_REFRESH_EXPIRE_DAYS`| Backend | `7` | JWT Refresh Token validity duration in days. |
+| `CORS_ORIGINS` | Backend | `*` | List of allowed origins for Cross-Origin Resource Sharing (CORS) requests. Use `*` to allow all (dev only). |
+| `SEED_DB` | Backend, Docker Compose | `true` (dev), `false` (prod) | Controls whether the test data population script should run on backend startup. |
+| `NEXT_PUBLIC_API_URL` | Frontend | `http://localhost/api/v1` | Base API URL for frontend requests in the browser (client-side). |
+| `INTERNAL_API_URL` | Frontend | `http://backend:8000/api/v1` | Base API URL for frontend requests on the server (server-side rendering - SSR). |
+| `DOCKER_USERNAME` | CI/CD, `.env.example` | `your-dockerhub-username` | (Only in `.env.example`) Docker Hub or GitHub Container Registry username, used to build the image name. |
+| `DOCKER_IMAGE_BASE` | CI/CD, Docker Compose (Prod) | `ghcr.io/username` | Base of the Docker image name in the container registry (e.g., `ghcr.io/your-org`). |
+| `IMAGE_TAG` | CI/CD, Docker Compose (Prod) | `latest` | Docker image tag to be used for deployment. |
+| `WATCHPACK_POLLING` | Backend (Dev), Frontend (Dev) | `true` | Enables polling mode for file change detection in Docker volumes, useful in some Linux/WSL environments. |
+| `CHOKIDAR_USEPOLLING` | Frontend (Dev) | `true` | Enables polling mode for `chokidar` (used by Next.js) for file change detection in Docker volumes. |
 
-### ⌨️ Comandos Makefile
-O projeto utiliza um `Makefile` para simplificar as tarefas comuns de desenvolvimento e manutenção:
+### ⌨️ Makefile Commands
+The project uses a `Makefile` to simplify common development and maintenance tasks:
 
-- `make dev`: Inicia o ambiente de desenvolvimento completo (build, containers, migrations e seed).
-- `make down`: Para todos os serviços e remove os containers.
-- `make test`: Executa a suíte de testes unitários (Backend + Frontend) com cobertura.
-- `make lint`: Executa a verificação de linting no Backend (Ruff), Frontend (ESLint) e Terraform.
-- `make migrate`: Aplica as migrações do banco de dados via Alembic.
-- `make seed`: Popula o banco de dados com usuários e tarefas de teste.
-- `make logs`: Exibe os logs de todos os containers em tempo real.
-- `make build`: Força a reconstrução das imagens Docker.
-- `make shell-be`: Abre um shell interativo dentro do container do Backend.
-- `make shell-fe`: Abre um shell interativo dentro do container do Frontend.
+- `make dev`: Starts the complete development environment (build, containers, migrations, and seed).
+- `make down`: Stops all services and removes containers.
+- `make test`: Runs the unit test suite (Backend + Frontend) with coverage.
+- `make lint`: Runs linting checks on Backend (Ruff), Frontend (ESLint), and Terraform.
+- `make migrate`: Applies database migrations via Alembic.
+- `make seed`: Populates the database with test users and tasks.
+- `make logs`: Displays logs from all containers in real-time.
+- `make build`: Forces Docker image rebuild.
+- `make shell-be`: Opens an interactive shell inside the Backend container.
+- `make shell-fe`: Opens an interactive shell inside the Frontend container.
 
 ---
 
-### 🏗️ Arquitetura
+### 🏗️ Architecture
 
 ```mermaid
 graph TD
-    User([Usuário]) -->|HTTP| Nginx[Nginx API Gateway]
+    User([User]) -->|HTTP| Nginx[Nginx API Gateway]
     Nginx -->|Proxy| Frontend[Frontend Next.js]
     Nginx -->|Proxy /api| Backend[Backend FastAPI]
     Backend -->|SQLAlchemy| DB[(PostgreSQL)]
     CI[GitHub Actions] -->|Terraform| AWS[AWS EC2]
-    CI -->|Push| GHCR[Imagens Docker]
+    CI -->|Push| GHCR[Docker Images]
     GHCR -->|Pull| AWS
 ```
 
-### 💡 Decisões Técnicas
+### 💡 Technical Decisions
 
-- **Filosofia Zero-Config:** Adoção de um padrão de configuração mínima, tanto para desenvolvimento local quanto para deploy em produção. Isso inclui fallbacks inteligentes para variáveis de ambiente no `docker-compose`, auto-geração de chaves SSH e segredos, e detecção automática de URLs de API no pipeline de CI/CD. O objetivo é reduzir o atrito e a complexidade, permitindo que o desenvolvedor se concentre no código da aplicação.
-- **Arquitetura Base (Backend):** Uso de **BaseService** e **BaseRepository** genéricos. Essa abstração centraliza lógica repetitiva de CRUD, garante tratamento de erros padronizado (como `get_or_404`) e facilita a implementação de multi-tenancy através de métodos "scoped" que exigem sempre o `owner_id`.
-- **Padrão Repository + Service:** Separação clara de responsabilidades. O Repository lida exclusivamente com consultas SQLAlchemy, enquanto o Service gerencia regras de negócio e transações, mantendo os Controllers (Routers) focados apenas na interface HTTP.
-- **FastAPI (Pydantic v2) & Injeção de Dependência:** Escolhido pela performance assíncrona, documentação automática (Swagger/OpenAPI) e validação rigorosa. Utiliza padrões modernos de `Annotated` para injeção de dependência, garantindo um código limpo, testável e desacoplado.
-- **API Orientada a Ações:** Além do CRUD tradicional, a API implementa endpoints específicos para ações de negócio (como a atualização de status via `PATCH`), reduzindo o payload de rede e a complexidade lógica no frontend ao evitar o envio de todo o objeto da tarefa para alterações simples.
-- **Gerenciamento de Estado Híbrido (Frontend):** 
-  - **React Query:** Gerencia o estado do servidor, cache e sincronização, eliminando a necessidade de `useEffect` complexos para busca de dados.
-  - **Zustand:** Gerencia o estado global UI (autenticação, preferências) de forma leve e performática.
-- **Migrations com Alembic:** Controle de versão do esquema do banco de dados, permitindo evoluções seguras e reprodutíveis entre ambientes de desenvolvimento, teste e produção.
-- **Next.js App Router & React 19:** Aproveitamento das últimas tecnologias do ecossistema React, incluindo *Server Components* para performance e as melhorias de renderização do React 19 e Tailwind CSS 4.
-- **CI/CD com GitHub Actions & Terraform:** Automação completa do ciclo de vida da aplicação, desde a criação da infraestrutura na AWS até o deploy contínuo, garantindo que o ambiente de produção seja sempre um reflexo fiel do código aprovado.
+- **Zero-Config Philosophy:** Adoption of a minimal configuration standard for both local development and production deployment. This includes intelligent fallbacks for environment variables in `docker-compose`, auto-generation of SSH keys and secrets, and automatic API URL detection in the CI/CD pipeline. The goal is to reduce friction and complexity, allowing the developer to focus on the application code.
+- **Base Architecture (Backend):** Use of generic **BaseService** and **BaseRepository**. This abstraction centralizes repetitive CRUD logic, ensures standardized error handling (like `get_or_404`), and facilitates multi-tenancy implementation through "scoped" methods that always require `owner_id`.
+- **Repository + Service Pattern:** Clear separation of responsibilities. The Repository deals exclusively with SQLAlchemy queries, while the Service manages business rules and transactions, keeping Controllers (Routers) focused only on the HTTP interface.
+- **FastAPI (Pydantic v2) & Dependency Injection:** Chosen for asynchronous performance, automatic documentation (Swagger/OpenAPI), and rigorous validation. Uses modern `Annotated` patterns for dependency injection, ensuring clean, testable, and decoupled code.
+- **Action-Oriented API:** In addition to traditional CRUD, the API implements specific endpoints for business actions (such as status updates via `PATCH`), reducing network payload and frontend logical complexity by avoiding sending the entire task object for simple changes.
+- **Hybrid State Management (Frontend):** 
+  - **React Query:** Manages server state, caching, and synchronization, eliminating the need for complex `useEffect` for data fetching.
+  - **Zustand:** Manages global UI state (authentication, preferences) in a lightweight and performant way.
+- **Migrations with Alembic:** Database schema version control, allowing for safe and reproducible evolutions across development, testing, and production environments.
+- **Next.js App Router & React 19:** Leveraging the latest technologies in the React ecosystem, including *Server Components* for performance and the rendering improvements of React 19 and Tailwind CSS 4.
+- **CI/CD with GitHub Actions & Terraform:** Complete automation of the application lifecycle, from AWS infrastructure creation to continuous deployment, ensuring that the production environment is always a faithful reflection of approved code.
 
-### 🛡️ Recursos de Segurança
+### 🛡️ Security Features
 
-- **Tokens de Atualização (Refresh Tokens) com Rotação**: Implementação de *Refresh Token Rotation*. Ao solicitar um novo *Access Token*, o *Refresh Token* antigo é revogado e um novo é emitido, mitigando riscos de interceptação.
-- **Assuntos de JWT Imutáveis**: O campo `sub` do JWT contém o UUID do usuário, garantindo que mudanças de e-mail ou username não invalidem a sessão ou causem inconsistências.
-- **UUIDs como Chave Primária**: Uso de UUID v4 em vez de IDs sequenciais para evitar enumeração de recursos e aumentar a segurança.
-- **Segurança com JWT + Argon2**: Uso do algoritmo **Argon2** (vencedor do Password Hashing Competition) via `pwdlib` para hashing de senhas, oferecendo proteção superior contra ataques de GPU e *side-channel*.
-- **Defesa em Profundidade**: Validação tripla: Banco de Dados (Constraints), API (Pydantic v2) e Frontend (Zod + React Hook Form).
+- **Refresh Tokens with Rotation**: Implementation of *Refresh Token Rotation*. When a new *Access Token* is requested, the old *Refresh Token* is revoked and a new one is issued, mitigating interception risks.
+- **Immutable JWT Subjects**: The `sub` field of the JWT contains the user's UUID, ensuring that email or username changes do not invalidate the session or cause inconsistencies.
+- **UUIDs as Primary Keys**: Use of UUID v4 instead of sequential IDs to prevent resource enumeration and increase security.
+- **JWT Security + Argon2**: Use of the **Argon2** algorithm (winner of the Password Hashing Competition) via `pwdlib` for password hashing, offering superior protection against GPU and *side-channel* attacks.
+- **Defense in Depth**: Triple validation: Database (Constraints), API (Pydantic v2) and Frontend (Zod + React Hook Form).
 
-### 🚀 O que Melhoraria com Mais Tempo
+### 🚀 Future Improvements
 
-- **Recuperação de Senha**: Adição de um fluxo de recuperação de senha seguro via e-mail.
-- **Verificação de E-mail**: Implementação de verificação de conta por e-mail após o cadastro.
-- **Visualização Kanban**: Implementação de um quadro Kanban no frontend para proporcionar uma gestão visual do fluxo de trabalho.
-- **Filtros Avançados:** Evoluir os filtros atuais para suportar seleção múltipla de status e prioridades.
-- **DateTimePicker Style:** Refinar e padronizar o estilo do Date Time Picker para garantir total consistência com o design system da aplicação.
-- **Categorização e Projetos:** Criação de uma forma de organizar tarefas por projeto, categoria ou tópicos (tags).
-- **Testes de Integração e E2E:** Ampliação da cobertura com testes de integração no backend e testes de ponta a ponta (E2E) com **Playwright**.
-- **Infraestrutura e Segurança:** Desacoplamento do banco de dados para um serviço gerenciado, configuração de **SSL/TLS** e uso de domínio customizado.
-- **Múltiplos Ambientes:** Estruturação de ambientes distintos (pelo menos um de Desenvolvimento/Dev e outro de Produção) via Terraform.
-- **Observabilidade:** Implementação de **Logs Estruturados** e centralização de logs para melhor monitoramento e depuração.
-- **Rate Limiting** para proteger endpoints sensíveis contra ataques de força bruta.
-- **Soft Delete** nas tarefas para permitir a recuperação de dados excluídos acidentalmente.
-- **Camada de Cache** com **Redis** para otimizar a performance de consultas frequentes.
-- **Deploy Condicional:** Implementar lógica no pipeline de CI/CD para pular etapas (e.g., reconstrução de imagens Docker ou deploy) se apenas partes específicas do código (e.g., apenas `README.md` ou arquivos de documentação) forem alteradas, otimizando o tempo de execução.
+- **Password Recovery**: Addition of a secure password recovery flow via email.
+- **Email Verification**: Implementation of email account verification after registration.
+- **Kanban View**: Implementation of a Kanban board in the frontend to provide visual workflow management.
+- **Advanced Filters:** Evolve current filters to support multiple selection of status and priorities.
+- **DateTimePicker Style:** Refine and standardize the Date Time Picker style to ensure full consistency with the application's design system.
+- **Categorization and Projects:** Creation of a way to organize tasks by project, category or topics (tags).
+- **Integration and E2E Tests:** Expansion of coverage with backend integration tests and end-to-end (E2E) tests with **Playwright**.
+- **Infrastructure and Security:** Decoupling the database to a managed service, **SSL/TLS** configuration, and use of a custom domain.
+- **Multiple Environments:** Structuring distinct environments (at least one Development/Dev and one Production) via Terraform.
+- **Observability:** Implementation of **Structured Logs** and log centralization for better monitoring and debugging.
+- **Rate Limiting** to protect sensitive endpoints against brute-force attacks.
+- **Soft Delete** on tasks to allow recovery of accidentally deleted data.
+- **Caching Layer** with **Redis** to optimize the performance of frequent queries.
+- **Conditional Deployment:** Implement logic in the CI/CD pipeline to skip steps (e.g., Docker image rebuild or deployment) if only specific parts of the code (e.g., only `README.md` or documentation files) are changed, optimizing execution time.
 
-### 🏆 Pontos Fortes e Limitações
+### 🏆 Strengths and Limitations
 
-**Pontos fortes:**
-- **Robustez Arquitetural:** Uso de padrões profissionais (Repository/Service, Base Classes) que facilitam a manutenção e escalabilidade.
-- **Segurança Avançada:** Implementação de Argon2, Refresh Token Rotation e isolamento de dados por usuário (Multi-tenancy).
-- **Tipagem End-to-End:** Uso extensivo de TypeScript no Frontend e Pydantic no Backend, garantindo contratos de API sólidos.
-- **UX Fluida (Optimistic Updates):** Implementação de **Optimistic Updates** via React Query, permitindo que a interface responda instantaneamente às ações do usuário enquanto a sincronização ocorre em background.
-- **Arquitetura de Componentes UI:** Separação rigorosa entre componentes de interface (UI) e lógica de negócio, utilizando componentes altamente desacoplados, reutilizáveis e baseados em Radix UI.
-- **Internacionalização (i18n) Nativa:** Suporte completo a múltiplos idiomas (PT/EN) com detecção automática, demonstrando prontidão para o mercado global.
-- **Gateway de API com Nginx:** Centralização de requisições, compressão Gzip e configuração otimizada para performance e segurança na borda.
-- **DevEx Superior com Makefile:** Ambiente totalmente dockerizado com um **Makefile** que centraliza todos os comandos essenciais (build, dev, test, migrate, seed), simplificando o fluxo de trabalho.
-- **Qualidade Assegurada no CI/CD:** O pipeline de CI/CD impõe padrões rigorosos de qualidade, executando obrigatoriamente testes com cobertura mínima (**80% no Backend**, **60% no Frontend**) e ferramentas de linting como **Ruff** (Backend) e ESLint (Frontend) antes de qualquer deploy.
-- **Automação de Infraestrutura:** Uso de **Terraform** para provisionamento reprodutível de recursos na AWS, agora com **Remote State em S3** e **Elastic IP (EIP)** para maior segurança e estabilidade.
-- **UX Consistente:** Tratamento global de erros, estados de carregamento (Skeleton/Spinners) e feedbacks via Toast.
+**Strengths:**
+- **Architectural Robustness:** Use of professional patterns (Repository/Service, Base Classes) that facilitate maintenance and scalability.
+- **Advanced Security:** Implementation of Argon2, Refresh Token Rotation, and user data isolation (Multi-tenancy).
+- **End-to-End Typing:** Extensive use of TypeScript in the Frontend and Pydantic in the Backend, ensuring solid API contracts.
+- **Fluid UX (Optimistic Updates):** Implementation of **Optimistic Updates** via React Query, allowing the interface to respond instantly to user actions while synchronization occurs in the background.
+- **UI Component Architecture:** Strict separation between UI components and business logic, using highly decoupled, reusable components based on Radix UI.
+- **Native Internationalization (i18n):** Full support for multiple languages (PT/EN) with automatic detection, demonstrating readiness for the global market.
+- **API Gateway with Nginx:** Centralization of requests, Gzip compression, and optimized configuration for performance and security at the edge.
+- **Superior DevEx with Makefile:** Fully containerized environment with a **Makefile** that centralizes all essential commands (build, dev, test, migrate, seed), simplifying the workflow.
+- **Quality Assurance in CI/CD:** The CI/CD pipeline enforces rigorous quality standards, obligatorily executing tests with minimum coverage (**80% in Backend**, **60% in Frontend**) and linting tools like **Ruff** (Backend) and ESLint (Frontend) before any deployment.
+- **Infrastructure Automation:** Use of **Terraform** for reproducible provisioning of AWS resources, now with **Remote State in S3** and **Elastic IP (EIP)** for greater security and stability.
+- **Consistent UX:** Global error handling, loading states (Skeleton/Spinners), and feedback via Toast.
 
-**Limitações:**
-- **Single Point of Failure (DB):** No estágio atual, o banco de dados roda em container na mesma EC2 (melhoraria com RDS).
-- **SSL/TLS Externo:** O HTTPS não está configurado nativamente no Nginx do projeto (requer Certbot ou Load Balancer).
-- **Ausência de Cache Distribuído:** Consultas repetitivas batem sempre no DB (melhoraria com Redis).
-- **Observabilidade Limitada:** Logs são gerenciados pelo Docker; falta centralização em serviços como CloudWatch ou ELK.
-- **Ausência de Testes de Integração e E2E:** O projeto conta atualmente apenas com testes unitários, o que representa uma limitação na validação de fluxos completos de ponta a ponta e integrações complexas.
-- **Cobertura de Testes no Frontend:** A cobertura atual de testes unitários no frontend é de **60%**, o que representa um ponto de atenção e uma oportunidade de melhoria para garantir maior estabilidade.
+**Limitations:**
+- **Single Point of Failure (DB):** In the current stage, the database runs in a container on the same EC2 instance (would improve with RDS).
+- **External SSL/TLS:** HTTPS is not natively configured in the project's Nginx (requires Certbot or Load Balancer).
+- **Absence of Distributed Cache:** Repetitive queries always hit the DB (would improve with Redis).
+- **Limited Observability:** Logs are managed by Docker; centralization in services like CloudWatch or ELK is missing.
+- **Absence of Integration and E2E Tests:** The project currently relies only on unit tests, which represents a limitation in validating complete end-to-end flows and complex integrations.
+- **Frontend Test Coverage:** The current unit test coverage in the frontend is **60%**, which represents a point of attention and an opportunity for improvement to ensure greater stability.
