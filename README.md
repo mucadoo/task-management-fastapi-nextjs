@@ -202,6 +202,7 @@ graph TD
 
 ### 🚀 Future Improvements
 
+- **Authentication Enhancement**: Migrate authentication token management from `localStorage` to **HTTP-only, Secure, SameSite=Strict cookies** to improve security against XSS.
 - **Password Recovery**: Addition of a secure password recovery flow via email.
 - **Email Verification**: Implementation of email account verification after registration.
 - **Kanban View**: Implementation of a Kanban board in the frontend to provide visual workflow management.
